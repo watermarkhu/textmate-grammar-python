@@ -1,29 +1,37 @@
-from typing import List
+from typing import List, Union
 
 
 class ParsedElementBase(object):
     pass
 
 
-class ParsedElement(object):
-    def __init__(self, token: str, content: str) -> None:
+CONTENT_TYPE = Union[str, List[ParsedElementBase]]
+
+
+class ParsedElement(ParsedElementBase):
+    def __init__(self, token: str, content: CONTENT_TYPE) -> None:
         self.token = token
         self.content = content
 
     def __repr__(self) -> str:
-        return repr(f"{self.token}('{self.content}')")
+        return repr(f"{self.token}({len(self.content)})")
 
     def to_dict(self) -> dict:
-        return self.__dict__
+        outDict = dict(self.__dict__)
+        if not isinstance(self.content, str):
+            outDict["content"] = [
+                item.to_dict() if isinstance(item, ParsedElementBase) else item for item in self.content
+            ]
+        return outDict
 
 
-class ParsedElementBlock(object):
+class ParsedElementBlock(ParsedElementBase):
     def __init__(
         self,
         token: str,
-        begin: List[ParsedElement],
-        end: List[ParsedElement],
-        content: List[ParsedElementBase],
+        begin: CONTENT_TYPE,
+        end: CONTENT_TYPE,
+        content: CONTENT_TYPE,
     ) -> None:
         self.token = token
         self.begin = begin
@@ -34,7 +42,11 @@ class ParsedElementBlock(object):
         return repr(f"{self.token}({len(self.content)})")
 
     def to_dict(self) -> dict:
-        outDict = self.__dict__
+        outDict = dict(self.__dict__)
         for key in ["begin", "end", "content"]:
-            outDict[key] = [element.to_dict() for element in outDict[key]]
+            if not isinstance(getattr(self, key), str):
+                outDict[key] = [
+                    item.to_dict() if isinstance(item, ParsedElementBase) else item
+                    for item in getattr(self, key)
+                ]
         return outDict

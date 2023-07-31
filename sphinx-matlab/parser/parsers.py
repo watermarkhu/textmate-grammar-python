@@ -5,6 +5,7 @@ from typing import Tuple, List
 import re
 
 
+PARSEROUTPUT = Tuple[bool, str, List[ParsedElementBase]]
 PARSERSTORE = {}
 
 
@@ -38,10 +39,13 @@ class IncludeParser(ParserBase):
 
 
 class GrammarParser(ParserBase):
+    regex_replacements = {"\\\\": "\\", "\\G": ""}
+
     def __init__(self, grammar: dict, key: str = "") -> None:
         self.grammar = grammar
         self.key = key
-        self.token = grammar.get("name", grammar.get("comment", ""))
+        self.token = grammar.get("name", "")
+        self.contentToken = grammar.get("contentName", "")
         self.comment = grammar.get("comment", "")
         self.match, self.begin, self.end = None, None, None
         self.captures, self.beginCaptures, self.endCaptures = [], [], []
@@ -70,11 +74,15 @@ class GrammarParser(ParserBase):
             repr += "PATTERN"
         return repr
 
-    def __call__(self, source: str) -> Tuple[bool, str, List[ParsedElementBase]]:
+    def __call__(self, source: str) -> PARSEROUTPUT:
         self.source = source
 
         if self.match:
-            return self.match_captures(source, self.match, self.captures)
+            matched, remainder, elements = self.match_captures(source, self.match, self.captures)
+            if matched:
+                return True, remainder, [ParsedElement(token=self.token, content=elements)]
+            else:
+                return False, source, []
 
         elif self.begin and self.end:
             beginMatched, midSrc, beginElements = self.match_captures(
@@ -101,15 +109,7 @@ class GrammarParser(ParserBase):
                     if not midMatched and not endMatched:
                         raise Exception("Could not close end.")
 
-                return (
-                    True,
-                    endSrc,
-                    [
-                        ParsedElementBlock(
-                            self.token, beginElements, endElements, midElements
-                        )
-                    ],
-                )
+                begin, end, mid = beginElements, endElements, midElements
             else:
                 # Search for end and all in between is content
                 endMatched, endSrc, endElements = self.match_captures(
@@ -117,30 +117,51 @@ class GrammarParser(ParserBase):
                 )
                 if not endMatched:
                     raise Exception("Could not close end.")
-                return (
-                    True,
-                    endSrc,
-                    [
-                        ParsedElementBlock(self.token, beginElements, [], endElements),
-                    ],
-                )
+                begin, end, mid = beginElements, [], endElements
+
+            if self.contentToken:
+                if len(mid) == 1:
+                    elements = [ParsedElement(token=self.contentToken, content=mid[0].content)]
+                else:
+                    elements = [
+                        ParsedElementBlock(token=self.contentToken, begin=begin, end=end, content=mid)
+                    ]
+            elif self.token:
+                elements = [ParsedElementBlock(token=self.token, begin=begin, end=end, content=mid)]
+            else:
+                elements = mid
+            return (True, endSrc, elements)
 
         elif self.patterns:
-            for parser in self.patterns:
-                patternMatched, patternStr, patternElements = parser(source)
-                if patternMatched:
-                    return patternMatched, patternStr, patternElements
+            elements = []
+            while True:
+                for parser in self.patterns:
+                    patternMatched, patternSrc, patternElements = parser(source)
+                    if patternMatched:
+                        source = patternSrc
+                        elements += patternElements
+                        break
+                else:
+                    break
+            if elements:
+                if self.token:
+                    return True, patternSrc, [ParsedElement(token=self.token, content=elements)]
+                else:
+                    return True, patternSrc, elements
             else:
                 return False, source, []
 
         if source:
-            return True, "", [ParsedElement(self.token, source)]
+            return True, "", [ParsedElement(token=self.token, content=source)]
         else:
             return True, "", []
 
     @staticmethod
     def compile_regex(string: str):
-        return re.compile(string.replace("\\\\", "\\"))
+        for orig, repl in GrammarParser.regex_replacements.items():
+            string = string.replace(orig, repl)
+
+        return re.compile(string)
 
     @staticmethod
     def _init_captures(grammar: dict, key: str = "captures"):
@@ -164,10 +185,8 @@ class GrammarParser(ParserBase):
         regex: re.Pattern,
         parsers: List[ParserBase] = [],
         useSearch: bool = False,
-    ) -> str:
-        if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(
-            parsers
-        ):
+    ) -> PARSEROUTPUT:
+        if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(parsers):
             raise Exception("Number of groups do not match supplied regex.")
 
         matching = regex.search(source) if useSearch else regex.match(source)
@@ -175,15 +194,12 @@ class GrammarParser(ParserBase):
         if not matching:
             return False, source, []
 
-        if parsers:
-            elements = [
-                parsed[2][0]
-                for parsed in [
-                    parser(group) for parser, group in zip(parsers, matching.groups())
-                ]
-            ]
+        if regex.groups != 0 and parsers:
+            elements = []
+            for parser, group in zip(parsers, matching.groups()):
+                _, _, parsed_elements = parser(group)
+                elements += parsed_elements
         else:
-            content = source[: matching.end()]
-            elements = [ParsedElement("text", content)] if content else []
+            elements = source[: matching.end()]
 
         return True, source[matching.end() :], elements
