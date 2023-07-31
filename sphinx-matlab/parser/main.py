@@ -36,3 +36,8 @@ parser = Parser(tmlist["repository"]["import"], key="import")
 (parsed, res, data) = parser("import module.submodule.class")
 if parsed:
     pprint(data[0].to_dict())
+
+
+# %%
+
+parser = Parser(tmlist["repository"]["anonymous_function"], key="anonymous_function")

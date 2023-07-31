@@ -1,7 +1,7 @@
 # %%
 from exceptions import IncludedParserNotFound
 from elements import ParsedElementBase, ParsedElement, ParsedElementBlock
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 import re
 
 
@@ -16,14 +16,20 @@ class ParserBase(object):
 class Parser(object):
     def __new__(cls, grammar: dict, **kwargs):
         if "include" in grammar:
-            return IncludeParser(grammar)
+            return IncludeParser(grammar, **kwargs)
         else:
             return GrammarParser(grammar, **kwargs)
 
+    def parse(self, *args, **kwargs):
+        self.__call__(*args, **kwargs)
+
 
 class IncludeParser(ParserBase):
-    def __init__(self, grammar: dict) -> None:
-        self.key = grammar["include"][1:]
+    def __init__(self, grammar: dict, callerKey: Optional[str] = None, **kwargs) -> None:
+        if grammar["include"] == "$self":
+            self.key = callerKey
+        else:
+            self.key = grammar["include"][1:]
 
     def __repr__(self) -> str:
         if self.key in PARSERSTORE:
@@ -41,7 +47,7 @@ class IncludeParser(ParserBase):
 class GrammarParser(ParserBase):
     regex_replacements = {"\\\\": "\\", "\\G": ""}
 
-    def __init__(self, grammar: dict, key: str = "") -> None:
+    def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
         self.grammar = grammar
         self.key = key
         self.token = grammar.get("name", "")
@@ -64,7 +70,7 @@ class GrammarParser(ParserBase):
             self.beginCaptures = self._init_captures(grammar, key="beginCaptures")
             self.endCaptures = self._init_captures(grammar, key="endCaptures")
         if "patterns" in grammar:
-            self.patterns = [Parser(pattern) for pattern in grammar["patterns"]]
+            self.patterns = [Parser(pattern, callerKey=key) for pattern in grammar["patterns"]]
 
     def __repr__(self) -> str:
         repr = f"{self.__class__.__name__}:"
