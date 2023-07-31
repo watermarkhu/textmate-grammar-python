@@ -11,8 +11,11 @@ with open(TMFILE, "rb") as file:
 
 # %%
 
-parser = Parser(tmlist["repository"]["comment_block"], key="comment_block")
-(parsed, res, data) = parser("%{\nsome comment\n%}")
+parser = Parser(tmlist["repository"]["comments"]["patterns"][2], key="inline_comment")
+(parsed, res, data) = parser("  % Test\n ")
 
+
+parser = Parser(tmlist["repository"]["comment_block"], key="comment_block")
+(parsed, res, data) = parser("  %{\nThis is a comment\nmultiple\n %}")
 
 pass

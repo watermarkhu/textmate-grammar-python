@@ -35,5 +35,6 @@ class ParsedElementBlock(object):
 
     def to_dict(self) -> dict:
         outDict = self.__dict__
-        outDict["content"] = [element.to_dict() for element in outDict["content"]]
+        for key in ["begin", "end", "content"]:
+            outDict[key] = [element.to_dict() for element in outDict[key]]
         return outDict

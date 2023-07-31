@@ -38,12 +38,11 @@ class IncludeParser(ParserBase):
 
 
 class GrammarParser(ParserBase):
-    PARSERSTORE = {}
-
     def __init__(self, grammar: dict, key: str = "") -> None:
         self.grammar = grammar
         self.key = key
-        self.token = grammar.get("name", "")
+        self.token = grammar.get("name", grammar.get("comment", ""))
+        self.comment = grammar.get("comment", "")
         self.match, self.begin, self.end = None, None, None
         self.captures, self.beginCaptures, self.endCaptures = [], [], []
         self.patterns = []
@@ -84,27 +83,47 @@ class GrammarParser(ParserBase):
             if not beginMatched:
                 return False, source, []
 
-            midElements = []
-            endMatched = False
-            while not endMatched:
-                for parser in self.patterns:
-                    midMatched, ms, me = parser(midSrc)
-                    if midMatched:
-                        midSrc = ms
-                        midElements += me
-                        break
+            if self.patterns:
+                # Search for pattens between begin and end
+                midElements, endMatched = [], False
+                while not endMatched:
+                    midMatched = False
+                    for parser in self.patterns:
+                        midMatched, ms, me = parser(midSrc)
+                        if midMatched:
+                            midSrc = ms
+                            midElements += me
+                            break
 
-                endMatched, endSrc, endElements = self.match_captures(
-                    midSrc, self.end, parsers=self.endCaptures
+                    endMatched, endSrc, endElements = self.match_captures(
+                        midSrc, self.end, parsers=self.endCaptures
+                    )
+                    if not midMatched and not endMatched:
+                        raise Exception("Could not close end.")
+
+                return (
+                    True,
+                    endSrc,
+                    [
+                        ParsedElementBlock(
+                            self.token, beginElements, endElements, midElements
+                        )
+                    ],
                 )
-                if not midMatched and not endMatched:
+            else:
+                # Search for end and all in between is content
+                endMatched, endSrc, endElements = self.match_captures(
+                    midSrc, self.end, parsers=self.endCaptures, useSearch=True
+                )
+                if not endMatched:
                     raise Exception("Could not close end.")
-
-            return (
-                True,
-                endSrc,
-                ParsedElementBlock(self.token, beginElements, endElements, midElements),
-            )
+                return (
+                    True,
+                    endSrc,
+                    [
+                        ParsedElementBlock(self.token, beginElements, [], endElements),
+                    ],
+                )
 
         elif self.patterns:
             for parser in self.patterns:
@@ -114,7 +133,10 @@ class GrammarParser(ParserBase):
             else:
                 return False, source, []
 
-        return True, "", [ParsedElement(self.token, source)]
+        if source:
+            return True, "", [ParsedElement(self.token, source)]
+        else:
+            return True, "", []
 
     @staticmethod
     def compile_regex(string: str):
@@ -125,22 +147,32 @@ class GrammarParser(ParserBase):
         if key in grammar:
             indices = [int(key) for key in grammar[key].keys()]
             values = list(grammar[key].values())
-            captures = [None] * max(indices)
-            for ind, val in zip(indices, values):
-                captures[ind - 1] = Parser(val)
+
+            if indices == [0]:
+                captures = [Parser(values[0])]
+            else:
+                captures = [None] * max(indices)
+                for ind, val in zip(indices, values):
+                    captures[ind - 1] = Parser(val)
         else:
             captures = []
         return captures
 
     @staticmethod
     def match_captures(
-        source: str, regex: re.Pattern, parsers: List[ParserBase] = []
+        source: str,
+        regex: re.Pattern,
+        parsers: List[ParserBase] = [],
+        useSearch: bool = False,
     ) -> str:
-        if regex.groups != len(parsers):
+        if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(
+            parsers
+        ):
             raise Exception("Number of groups do not match supplied regex.")
 
-        matching = regex.match(source)
-        if not matching or matching.start() != 0:
+        matching = regex.search(source) if useSearch else regex.match(source)
+
+        if not matching:
             return False, source, []
 
         if parsers:
@@ -151,6 +183,7 @@ class GrammarParser(ParserBase):
                 ]
             ]
         else:
-            elements = [ParsedElement("other", source[: matching.end()])]
+            content = source[: matching.end()]
+            elements = [ParsedElement("text", content)] if content else []
 
         return True, source[matching.end() :], elements
