@@ -18,6 +18,7 @@ except:
 srcpath = LOCAL_REPO / "Matlab.tmbundle" / "Syntaxes" / "MATLAB.tmLanguage"
 destpath = Path(__file__).parents[1] / "sphinx-matlab" / "tmlanguage"
 shutil.copy2(srcpath, destpath)
+shutil.copy2(LOCAL_REPO / "license.txt", destpath)
 
 with open(destpath / "version.txt", "w") as f:
     f.write(repo.head.object.committed_datetime.isoformat() + "\n")
