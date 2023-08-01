@@ -1,8 +1,11 @@
 from typing import List, Union
+from pprint import pprint
 
 
 class ParsedElementBase(object):
-    pass
+
+    def print(self) -> None:
+        pprint(self.to_dict())
 
 
 CONTENT_TYPE = Union[str, List[ParsedElementBase]]
