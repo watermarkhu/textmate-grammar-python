@@ -1,50 +1,15 @@
 # %%
-from exceptions import IncludedParserNotFound
-from elements import ParsedElementBase, ParsedElement, ParsedElementBlock
-from typing import Tuple, List, Optional
+from .exceptions import IncludedParserNotFound, CannotCloseEnd, RegexGroupsMismatch
+from .elements import ParsedElementBase, ParsedElement, ParsedElementBlock
+from typing import Tuple, List, Union
 import re
 
 
 PARSEROUTPUT = Tuple[bool, str, List[ParsedElementBase]]
-PARSERSTORE = {}
 
 
-class ParserBase(object):
-    pass
-
-
-class Parser(object):
-    def __new__(cls, grammar: dict, **kwargs):
-        if "include" in grammar:
-            return IncludeParser(grammar, **kwargs)
-        else:
-            return GrammarParser(grammar, **kwargs)
-
-    def parse(self, *args, **kwargs):
-        self.__call__(*args, **kwargs)
-
-
-class IncludeParser(ParserBase):
-    def __init__(self, grammar: dict, callerKey: Optional[str] = None, **kwargs) -> None:
-        if grammar["include"] == "$self":
-            self.key = callerKey
-        else:
-            self.key = grammar["include"][1:]
-
-    def __repr__(self) -> str:
-        if self.key in PARSERSTORE:
-            return PARSERSTORE[self.key].__repr__()
-        else:
-            return f"{self.__class__.__name__}:<{self.key}>"
-
-    def __call__(self, *args, **kwargs):
-        if self.key in PARSERSTORE:
-            return PARSERSTORE[self.key].__call__(*args, **kwargs)
-        else:
-            raise IncludedParserNotFound(self.key)
-
-
-class GrammarParser(ParserBase):
+class GrammarParser(object):
+    PARSERSTORE = {}
     regex_replacements = {"\\\\": "\\", "\\G": ""}
 
     def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
@@ -59,7 +24,7 @@ class GrammarParser(ParserBase):
         self.source = ""
 
         if key:
-            PARSERSTORE[key] = self
+            self.PARSERSTORE[key] = self
 
         if "match" in grammar:
             self.match = self.compile_regex(grammar["match"])
@@ -70,7 +35,29 @@ class GrammarParser(ParserBase):
             self.beginCaptures = self._init_captures(grammar, key="beginCaptures")
             self.endCaptures = self._init_captures(grammar, key="endCaptures")
         if "patterns" in grammar:
-            self.patterns = [Parser(pattern, callerKey=key) for pattern in grammar["patterns"]]
+            self.patterns = [
+                self.set_parser(pattern, callerKey=key)
+                for pattern in grammar["patterns"]
+            ]
+
+    @classmethod
+    def _init_captures(cls, grammar: dict, key: str = "captures"):
+        if key in grammar:
+            indices = [int(key) for key in grammar[key].keys()]
+            values = list(grammar[key].values())
+
+            if indices == [0]:
+                captures = [cls.set_parser(values[0])]
+            else:
+                captures = [None] * max(indices)
+                for ind, val in zip(indices, values):
+                    captures[ind - 1] = cls.set_parser(val)
+        else:
+            captures = []
+        return captures
+
+    def __call__(self, *args, **kwargs):
+        return self.parse(*args, **kwargs)
 
     def __repr__(self) -> str:
         repr = f"{self.__class__.__name__}:"
@@ -80,13 +67,38 @@ class GrammarParser(ParserBase):
             repr += "PATTERN"
         return repr
 
-    def __call__(self, source: str) -> PARSEROUTPUT:
+    @classmethod
+    def get_parser(cls, callId: Union[str, "GrammarParser"]):
+        if isinstance(callId, str):
+            if callId in cls.PARSERSTORE:
+                callId = cls.PARSERSTORE[callId]
+            else:
+                raise IncludedParserNotFound(callId)
+        return callId
+
+    @classmethod
+    def set_parser(cls, grammar: dict, callerKey: str = "", **kwargs):
+        if "include" in grammar:
+            if grammar["include"] == "$self":
+                return callerKey
+            else:
+                return grammar["include"][1:]
+        else:
+            return GrammarParser(grammar, **kwargs)
+
+    def parse(self, source: str) -> PARSEROUTPUT:
         self.source = source
 
         if self.match:
-            matched, remainder, elements = self.match_captures(source, self.match, self.captures)
+            matched, remainder, elements = self.match_captures(
+                source, self.match, self.captures
+            )
             if matched:
-                return True, remainder, [ParsedElement(token=self.token, content=elements)]
+                return (
+                    True,
+                    remainder,
+                    [ParsedElement(token=self.token, content=elements)],
+                )
             else:
                 return False, source, []
 
@@ -102,8 +114,8 @@ class GrammarParser(ParserBase):
                 midElements, endMatched = [], False
                 while not endMatched:
                     midMatched = False
-                    for parser in self.patterns:
-                        midMatched, ms, me = parser(midSrc)
+                    for parser in [self.get_parser(callId) for callId in self.patterns]:
+                        midMatched, ms, me = parser.parse(midSrc)
                         if midMatched:
                             midSrc = ms
                             midElements += me
@@ -113,7 +125,7 @@ class GrammarParser(ParserBase):
                         midSrc, self.end, parsers=self.endCaptures
                     )
                     if not midMatched and not endMatched:
-                        raise Exception("Could not close end.")
+                        raise CannotCloseEnd(source)
 
                 begin, end, mid = beginElements, endElements, midElements
             else:
@@ -122,18 +134,26 @@ class GrammarParser(ParserBase):
                     midSrc, self.end, parsers=self.endCaptures, useSearch=True
                 )
                 if not endMatched:
-                    raise Exception("Could not close end.")
+                    raise CannotCloseEnd(source)
                 begin, end, mid = beginElements, [], endElements
 
             if self.contentToken:
                 if len(mid) == 1:
-                    elements = [ParsedElement(token=self.contentToken, content=mid[0].content)]
+                    elements = [
+                        ParsedElement(token=self.contentToken, content=mid[0].content)
+                    ]
                 else:
                     elements = [
-                        ParsedElementBlock(token=self.contentToken, begin=begin, end=end, content=mid)
+                        ParsedElementBlock(
+                            token=self.contentToken, begin=begin, end=end, content=mid
+                        )
                     ]
             elif self.token:
-                elements = [ParsedElementBlock(token=self.token, begin=begin, end=end, content=mid)]
+                elements = [
+                    ParsedElementBlock(
+                        token=self.token, begin=begin, end=end, content=mid
+                    )
+                ]
             else:
                 elements = mid
             return (True, endSrc, elements)
@@ -141,8 +161,8 @@ class GrammarParser(ParserBase):
         elif self.patterns:
             elements = []
             while True:
-                for parser in self.patterns:
-                    patternMatched, patternSrc, patternElements = parser(source)
+                for parser in [self.get_parser(callId) for callId in self.patterns]:
+                    patternMatched, patternSrc, patternElements = parser.parse(source)
                     if patternMatched:
                         source = patternSrc
                         elements += patternElements
@@ -151,7 +171,11 @@ class GrammarParser(ParserBase):
                     break
             if elements:
                 if self.token:
-                    return True, patternSrc, [ParsedElement(token=self.token, content=elements)]
+                    return (
+                        True,
+                        patternSrc,
+                        [ParsedElement(token=self.token, content=elements)],
+                    )
                 else:
                     return True, patternSrc, elements
             else:
@@ -162,38 +186,23 @@ class GrammarParser(ParserBase):
         else:
             return True, "", []
 
-    @staticmethod
-    def compile_regex(string: str):
-        for orig, repl in GrammarParser.regex_replacements.items():
+    @classmethod
+    def compile_regex(cls, string: str):
+        for orig, repl in cls.regex_replacements.items():
             string = string.replace(orig, repl)
-
         return re.compile(string)
-
-    @staticmethod
-    def _init_captures(grammar: dict, key: str = "captures"):
-        if key in grammar:
-            indices = [int(key) for key in grammar[key].keys()]
-            values = list(grammar[key].values())
-
-            if indices == [0]:
-                captures = [Parser(values[0])]
-            else:
-                captures = [None] * max(indices)
-                for ind, val in zip(indices, values):
-                    captures[ind - 1] = Parser(val)
-        else:
-            captures = []
-        return captures
 
     @staticmethod
     def match_captures(
         source: str,
         regex: re.Pattern,
-        parsers: List[ParserBase] = [],
+        parsers: List["GrammarParser"] = [],
         useSearch: bool = False,
     ) -> PARSEROUTPUT:
-        if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(parsers):
-            raise Exception("Number of groups do not match supplied regex.")
+        if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(
+            parsers
+        ):
+            raise RegexGroupsMismatch
 
         matching = regex.search(source) if useSearch else regex.match(source)
 
@@ -203,7 +212,7 @@ class GrammarParser(ParserBase):
         if regex.groups != 0 and parsers:
             elements = []
             for parser, group in zip(parsers, matching.groups()):
-                _, _, parsed_elements = parser(group)
+                _, _, parsed_elements = parser.parse(group)
                 elements += parsed_elements
         else:
             elements = source[: matching.end()]

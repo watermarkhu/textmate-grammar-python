@@ -14,7 +14,8 @@ class ParsedElement(ParsedElementBase):
         self.content = content
 
     def __repr__(self) -> str:
-        return repr(f"{self.token}({len(self.content)})")
+        contentRepr = self.content if isinstance(self.content, str) else len(self.content)
+        return repr(f"{self.token}({contentRepr})")
 
     def to_dict(self) -> dict:
         outDict = dict(self.__dict__)
