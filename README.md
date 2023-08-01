@@ -1,5 +1,13 @@
 # sphinx-matlab
 
+## Tokenization
+
+The tokenization engine is based on the [syntax](https://github.com/mathworks/MATLAB-Language-grammar) created by Mathworks for its integration in IDE's such as VSCode. The syntax is a recursive list of regular expressions, normally read by the [TypeScript engine](https://github.com/microsoft/TypeScript-TmLanguage). The work here hopes also to improve the syntax such to improve the MATLAB [extension](https://github.com/mathworks/matlab-extension-for-vscode) for VSCode. The overview of all the scopes in the syntax is listed below. 
+
+- 🔲 No work done
+- ⚠️ Issue found
+- ⚒️ PR submitted
+- ✅ Done
 
 | Scope                     | No issues with regex  | Implemented   | Test  |
 |---------------------------|-----------------------|---------------|-------|
