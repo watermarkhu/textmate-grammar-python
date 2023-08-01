@@ -38,6 +38,6 @@ if parsed:
     pprint(data[0].to_dict())
 
 
-# %%
+# # %%
 
-parser = Parser(tmlist["repository"]["anonymous_function"], key="anonymous_function")
+# parser = Parser(tmlist["repository"]["anonymous_function"], key="anonymous_function")
