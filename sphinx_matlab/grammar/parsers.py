@@ -21,7 +21,9 @@ class GrammarParser(object):
         self.match, self.begin, self.end = None, None, None
         self.captures, self.beginCaptures, self.endCaptures = [], [], []
         self.patterns = []
+
         self.source = ""
+        self.sourceStrIdx = 0
 
         if key:
             self.PARSERSTORE[key] = self
@@ -86,12 +88,18 @@ class GrammarParser(object):
         else:
             return GrammarParser(grammar, **kwargs)
 
-    def parse(self, source: str) -> PARSEROUTPUT:
+    @classmethod
+    def compile_regex(cls, string: str):
+        for orig, repl in cls.regex_replacements.items():
+            string = string.replace(orig, repl)
+        return re.compile(string)
+
+    def parse(self, source: str, **kwargs) -> PARSEROUTPUT:
         self.source = source
 
         if self.match:
             matched, remainder, elements = self.match_captures(
-                source, self.match, self.captures
+                source, self.match, self.captures, **kwargs
             )
             if matched:
                 return (
@@ -104,7 +112,7 @@ class GrammarParser(object):
 
         elif self.begin and self.end:
             beginMatched, midSrc, beginElements = self.match_captures(
-                source, self.begin, parsers=self.beginCaptures
+                source, self.begin, parsers=self.beginCaptures, **kwargs
             )
             if not beginMatched:
                 return False, source, []
@@ -122,7 +130,7 @@ class GrammarParser(object):
                             break
 
                     endMatched, endSrc, endElements = self.match_captures(
-                        midSrc, self.end, parsers=self.endCaptures
+                        midSrc, self.end, parsers=self.endCaptures, **kwargs
                     )
                     if not midMatched and not endMatched:
                         raise CannotCloseEnd(source)
@@ -131,7 +139,7 @@ class GrammarParser(object):
             else:
                 # Search for end and all in between is content
                 endMatched, endSrc, endElements = self.match_captures(
-                    midSrc, self.end, parsers=self.endCaptures, useSearch=True
+                    midSrc, self.end, parsers=self.endCaptures, useSearch=True, **kwargs
                 )
                 if not endMatched:
                     raise CannotCloseEnd(source)
@@ -186,25 +194,27 @@ class GrammarParser(object):
         else:
             return True, "", []
 
-    @classmethod
-    def compile_regex(cls, string: str):
-        for orig, repl in cls.regex_replacements.items():
-            string = string.replace(orig, repl)
-        return re.compile(string)
-
-    @staticmethod
     def match_captures(
+        self,
         source: str,
         regex: re.Pattern,
         parsers: List["GrammarParser"] = [],
         useSearch: bool = False,
+        fullMatch: bool = False,
+        **kwargs,
     ) -> PARSEROUTPUT:
         if not (regex.groups == 0 and len(parsers) == 1) and regex.groups != len(
             parsers
         ):
             raise RegexGroupsMismatch
 
-        matching = regex.search(source) if useSearch else regex.match(source)
+        matching = (
+            regex.search(source)
+            if useSearch
+            else regex.fullmatch(source)
+            if fullMatch
+            else regex.match(source)
+        )
 
         if not matching:
             return False, source, []
@@ -212,9 +222,14 @@ class GrammarParser(object):
         if regex.groups != 0 and parsers:
             elements = []
             for parser, group in zip(parsers, matching.groups()):
-                _, _, parsed_elements = parser.parse(group)
+                _, _, parsed_elements = parser.parse(group, fullMatch=True)
                 elements += parsed_elements
         else:
             elements = source[: matching.end()]
 
+        self.sourceStrIdx += matching.end()
+
         return True, source[matching.end() :], elements
+
+
+# %%
