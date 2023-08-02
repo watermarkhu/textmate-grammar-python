@@ -17,7 +17,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | blocks                    | 🔲                     | 🔲             | 🔲     |
 | classdef                  | 🔲                     | 🔲             | 🔲     |
 | command_dual              | 🔲                     | 🔲             | 🔲     |
-| comment_block             | ✅                     | ⚠️             | ✅     |
+| comment_block             | ✅                     | ✅             | ✅     |
 | comments                  | ✅                     | ⚠️             | ✅     |
 | control_statements        | 🔲                     | 🔲             | 🔲     |
 | function                  | 🔲                     | 🔲             | 🔲     |

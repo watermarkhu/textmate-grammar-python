@@ -16,7 +16,7 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["anonymous_function"], key="anonymous_function")
 
     def test_single_line(test):
-        (parsed, data) = test.parser(StringIO("@(x,  y) x.^2+y;"))
+        (parsed, data) = test.parser.parse(StringIO("@(x,  y) x.^2+y;"))
         outDict = {
             "begin": [{"content": "@", "token": "punctuation.definition.function.anonymous.matlab"}],
             "content": [

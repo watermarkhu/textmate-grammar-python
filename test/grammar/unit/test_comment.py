@@ -16,20 +16,18 @@ class TestComment(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
     def test_inline_comment(test):
-        (parsed, data) = test.parser(StringIO(" % Test this is a comment. \n"))
+        (parsed, data) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
         outDict = {
-            "begin": [{"content": "%", "token": "punctuation.definition.comment.matlab"}],
-            "content": [
-                {"content": " Test this is a comment. \n", "token": "comment.line.percentage.matlab"}
-            ],
-            "end": "",
             "token": "comment.line.percentage.matlab",
+            "begin": [{"content": "%", "token": "punctuation.definition.comment.matlab"}],
+            "content": [{"content": " Test this is a comment. ", "token": "comment.line.percentage.matlab"}],
+            "end": "",
         }
         test.assertTrue(parsed)
         test.assertEqual(data[0].to_dict(), outDict)
 
     def test_section_comment(test):
-        (parsed, data) = test.parser(StringIO("  %% This is a section comment \n"))
+        (parsed, data) = test.parser.parse(StringIO("  %% This is a section comment \n"))
         outDict = {
             "begin": [{"content": "%%", "token": "punctuation.definition.comment.matlab"}],
             "content": [
@@ -51,32 +49,32 @@ class TestComment(unittest.TestCase):
         test.assertTrue(parsed)
         test.assertEqual(data[0].to_dict(), outDict)
 
-    def test_multiline_comment(test):
-        (parsed, data) = test.parser(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
-        outDict = {
-            "token": "comment.block.percentage.matlab",
-            "begin": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": "  ",
-                },
-                {
-                    "token": "punctuation.definition.comment.begin.matlab",
-                    "content": "%{",
-                },
-            ],
-            "content": [
-                {"content": "This is a comment\n", "token": ""},
-                {"content": "multiple\n", "token": ""},
-            ],
-            "end": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": " ",
-                },
-                {"content": "%}", "token": "punctuation.definition.comment.end.matlab"},
-            ],
-        }
+        def test_multiline_comment(test):
+            (parsed, data) = test.parser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
+            outDict = {
+                "token": "comment.block.percentage.matlab",
+                "begin": [
+                    {
+                        "token": "punctuation.whitespace.comment.leading.matlab",
+                        "content": "  ",
+                    },
+                    {
+                        "token": "punctuation.definition.comment.begin.matlab",
+                        "content": "%{",
+                    },
+                ],
+                "content": [
+                    {"content": "This is a comment\n", "token": ""},
+                    {"content": "multiple\n", "token": ""},
+                ],
+                "end": [
+                    {
+                        "token": "punctuation.whitespace.comment.leading.matlab",
+                        "content": " ",
+                    },
+                    {"content": "%}", "token": "punctuation.definition.comment.end.matlab"},
+                ],
+            }
 
         test.assertTrue(parsed)
         test.assertEqual(data[0].to_dict(), outDict)

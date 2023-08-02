@@ -15,7 +15,7 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["import"], key="import")
 
     def test_import_module(test):
-        (parsed, data) = test.parser(StringIO("import module.submodule.class"))
+        (parsed, data) = test.parser.parse(StringIO("import module.submodule.class"))
         outDict = {
             "content": [
                 {"content": "import", "token": "keyword.other.import.matlab"},
@@ -37,7 +37,7 @@ class TestImport(unittest.TestCase):
         test.assertEqual(data[0].to_dict(), outDict)
 
     def test_import_wildcard(test):
-        (parsed, data) = test.parser(StringIO("import module.submodule.*"))
+        (parsed, data) = test.parser.parse(StringIO("import module.submodule.*"))
         outDict = {
             "token": "meta.import.matlab",
             "content": [

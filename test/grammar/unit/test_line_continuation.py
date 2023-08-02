@@ -15,7 +15,7 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["line_continuation"], key="line_continuation")
 
     def test_line_continuation(test):
-        (parsed, data) = test.parser(StringIO("... Some comment"))
+        (parsed, data) = test.parser.parse(StringIO("... Some comment"))
         outDict = {
             "content": [
                 {"content": "...", "token": "punctuation.separator.continuation.line.matlab"},
