@@ -17,9 +17,11 @@ class TestComment(unittest.TestCase):
     def test_inline_comment(test):
         (parsed, res, data) = test.parser(" % Test this is a comment. \n")
         outDict = {
-            "begin": "%",
+            "begin": [
+                {"content": "%", "token": "punctuation.definition.comment.matlab"}
+            ],
             "content": " Test this is a comment. \n",
-            "end": [],
+            "end": "",
             "token": "comment.line.percentage.matlab",
         }
         test.assertTrue(parsed)
@@ -29,12 +31,19 @@ class TestComment(unittest.TestCase):
     def test_section_comment(test):
         (parsed, res, data) = test.parser("  %% This is a section comment \n")
         outDict = {
-            "begin": "%%",
+            "begin": [
+                {"content": "%%", "token": "punctuation.definition.comment.matlab"}
+            ],
             "content": [
                 {
-                    "begin": " ",
+                    "begin": [
+                        {
+                            "content": " ",
+                            "token": "punctuation.whitespace.comment.leading.matlab",
+                        }
+                    ],
                     "content": "This is a section comment ",
-                    "end": [],
+                    "end": "",
                     "token": "entity.name.section.matlab",
                 }
             ],
