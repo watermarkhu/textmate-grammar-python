@@ -3,12 +3,11 @@ from pprint import pprint
 
 
 class ParsedElementBase(object):
-
     def print(self) -> None:
         pprint(self.to_dict())
 
 
-CONTENT_TYPE = Union[str, List[ParsedElementBase]]
+CONTENT_TYPE = List[Union[ParsedElementBase, str]]
 
 
 class ParsedElement(ParsedElementBase):

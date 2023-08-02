@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[3]))
 
@@ -15,25 +16,22 @@ class TestComment(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
     def test_inline_comment(test):
-        (parsed, res, data) = test.parser(" % Test this is a comment. \n")
+        (parsed, data) = test.parser(StringIO(" % Test this is a comment. \n"))
         outDict = {
-            "begin": [
-                {"content": "%", "token": "punctuation.definition.comment.matlab"}
+            "begin": [{"content": "%", "token": "punctuation.definition.comment.matlab"}],
+            "content": [
+                {"content": " Test this is a comment. \n", "token": "comment.line.percentage.matlab"}
             ],
-            "content": " Test this is a comment. \n",
             "end": "",
             "token": "comment.line.percentage.matlab",
         }
         test.assertTrue(parsed)
-        test.assertEqual(res, "")
         test.assertEqual(data[0].to_dict(), outDict)
 
     def test_section_comment(test):
-        (parsed, res, data) = test.parser("  %% This is a section comment \n")
+        (parsed, data) = test.parser(StringIO("  %% This is a section comment \n"))
         outDict = {
-            "begin": [
-                {"content": "%%", "token": "punctuation.definition.comment.matlab"}
-            ],
+            "begin": [{"content": "%%", "token": "punctuation.definition.comment.matlab"}],
             "content": [
                 {
                     "begin": [
@@ -51,11 +49,10 @@ class TestComment(unittest.TestCase):
             "token": "comment.line.double-percentage.matlab",
         }
         test.assertTrue(parsed)
-        test.assertEqual(res, "")
         test.assertEqual(data[0].to_dict(), outDict)
 
     def test_multiline_comment(test):
-        (parsed, res, data) = test.parser("  %{\nThis is a comment\nmultiple\n %}")
+        (parsed, data) = test.parser(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
         outDict = {
             "token": "comment.block.percentage.matlab",
             "begin": [
@@ -82,7 +79,6 @@ class TestComment(unittest.TestCase):
         }
 
         test.assertTrue(parsed)
-        test.assertEqual(res, "")
         test.assertEqual(data[0].to_dict(), outDict)
 
 

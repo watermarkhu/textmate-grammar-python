@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[3]))
 
@@ -14,13 +15,11 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["import"], key="import")
 
     def test_import_module(test):
-        (parsed, res, data) = test.parser("import module.submodule.class")
+        (parsed, data) = test.parser(StringIO("import module.submodule.class"))
         outDict = {
-            "token": "meta.import.matlab",
             "content": [
                 {"content": "import", "token": "keyword.other.import.matlab"},
                 {
-                    "token": "entity.name.namespace.matlab",
                     "content": [
                         {"content": "module", "token": "entity.name.module.matlab"},
                         {"content": ".", "token": "punctuation.separator.matlab"},
@@ -28,15 +27,17 @@ class TestImport(unittest.TestCase):
                         {"content": ".", "token": "punctuation.separator.matlab"},
                         {"content": "class", "token": "entity.name.module.matlab"},
                     ],
+                    "token": "entity.name.namespace.matlab",
                 },
             ],
+            "token": "meta.import.matlab",
         }
+
         test.assertTrue(parsed)
-        test.assertEqual(res, "")
         test.assertEqual(data[0].to_dict(), outDict)
 
     def test_import_wildcard(test):
-        (parsed, res, data) = test.parser("import module.submodule.*")
+        (parsed, data) = test.parser(StringIO("import module.submodule.*"))
         outDict = {
             "token": "meta.import.matlab",
             "content": [
@@ -54,7 +55,6 @@ class TestImport(unittest.TestCase):
             ],
         }
         test.assertTrue(parsed)
-        test.assertEqual(res, "")
         test.assertEqual(data[0].to_dict(), outDict)
 
 
