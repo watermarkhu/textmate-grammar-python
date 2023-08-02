@@ -13,12 +13,12 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 |---------------------------|-----------------------|---------------|-------|
 | rules_before_command_dual | 🔲                     | 🔲             | 🔲     |
 | rules_after_command_dual  | 🔲                     | 🔲             | 🔲     |
-| anonymous_function        | ⚠️                     | 🔲             | 🔲     |
+| anonymous_function        | ⚠️                     | ⚠️             | ✅     |
 | blocks                    | 🔲                     | 🔲             | 🔲     |
 | classdef                  | 🔲                     | 🔲             | 🔲     |
 | command_dual              | 🔲                     | 🔲             | 🔲     |
-| comment_block             | ✅                     | ✅             | ✅     |
-| comments                  | ✅                     | ✅             | ✅     |
+| comment_block             | ✅                     | ⚠️             | ✅     |
+| comments                  | ✅                     | ⚠️             | ✅     |
 | control_statements        | 🔲                     | 🔲             | 🔲     |
 | function                  | 🔲                     | 🔲             | 🔲     |
 | function_call             | 🔲                     | 🔲             | 🔲     |
@@ -31,7 +31,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | square_brackets           | 🔲                     | 🔲             | 🔲     |
 | curly_brackets            | 🔲                     | 🔲             | 🔲     |
 | indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |
-| line_continuation         | 🔲                     | 🔲             | 🔲     |
+| line_continuation         | ✅                     | ✅             | ✅     |
 | shell_string              | 🔲                     | 🔲             | 🔲     |
 | string_quoted_double      | 🔲                     | 🔲             | 🔲     |
 | string_quoted_single      | 🔲                     | 🔲             | 🔲     |
