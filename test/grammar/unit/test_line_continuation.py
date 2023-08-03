@@ -19,11 +19,11 @@ class TestImport(unittest.TestCase):
     def test_line_continuation(test):
         (parsed, data) = test.parser.parse(StringIO("... Some comment"))
         outDict = {
-            "content": [
-                {"content": "...", "token": "punctuation.separator.continuation.line.matlab"},
-                {"content": " Some comment", "token": "comment.continuation.line.matlab"},
-            ],
             "token": "meta.continuation.line.matlab",
+            "content": [
+                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
+                {"token": "comment.continuation.line.matlab", "content": " Some comment"},
+            ],
         }
 
         test.assertTrue(parsed, MSG_NO_MATCH)
