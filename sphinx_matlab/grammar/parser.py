@@ -1,7 +1,7 @@
 # %%
 from .exceptions import IncludedParserNotFound, CannotCloseEnd, RegexGroupsMismatch
 from .elements import ParsedElement, ParsedElementBlock, CONTENT_TYPE
-from typing import Tuple, List, Union, Optional
+from typing import Tuple, Dict, Union, Optional
 from io import StringIO, SEEK_END
 import regex as re
 
@@ -19,7 +19,7 @@ class GrammarParser(object):
         self.contentToken = grammar.get("contentName", "")
         self.comment = grammar.get("comment", "")
         self.match, self.begin, self.end = None, None, None
-        self.captures, self.beginCaptures, self.endCaptures = [], [], []
+        self.captures, self.beginCaptures, self.endCaptures = {}, {}, {}
         self.patterns = []
         self.matchedPos = []
 
@@ -39,19 +39,11 @@ class GrammarParser(object):
                 self.set_parser(pattern) for pattern in grammar["patterns"]
             ]
 
-    def __init_captures(self, grammar: dict, key: str = "captures"):
+    def __init_captures(self, grammar: dict, key: str = "captures") -> dict:
+        captures = {}
         if key in grammar:
-            indices = [int(key) for key in grammar[key].keys()]
-            values = list(grammar[key].values())
-
-            if indices == [0]:
-                captures = [self.set_parser(values[0])]
-            else:
-                captures = [None] * max(indices)
-                for ind, val in zip(indices, values):
-                    captures[ind - 1] = self.set_parser(val)
-        else:
-            captures = []
+            for groupId, pattern in grammar[key].items():
+                captures[int(groupId)] = self.set_parser(pattern)
         return captures
 
     def __call__(self, *args, **kwargs):
@@ -231,7 +223,7 @@ class GrammarParser(object):
         self,
         regex: re.Pattern,
         stream: StringIO,
-        parsers: List["GrammarParser"] = [],
+        parsers: Dict[int, "GrammarParser"] = [],
         readSize: Optional[int] = None,
         **kwargs,
     ) -> Tuple[bool, CONTENT_TYPE, Optional[int]]:
@@ -242,10 +234,6 @@ class GrammarParser(object):
         must match the number of capture groups of the expression, or there must be a single parser
         and no capture groups.
         """
-        if not (
-            (regex.groups == 0 and len(parsers) == 1) or (regex.groups == len(parsers))
-        ):
-            raise RegexGroupsMismatch
 
         initPos = stream.tell()
         lookback, streamCanLookback = 0, True
@@ -305,10 +293,14 @@ class GrammarParser(object):
         matchedString = stream.read(closePos - startPos)
 
         # Parse each capture group
-        if (regex.groups == len(parsers)) and parsers:
+        if (regex.groups != 0) and parsers:
             elements = []
-            for parser, group in zip(parsers, matching.groups("")):
+            for groupId, group in enumerate(matching.groups("")):
                 # Create new stream since group must match fully
+                if groupId in parsers:
+                    parser = parsers[groupId]
+                else:
+                    continue
                 substream = StringIO(group)
                 groupMatched, parsed_elements = parser.parse(substream)
                 if not groupMatched or substream.read() != "":
