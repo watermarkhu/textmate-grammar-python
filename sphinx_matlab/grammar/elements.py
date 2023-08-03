@@ -1,10 +1,11 @@
 from typing import List, Union
 from pprint import pprint
+from collections import OrderedDict
 
 
 class ParsedElementBase(object):
     def print(self) -> None:
-        pprint(self.to_dict())
+        pprint(self.to_dict(), sort_dicts=False)
 
 
 CONTENT_TYPE = List[Union[ParsedElementBase, str]]

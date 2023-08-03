@@ -1,15 +1,15 @@
 # %%
 from .exceptions import IncludedParserNotFound, CannotCloseEnd, RegexGroupsMismatch
-from .elements import ParsedElementBase, ParsedElement, ParsedElementBlock, CONTENT_TYPE
+from .elements import ParsedElement, ParsedElementBlock, CONTENT_TYPE
 from typing import Tuple, List, Union, Optional
 from io import StringIO, SEEK_END
-import re
+import regex as re
 
 
 class GrammarParser(object):
     PARSERSTORE = {}
     regex_max_lookback = 10
-    regex_replacements = {"\\\\": "\\", "\\G": "", "*+": "*"}
+    regex_replacements = {"\\\\": "\\"}
 
     def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
         self.grammar = grammar
@@ -33,7 +33,9 @@ class GrammarParser(object):
             self.beginCaptures = self.__init_captures(grammar, key="beginCaptures")
             self.endCaptures = self.__init_captures(grammar, key="endCaptures")
         if "patterns" in grammar:
-            self.patterns = [self.set_parser(pattern) for pattern in grammar["patterns"]]
+            self.patterns = [
+                self.set_parser(pattern) for pattern in grammar["patterns"]
+            ]
 
     def __init_captures(self, grammar: dict, key: str = "captures"):
         if key in grammar:
@@ -88,9 +90,9 @@ class GrammarParser(object):
     @staticmethod
     def stream_end_pos(stream: StringIO) -> int:
         pos = stream.tell()
-        endPos = stream.seek(0, SEEK_END)
+        closePos = stream.seek(0, SEEK_END)
         stream.seek(pos)
-        return endPos
+        return closePos
 
     @staticmethod
     def stream_read_pos(stream: StringIO, start: int, end: int) -> str:
@@ -103,7 +105,9 @@ class GrammarParser(object):
         self, stream: StringIO, startEnd: Optional[Tuple[int, int]] = None, **kwargs
     ) -> Tuple[bool, CONTENT_TYPE]:
         if self.match:
-            (parsed, elements, _) = self.search(self.match, stream, parsers=self.captures, **kwargs)
+            (parsed, elements, _) = self.search(
+                self.match, stream, parsers=self.captures, **kwargs
+            )
             if parsed:
                 elements = [ParsedElement(token=self.token, content=elements)]
             else:
@@ -112,26 +116,30 @@ class GrammarParser(object):
         elif self.begin and self.end:
             # Find begin
             (beginMatched, beginElements, _) = self.search(
-                self.begin, stream, parsers=self.beginCaptures, **kwargs
+                self.begin,
+                stream,
+                parsers=self.beginCaptures,
+                readSize=startEnd[1] - startEnd[0] + 1 if startEnd else -1,
+                **kwargs,
             )
             if not beginMatched:
                 return False, [""]
             midStartPos = stream.tell()
 
             # Find end
-            (endMatched, endElements, midEndPos) = self.search(
+            (endMatched, endElements, midClosePos) = self.search(
                 self.end,
                 stream,
                 parsers=self.endCaptures,
-                readLength=startEnd[1] - midStartPos if startEnd else -1,
+                readSize=startEnd[1] - midStartPos + 1 if startEnd else -1,
                 **kwargs,
             )
             endStartPos = stream.tell()
             if not endMatched:
                 return False, [""]
 
-            if startEnd and startEnd == (midStartPos, midEndPos):
-                return True, [self.stream_read_pos(stream, midStartPos, midEndPos)]
+            if startEnd and startEnd == (midStartPos, midClosePos):
+                return True, [self.stream_read_pos(stream, midStartPos, midClosePos)]
                 # raise Warning("Recursion detected")
 
             elif self.patterns:
@@ -139,13 +147,15 @@ class GrammarParser(object):
                 midElements = []
                 parsers = [self.get_parser(callId) for callId in self.patterns]
                 stream.seek(midStartPos)
+                patternStartPos = midStartPos
 
-                while stream.tell() != midEndPos:
+                while stream.tell() < midClosePos:
                     for parser in parsers:
                         midMatched, elements = parser.parse(
-                            stream, startEnd=(midStartPos, midEndPos), **kwargs
+                            stream, startEnd=(patternStartPos, midClosePos), **kwargs
                         )
                         if midMatched:
+                            patternStartPos = stream.tell()
                             midElements += elements
                             break
                     else:
@@ -154,24 +164,35 @@ class GrammarParser(object):
                 # Search for end and all in between is content
                 midElements = [
                     ParsedElement(
-                        token=self.token, content=self.stream_read_pos(stream, midStartPos, midEndPos)
+                        token=self.token,
+                        content=self.stream_read_pos(stream, midStartPos, midClosePos),
                     )
                 ]
             stream.seek(endStartPos)
 
             if self.contentToken:
                 if len(midElements) == 1:
-                    elements = [ParsedElement(token=self.contentToken, content=midElements[0].content)]
+                    elements = [
+                        ParsedElement(
+                            token=self.contentToken, content=midElements[0].content
+                        )
+                    ]
                 else:
                     elements = [
                         ParsedElementBlock(
-                            token=self.contentToken, begin=beginElements, end=endElements, content=midElements
+                            token=self.contentToken,
+                            begin=beginElements,
+                            end=endElements,
+                            content=midElements,
                         )
                     ]
             elif self.token:
                 elements = [
                     ParsedElementBlock(
-                        token=self.token, begin=beginElements, end=endElements, content=midElements
+                        token=self.token,
+                        begin=beginElements,
+                        end=endElements,
+                        content=midElements,
                     )
                 ]
             else:
@@ -180,9 +201,9 @@ class GrammarParser(object):
         elif self.patterns:
             elements = []
             parsers = [self.get_parser(callId) for callId in self.patterns]
-            endPos = self.stream_end_pos(stream)
+            closePos = self.stream_end_pos(stream)
 
-            while stream.tell() != endPos:
+            while stream.tell() != closePos:
                 for parser in parsers:
                     patternMatched, patternElements = parser.parse(stream, **kwargs)
                     if patternMatched:
@@ -209,7 +230,7 @@ class GrammarParser(object):
         regex: re.Pattern,
         stream: StringIO,
         parsers: List["GrammarParser"] = [],
-        readLength: Optional[int] = None,
+        readSize: Optional[int] = None,
         **kwargs,
     ) -> Tuple[bool, CONTENT_TYPE, Optional[int]]:
         """Matches the stream against a capture group.
@@ -219,59 +240,52 @@ class GrammarParser(object):
         must match the number of capture groups of the expression, or there must be a single parser
         and no capture groups.
         """
-        if not ((regex.groups == 0 and len(parsers) == 1) or (regex.groups == len(parsers))):
+        if not (
+            (regex.groups == 0 and len(parsers) == 1) or (regex.groups == len(parsers))
+        ):
             raise RegexGroupsMismatch
 
         initPos = stream.tell()
 
         if regex.pattern[:3] == "(?<":
+            # Try start the stream earlier to match the lookback capture
             lookback = 1
             while lookback <= self.regex_max_lookback and (initPos - lookback) >= 0:
-                stream.seek(initPos - lookback)
-                string = stream.read()
-                matching = regex.search(string)
-                if matching:
-                    break
+                if readSize:
+                    (matching, startPos, closePos) = self.search_lines(
+                        regex, stream, readSize, lookback=lookback
+                    )
                 else:
+                    (matching, startPos, closePos) = self.search_line(
+                        regex, stream, lookback=lookback
+                    )
+                if matching is None:
                     lookback += 1
-                    stream.seek(initPos)
+                else:
+                    break
             else:
-                stream.seek(initPos)
                 return False, [""], None
         else:
-            if readLength:
-                linePos = 0
-                lines = stream.read(readLength).split("\n")
-                for lineNumber, line in enumerate(lines):
-                    matching = regex.search(line)
-                    if matching:
-                        break
-                    linePos += len(line) + 1
-                else:
-                    stream.seek(initPos)
-                    return False, [""], None
-                startPos, endPos = matching.start() + linePos + initPos, matching.end() + linePos + initPos
-                if matching.end() == len(line) and lineNumber < (len(lines) - 1):
-                    endPos += 1
+            # Search starting from from the initial position
+            if readSize:
+                (matching, startPos, closePos) = self.search_lines(
+                    regex, stream, readSize, lookback=0
+                )
             else:
-                line = stream.readline()
-                matching = regex.search(line)
-                if not matching or any(char != " " for char in line[: matching.start()]):
-                    stream.seek(initPos)
-                    return False, [""], None
-                startPos, endPos = matching.start() + initPos, matching.end() + initPos
-                if matching.end() < len(line) and line[matching.end()] == "\n":
-                    endPos += 1
+                (matching, startPos, closePos) = self.search_line(
+                    regex, stream, lookback=0
+                )
+            if matching is None:
+                return False, [""], None
 
-            matchingString = line[matching.start() : matching.end()]
+        stream.seek(startPos)
+        matchedString = stream.read(closePos - startPos)
 
-        # if not endSearch and any(char != " " for char in line[lookback:matchStartIdx]):
-        #     stream.seek(initPos)
-        #     return False, [""], None
-
+        # Parse each capture group
         if (regex.groups == len(parsers)) and parsers:
             elements = []
             for parser, group in zip(parsers, matching.groups("")):
+                # Create new stream since group must match fully
                 substream = StringIO(group)
                 groupMatched, parsed_elements = parser.parse(substream)
                 if not groupMatched or substream.read() != "":
@@ -280,13 +294,58 @@ class GrammarParser(object):
                 elements += parsed_elements
             if not elements:
                 elements = [""]
+        # No groups, but a parser existed. Use token of parser to create element
         elif regex.groups == 0 and len(parsers) == 1:
-            elements = [ParsedElement(token=parsers[0].token, content=matchingString)]
+            elements = [ParsedElement(token=parsers[0].token, content=matchedString)]
+        # No parsers
         else:
-            elements = matchingString
+            elements = matchedString
 
-        stream.seek(endPos)
+        stream.seek(closePos)
         return True, elements, startPos
 
+    def search_lines(
+        self, regex: re.Pattern, stream: StringIO, readSize: int, lookback: int = 0
+    ) -> Tuple[re.Match, int, int]:
+        """Search with regular expression on every line for a read size.
+        """
+        initPos, linePos = stream.tell(), 0
+        stream.seek(initPos - lookback)
+        lines = [
+            line + "\n" for line in stream.read(readSize + lookback).split("\n")
+        ]  # Add newline as tmlanguage expects it.
 
-# %%
+        for lineNumber, line in enumerate(lines):
+            matching = regex.search(line)
+            if matching:
+                break  # Find first match encountered per line
+            linePos += len(line)
+        else:
+            stream.seek(initPos)
+            return (None, 0, 0)
+        startPos = linePos + initPos - lookback + matching.start()
+        closePos = linePos + initPos - lookback + matching.end()
+        if matching.end() == len(line) and lineNumber < (len(lines) - 1):
+            closePos += 1  # Let closePos not land on newline character
+
+        return (matching, startPos, closePos)
+
+    def search_line(
+        self, regex: re.Pattern, stream: StringIO, lookback: int = 0
+    ) -> Tuple[re.Match, int, int]:
+        """ Search with regular expression on a single line.
+        """
+        initPos = stream.tell()
+        stream.seek(initPos - lookback)
+        line = stream.readline()
+        matching = regex.search(line)
+        if not matching or any(
+            char != " " for char in line[: matching.start()]
+        ):  # If not matching or leading characters are not whitespace
+            stream.seek(initPos)
+            return (None, 0, 0)
+        startPos = matching.start() + initPos + lookback
+        closePos = matching.end() + initPos + lookback
+        if matching.end() < len(line) and line[matching.end()] == "\n":
+            closePos += 1  # Let closePos not land on newline character
+        return (matching, startPos, closePos)
