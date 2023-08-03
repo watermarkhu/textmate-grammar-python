@@ -10,7 +10,6 @@ from sphinx_matlab.grammar import GrammarParser
 from sphinx_matlab.tmlanguage import TMLIST
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
-
 class TestImport(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

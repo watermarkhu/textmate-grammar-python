@@ -8,7 +8,8 @@ import regex as re
 
 class GrammarParser(object):
     PARSERSTORE = {}
-    regex_max_lookback = 10
+    regex_lookback_max = 100
+    regex_lookback_step = 5
     regex_replacements = {"\\\\": "\\"}
 
     def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
@@ -20,6 +21,7 @@ class GrammarParser(object):
         self.match, self.begin, self.end = None, None, None
         self.captures, self.beginCaptures, self.endCaptures = [], [], []
         self.patterns = []
+        self.matchedPos = []
 
         if key:
             self.PARSERSTORE[key] = self
@@ -246,37 +248,58 @@ class GrammarParser(object):
             raise RegexGroupsMismatch
 
         initPos = stream.tell()
+        lookback, streamCanLookback = 0, True
+        performLookback = "(?<" in regex.pattern
 
-        if regex.pattern[:3] == "(?<":
-            # Try start the stream earlier to match the lookback capture
-            lookback = 1
-            while lookback <= self.regex_max_lookback and (initPos - lookback) >= 0:
-                if readSize:
-                    (matching, startPos, closePos) = self.search_lines(
-                        regex, stream, readSize, lookback=lookback
-                    )
-                else:
-                    (matching, startPos, closePos) = self.search_line(
-                        regex, stream, lookback=lookback
-                    )
-                if matching is None:
-                    lookback += 1
-                else:
-                    break
-            else:
-                return False, [""], None
-        else:
-            # Search starting from from the initial position
+        while lookback <= self.regex_lookback_max and streamCanLookback:
+            if (initPos - lookback) < 0:
+                lookback, streamCanLookback = initPos, False
+            if not performLookback:
+                streamCanLookback = False
+
             if readSize:
-                (matching, startPos, closePos) = self.search_lines(
-                    regex, stream, readSize, lookback=0
-                )
+                linePos = 0
+                stream.seek(initPos - lookback)
+                lines = [
+                    line + "\n" for line in stream.read(readSize + lookback).split("\n")
+                ]  # Add newline as tmlanguage expects it.
+                for lineNumber, line in enumerate(lines):
+                    matching = regex.search(line)
+                    if matching:
+                        break  # Find first match encountered per line
+                    linePos += len(line)
+                else:
+                    stream.seek(initPos)
+                    lookback += self.regex_lookback_step
+                    continue
+                startPos = linePos + initPos - lookback + matching.start()
+                closePos = linePos + initPos - lookback + matching.end()
+                if matching.end() == len(line) and lineNumber < (len(lines) - 1):
+                    closePos += 1  # Let closePos not land on newline character
             else:
-                (matching, startPos, closePos) = self.search_line(
-                    regex, stream, lookback=0
-                )
-            if matching is None:
-                return False, [""], None
+                stream.seek(initPos - lookback)
+                line = stream.readline()
+                matching = regex.search(line)
+                if not matching or any(
+                    char != " " for char in line[: matching.start()]
+                ):  # If not matching or leading characters are not whitespace
+                    stream.seek(initPos)
+                    lookback += self.regex_lookback_step
+                    continue
+                startPos = matching.start() + initPos + lookback
+                closePos = matching.end() + initPos + lookback
+                if matching.end() < len(line) and line[matching.end()] == "\n":
+                    closePos += 1  # Let closePos not land on newline character
+
+            if matching is not None:
+                break
+        else:
+            return False, [""], None
+        
+        if any(startPos in range(ms+1, me-1) for (ms, me) in self.matchedPos):
+            # Matching start position is already in a matching
+            stream.seek(initPos)
+            return  False, [""], None
 
         stream.seek(startPos)
         matchedString = stream.read(closePos - startPos)
@@ -301,51 +324,6 @@ class GrammarParser(object):
         else:
             elements = matchedString
 
+        self.matchedPos.append((startPos, closePos))
         stream.seek(closePos)
         return True, elements, startPos
-
-    def search_lines(
-        self, regex: re.Pattern, stream: StringIO, readSize: int, lookback: int = 0
-    ) -> Tuple[re.Match, int, int]:
-        """Search with regular expression on every line for a read size.
-        """
-        initPos, linePos = stream.tell(), 0
-        stream.seek(initPos - lookback)
-        lines = [
-            line + "\n" for line in stream.read(readSize + lookback).split("\n")
-        ]  # Add newline as tmlanguage expects it.
-
-        for lineNumber, line in enumerate(lines):
-            matching = regex.search(line)
-            if matching:
-                break  # Find first match encountered per line
-            linePos += len(line)
-        else:
-            stream.seek(initPos)
-            return (None, 0, 0)
-        startPos = linePos + initPos - lookback + matching.start()
-        closePos = linePos + initPos - lookback + matching.end()
-        if matching.end() == len(line) and lineNumber < (len(lines) - 1):
-            closePos += 1  # Let closePos not land on newline character
-
-        return (matching, startPos, closePos)
-
-    def search_line(
-        self, regex: re.Pattern, stream: StringIO, lookback: int = 0
-    ) -> Tuple[re.Match, int, int]:
-        """ Search with regular expression on a single line.
-        """
-        initPos = stream.tell()
-        stream.seek(initPos - lookback)
-        line = stream.readline()
-        matching = regex.search(line)
-        if not matching or any(
-            char != " " for char in line[: matching.start()]
-        ):  # If not matching or leading characters are not whitespace
-            stream.seek(initPos)
-            return (None, 0, 0)
-        startPos = matching.start() + initPos + lookback
-        closePos = matching.end() + initPos + lookback
-        if matching.end() < len(line) and line[matching.end()] == "\n":
-            closePos += 1  # Let closePos not land on newline character
-        return (matching, startPos, closePos)
