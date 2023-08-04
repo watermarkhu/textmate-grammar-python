@@ -9,46 +9,46 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 - ⚒️ PR submitted
 - ✅ Done
 
-| Scope                     | No issues with regex  | Implemented   | Test  |
-|---------------------------|-----------------------|---------------|-------|
-| rules_before_command_dual | 🔲                     | 🔲             | 🔲     |
-| rules_after_command_dual  | 🔲                     | 🔲             | 🔲     |
-| anonymous_function        | ⚠️                     | 🔲             | 🔲     |
-| blocks                    | 🔲                     | 🔲             | 🔲     |
-| classdef                  | 🔲                     | 🔲             | 🔲     |
-| command_dual              | 🔲                     | 🔲             | 🔲     |
-| comment_block             | ✅                     | ✅             | ✅     |
-| comments                  | ✅                     | ✅             | ✅     |
-| control_statements        | 🔲                     | 🔲             | 🔲     |
-| function                  | 🔲                     | 🔲             | 🔲     |
-| function_call             | 🔲                     | 🔲             | 🔲     |
-| global_persistent         | 🔲                     | 🔲             | 🔲     |
-| import                    | ⚒️                     | ✅             | ✅     |
-| indexing_by_expression    | 🔲                     | 🔲             | 🔲     |
-| multiple_assignment       | 🔲                     | 🔲             | 🔲     |
-| parentheses               | 🔲                     | 🔲             | 🔲     |
-| single_assignment         | 🔲                     | 🔲             | 🔲     |
-| square_brackets           | 🔲                     | 🔲             | 🔲     |
-| curly_brackets            | 🔲                     | 🔲             | 🔲     |
-| indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |
-| line_continuation         | 🔲                     | 🔲             | 🔲     |
-| shell_string              | 🔲                     | 🔲             | 🔲     |
-| string_quoted_double      | 🔲                     | 🔲             | 🔲     |
-| string_quoted_single      | 🔲                     | 🔲             | 🔲     |
-| string                    | 🔲                     | 🔲             | 🔲     |
-| superclass_method_call    | 🔲                     | 🔲             | 🔲     |
-| conjugate_transpos        | 🔲                     | 🔲             | 🔲     |
-| transpose                 | 🔲                     | 🔲             | 🔲     |
-| constants                 | 🔲                     | 🔲             | 🔲     |
-| variables                 | 🔲                     | 🔲             | 🔲     |
-| end_in_parentheses        | 🔲                     | 🔲             | 🔲     |
-| numbers                   | 🔲                     | 🔲             | 🔲     |
-| operators                 | 🔲                     | 🔲             | 🔲     |
-| punctuation               | 🔲                     | 🔲             | 🔲     |
-| validators                | 🔲                     | 🔲             | 🔲     |
-| braced_validator_list     | 🔲                     | 🔲             | 🔲     |
-| validator_strings         | 🔲                     | 🔲             | 🔲     |
-| readwrite_operations      | 🔲                     | 🔲             | 🔲     |
-| property                  | 🔲                     | 🔲             | 🔲     |
-| readwrite_variable        | 🔲                     | 🔲             | 🔲     |
-| property_access           | 🔲                     | 🔲             | 🔲     |
+| Scope                     | No issues with regex  | Implemented   | Test  | Comment                                       |
+|---------------------------|-----------------------|---------------|-------|-----------------------------------------------|
+| rules_before_command_dual | 🔲                     | 🔲             | 🔲     |                                               |
+| rules_after_command_dual  | 🔲                     | 🔲             | 🔲     |                                               |
+| anonymous_function        | ⚠️                     | ⚠️             | ✅     | No line continuation in call                  |
+| blocks                    | 🔲                     | 🔲             | 🔲     |                                               |
+| classdef                  | 🔲                     | 🔲             | 🔲     |                                               |
+| command_dual              | 🔲                     | 🔲             | 🔲     |                                               |
+| comment_block             | ✅                     | ✅             | ✅     |                                               |
+| comments                  | ✅                     | ✅             | ✅     |                                               |
+| control_statements        | 🔲                     | 🔲             | 🔲     |                                               |
+| function                  | 🔲                     | 🔲             | 🔲     |                                               |
+| function_call             | 🔲                     | 🔲             | 🔲     |                                               |
+| global_persistent         | 🔲                     | 🔲             | 🔲     |                                               |
+| import                    | ⚒️                     | ✅             | ✅     |                                               |
+| indexing_by_expression    | 🔲                     | 🔲             | 🔲     |                                               |
+| multiple_assignment       | 🔲                     | 🔲             | 🔲     |                                               |
+| parentheses               | 🔲                     | 🔲             | 🔲     |                                               |
+| single_assignment         | 🔲                     | 🔲             | 🔲     |                                               |
+| square_brackets           | 🔲                     | 🔲             | 🔲     |                                               |
+| curly_brackets            | 🔲                     | 🔲             | 🔲     |                                               |
+| indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |                                               |
+| line_continuation         | ✅                     | ✅             | ✅     |                                               |
+| shell_string              | 🔲                     | 🔲             | 🔲     |                                               |
+| string_quoted_double      | 🔲                     | 🔲             | 🔲     |                                               |
+| string_quoted_single      | 🔲                     | 🔲             | 🔲     |                                               |
+| string                    | 🔲                     | 🔲             | 🔲     |                                               |
+| superclass_method_call    | 🔲                     | 🔲             | 🔲     |                                               |
+| conjugate_transpos        | 🔲                     | 🔲             | 🔲     |                                               |
+| transpose                 | 🔲                     | 🔲             | 🔲     |                                               |
+| constants                 | 🔲                     | 🔲             | 🔲     |                                               |
+| variables                 | 🔲                     | 🔲             | 🔲     |                                               |
+| end_in_parentheses        | 🔲                     | 🔲             | 🔲     |                                               |
+| numbers                   | ✅                     | ✅             | ✅     |                                               |
+| operators                 | 🔲                     | 🔲             | 🔲     |                                               |
+| punctuation               | 🔲                     | 🔲             | 🔲     |                                               |
+| validators                | 🔲                     | 🔲             | 🔲     |                                               |
+| braced_validator_list     | 🔲                     | 🔲             | 🔲     |                                               |
+| validator_strings         | 🔲                     | 🔲             | 🔲     |                                               |
+| readwrite_operations      | 🔲                     | 🔲             | 🔲     |                                               |
+| property                  | 🔲                     | 🔲             | 🔲     |                                               |
+| readwrite_variable        | 🔲                     | 🔲             | 🔲     |                                               |
+| property_access           | 🔲                     | 🔲             | 🔲     |                                               |

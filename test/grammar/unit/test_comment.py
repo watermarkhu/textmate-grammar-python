@@ -1,11 +1,14 @@
 import sys
 from pathlib import Path
+from io import StringIO
 
+sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import unittest
 from sphinx_matlab.grammar import GrammarParser
 from sphinx_matlab.tmlanguage import TMLIST
+from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
 class TestComment(unittest.TestCase):
@@ -15,66 +18,78 @@ class TestComment(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
     def test_inline_comment(test):
-        (parsed, res, data) = test.parser(" % Test this is a comment. \n")
+        (parsed, data) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
         outDict = {
-            "begin": "%",
-            "content": " Test this is a comment. \n",
-            "end": [],
-            "token": "comment.line.percentage.matlab",
-        }
-        test.assertTrue(parsed)
-        test.assertEqual(res, "")
-        test.assertEqual(data[0].to_dict(), outDict)
-
-    def test_section_comment(test):
-        (parsed, res, data) = test.parser("  %% This is a section comment \n")
-        outDict = {
-            "begin": "%%",
-            "content": [
+            "token": "Inline comment",
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": " ",
+            },
+            "captures": [
                 {
-                    "begin": " ",
-                    "content": "This is a section comment ",
-                    "end": [],
-                    "token": "entity.name.section.matlab",
+                    "token": "comment.line.percentage.matlab",
+                    "begin": {
+                        "token": "punctuation.definition.comment.matlab",
+                        "content": "%",
+                    },
+                    "content": "% Test this is a comment. ",
                 }
             ],
-            "end": "\n",
-            "token": "comment.line.double-percentage.matlab",
         }
-        test.assertTrue(parsed)
-        test.assertEqual(res, "")
-        test.assertEqual(data[0].to_dict(), outDict)
+        test.assertTrue(parsed, MSG_NO_MATCH)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+
+    def test_section_comment(test):
+        (parsed, data) = test.parser.parse(StringIO("  %% This is a section comment \n"))
+        outDict = {
+            "token": "Section comment",
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": "  ",
+            },
+            "captures": [
+                {
+                    "token": "comment.line.double-percentage.matlab",
+                    "begin": {
+                        "token": "punctuation.definition.comment.matlab",
+                        "content": "%%",
+                    },
+                    "captures": [
+                        {
+                            "token": "",
+                            "begin": {
+                                "token": "punctuation.whitespace.comment.leading.matlab",
+                                "content": " ",
+                            },
+                            "content": "This is a section comment ",
+                        }
+                    ],
+                }
+            ],
+        }
+        test.assertTrue(parsed, MSG_NO_MATCH)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_multiline_comment(test):
-        (parsed, res, data) = test.parser("  %{\nThis is a comment\nmultiple\n %}")
+        (parsed, data) = test.parser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
         outDict = {
             "token": "comment.block.percentage.matlab",
-            "begin": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": "  ",
-                },
-                {
-                    "token": "punctuation.definition.comment.begin.matlab",
-                    "content": "%{",
-                },
-            ],
-            "content": [
-                {"content": "This is a comment\n", "token": ""},
-                {"content": "multiple\n", "token": ""},
-            ],
-            "end": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": " ",
-                },
-                {"content": "%}", "token": "punctuation.definition.comment.end.matlab"},
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": "  ",
+            },
+            "end": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": " ",
+            },
+            "captures": [
+                {"token": "", "content": "This is a comment\n"},
+                {"token": "", "content": "multiple\n"},
             ],
         }
 
-        test.assertTrue(parsed)
-        test.assertEqual(res, "")
-        test.assertEqual(data[0].to_dict(), outDict)
+        test.assertTrue(parsed, MSG_NO_MATCH)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
 
 if __name__ == "__main__":
