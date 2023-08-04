@@ -20,7 +20,7 @@ class TestImport(unittest.TestCase):
 
     def test_line_continuation(test):
         (parsed, data) = test.single.parse(StringIO("'n'"))
-        data[0].print()
+        
         outDict = {
             "token": "string.quoted.single.matlab",
             "begin": {"token": "punctuation.definition.string.begin.matlab", "content": "'"},
