@@ -20,64 +20,76 @@ class TestComment(unittest.TestCase):
     def test_inline_comment(test):
         (parsed, data) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
         outDict = {
-            "token": "comment.line.percentage.matlab",
-            "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
-            "end": "",
-            "content": [
+            "token": "Inline comment",
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": " ",
+            },
+            "captures": [
                 {
                     "token": "comment.line.percentage.matlab",
-                    "content": " Test this is a comment. \n",
+                    "begin": {
+                        "token": "punctuation.definition.comment.matlab",
+                        "content": "%",
+                    },
+                    "content": "% Test this is a comment. ",
                 }
             ],
         }
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_section_comment(test):
         (parsed, data) = test.parser.parse(StringIO("  %% This is a section comment \n"))
         outDict = {
-            "token": "comment.line.double-percentage.matlab",
-            "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%%"}],
-            "end": "\n",
-            "content": [
+            "token": "Section comment",
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": "  ",
+            },
+            "captures": [
                 {
-                    "token": "entity.name.section.matlab",
-                    "content": "This is a section comment ",
+                    "token": "comment.line.double-percentage.matlab",
+                    "begin": {
+                        "token": "punctuation.definition.comment.matlab",
+                        "content": "%%",
+                    },
+                    "captures": [
+                        {
+                            "token": "",
+                            "begin": {
+                                "token": "punctuation.whitespace.comment.leading.matlab",
+                                "content": " ",
+                            },
+                            "content": "This is a section comment ",
+                        }
+                    ],
                 }
             ],
         }
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_multiline_comment(test):
         (parsed, data) = test.parser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
         outDict = {
             "token": "comment.block.percentage.matlab",
-            "begin": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": "  ",
-                },
-                {
-                    "token": "punctuation.definition.comment.begin.matlab",
-                    "content": "%{",
-                },
-            ],
-            "end": [
-                {
-                    "token": "punctuation.whitespace.comment.leading.matlab",
-                    "content": " ",
-                },
-                {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},
-            ],
-            "content": [
+            "begin": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": "  ",
+            },
+            "end": {
+                "token": "punctuation.whitespace.comment.leading.matlab",
+                "content": " ",
+            },
+            "captures": [
                 {"token": "", "content": "This is a comment\n"},
                 {"token": "", "content": "multiple\n"},
             ],
         }
 
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
 
 if __name__ == "__main__":

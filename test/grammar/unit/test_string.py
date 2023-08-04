@@ -19,11 +19,17 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["string"], key="string")
 
     def test_line_continuation(test):
-        (parsed, data) = test.single.parse(StringIO("'a'"))
+        (parsed, data) = test.single.parse(StringIO("'n'"))
         data[0].print()
+        outDict = {
+            "token": "string.quoted.single.matlab",
+            "begin": {"token": "punctuation.definition.string.begin.matlab", "content": "'"},
+            "end": {"token": "punctuation.definition.string.end.matlab", "content": "'"},
+            "captures": [{"token": "constant.character.escape.matlab", "content": "n"}],
+        }
 
         test.assertTrue(parsed, MSG_NO_MATCH)
-        # test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
 
 if __name__ == "__main__":

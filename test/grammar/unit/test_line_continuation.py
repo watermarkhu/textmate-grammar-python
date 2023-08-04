@@ -20,14 +20,20 @@ class TestImport(unittest.TestCase):
         (parsed, data) = test.parser.parse(StringIO("... Some comment"))
         outDict = {
             "token": "meta.continuation.line.matlab",
-            "content": [
-                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                {"token": "comment.continuation.line.matlab", "content": " Some comment"},
+            "captures": [
+                {
+                    "token": "punctuation.separator.continuation.line.matlab",
+                    "content": "...",
+                },
+                {
+                    "token": "comment.continuation.line.matlab",
+                    "content": " Some comment",
+                },
             ],
         }
 
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
 
 if __name__ == "__main__":

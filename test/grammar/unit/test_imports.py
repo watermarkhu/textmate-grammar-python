@@ -20,11 +20,11 @@ class TestImport(unittest.TestCase):
         (parsed, data) = test.parser.parse(StringIO("import module.submodule.class"))
         outDict = {
             "token": "meta.import.matlab",
-            "content": [
+            "captures": [
                 {"token": "keyword.other.import.matlab", "content": "import"},
                 {
                     "token": "entity.name.namespace.matlab",
-                    "content": [
+                    "captures": [
                         {"token": "entity.name.module.matlab", "content": "module"},
                         {"token": "punctuation.separator.matlab", "content": "."},
                         {"token": "entity.name.module.matlab", "content": "submodule"},
@@ -36,17 +36,17 @@ class TestImport(unittest.TestCase):
         }
 
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_import_wildcard(test):
         (parsed, data) = test.parser.parse(StringIO("import module.submodule.*"))
         outDict = {
             "token": "meta.import.matlab",
-            "content": [
+            "captures": [
                 {"token": "keyword.other.import.matlab", "content": "import"},
                 {
                     "token": "entity.name.namespace.matlab",
-                    "content": [
+                    "captures": [
                         {"token": "entity.name.module.matlab", "content": "module"},
                         {"token": "punctuation.separator.matlab", "content": "."},
                         {"token": "entity.name.module.matlab", "content": "submodule"},
@@ -57,7 +57,7 @@ class TestImport(unittest.TestCase):
             ],
         }
         test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
+        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
 
 if __name__ == "__main__":
