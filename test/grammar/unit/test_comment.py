@@ -18,7 +18,7 @@ class TestComment(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
     def test_inline_comment(test):
-        (parsed, data) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
+        (parsed, data, _) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
         outDict = {
             "token": "Inline comment",
             "begin": {
@@ -40,7 +40,7 @@ class TestComment(unittest.TestCase):
         test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_section_comment(test):
-        (parsed, data) = test.parser.parse(StringIO("  %% This is a section comment \n"))
+        (parsed, data, _) = test.parser.parse(StringIO("  %% This is a section comment \n"))
         outDict = {
             "token": "Section comment",
             "begin": {
@@ -71,7 +71,7 @@ class TestComment(unittest.TestCase):
         test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 
     def test_multiline_comment(test):
-        (parsed, data) = test.parser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
+        (parsed, data, _) = test.parser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
         outDict = {
             "token": "comment.block.percentage.matlab",
             "begin": {

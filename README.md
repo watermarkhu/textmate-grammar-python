@@ -13,7 +13,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 |---------------------------|-----------------------|---------------|-------|-----------------------------------------------|
 | rules_before_command_dual | 🔲                     | 🔲             | 🔲     |                                               |
 | rules_after_command_dual  | 🔲                     | 🔲             | 🔲     |                                               |
-| anonymous_function        | ⚠️                     | ⚠️             | ✅     | No line continuation in call                  |
+| anonymous_function        | ⚠️                     | ✅             | ✅     | No line continuation in call                  |
 | blocks                    | 🔲                     | 🔲             | 🔲     |                                               |
 | classdef                  | 🔲                     | 🔲             | 🔲     |                                               |
 | command_dual              | 🔲                     | 🔲             | 🔲     |                                               |
@@ -35,7 +35,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | shell_string              | 🔲                     | 🔲             | 🔲     |                                               |
 | string_quoted_double      | 🔲                     | 🔲             | 🔲     |                                               |
 | string_quoted_single      | 🔲                     | 🔲             | 🔲     |                                               |
-| string                    | 🔲                     | 🔲             | 🔲     |                                               |
+| string                    | ⚠️                     | ✅             | ✅     |                                               |
 | superclass_method_call    | 🔲                     | 🔲             | 🔲     |                                               |
 | conjugate_transpos        | 🔲                     | 🔲             | 🔲     |                                               |
 | transpose                 | 🔲                     | 🔲             | 🔲     |                                               |

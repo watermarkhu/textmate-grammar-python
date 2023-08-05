@@ -18,7 +18,7 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["anonymous_function"], key="anonymous_function")
 
     def test_single_line(test):
-        (parsed, data) = test.parser.parse(StringIO("@(x,  y) x.^2+y;"))
+        (parsed, data, _) = test.parser.parse(StringIO("@(x,  y) x.^2+y;"))
         outDict = {
             "token": "meta.function.anonymous.matlab",
             "begin": {"token": "punctuation.definition.function.anonymous.matlab", "content": "@"},
@@ -41,7 +41,7 @@ class TestImport(unittest.TestCase):
         test.assertDictEqual(data[0].to_dict(), outDict, MSG_NO_MATCH)
 
     def test_multi_line(test):
-        (parsed, data) = test.parser.parse(StringIO("@(x,...\n  y) x...\n   .^2+y;"))
+        (parsed, data, _) = test.parser.parse(StringIO("@(x,...\n  y) x...\n   .^2+y;"))
         outDict = {
             "token": "meta.function.anonymous.matlab",
             "begin": {"token": "punctuation.definition.function.anonymous.matlab", "content": "@"},
@@ -55,7 +55,9 @@ class TestImport(unittest.TestCase):
                         {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
                         {
                             "token": "meta.continuation.line.matlab",
-                            "captures": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
+                            "captures": [
+                                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."}
+                            ],
                         },
                         {"token": "variable.parameter.input.matlab", "content": "y"},
                     ],
