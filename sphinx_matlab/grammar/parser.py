@@ -87,18 +87,18 @@ class GrammarParser(object):
         return content
 
     def parse(
-        self, stream: StringIO, startEnd: Optional[Tuple[int, int]] = None, **kwargs
+        self, stream: StringIO, startPos: int = 0, closePos: Optional[int] = None, **kwargs
     ) -> Tuple[bool, List[ParsedElement], Optional[Tuple[int, int]]]:
         """Parse the input stream using the current parser."""
-        if startEnd:
-            stream.seek(startEnd[0])
+
+        stream.seek(startPos)
 
         if self.match:
-            (string, captures, startPos) = self.search(
+            (string, captures, parsedStart) = self.search(
                 self.match,
                 stream,
                 parsers=self.captures,
-                readSize=startEnd[1] - startEnd[0] + 1 if startEnd else None,
+                readSize=closePos - startPos + 1 if closePos is not None else None,
                 **kwargs,
             )
             if string is not None:
@@ -109,11 +109,11 @@ class GrammarParser(object):
         elif self.begin and self.end:
             # Find begin
 
-            (beginString, beginCaptured, startPos) = self.search(
+            (beginString, beginCaptured, parsedStart) = self.search(
                 self.begin,
                 stream,
                 parsers=self.beginCaptures,
-                readSize=startEnd[1] - startEnd[0] + 1 if startEnd else None,
+                readSize=closePos - startPos + 1 if closePos is not None else None,
                 **kwargs,
             )
             if beginString is None:
@@ -125,11 +125,11 @@ class GrammarParser(object):
                 self.end,
                 stream,
                 parsers=self.endCaptures,
-                readSize=startEnd[1] - midStartPos + 1 if startEnd else -1,
+                readSize=closePos - midStartPos + 1 if closePos is not None else -1,
                 onlyLeadingWhiteSpace=False,
                 **kwargs,
             )
-            closePos = stream.tell()
+            parsedEnd = stream.tell()
             if endString is None:
                 return False, [], None
 
@@ -137,7 +137,7 @@ class GrammarParser(object):
 
             midCaptured = []
 
-            if startEnd and startEnd == (midStartPos, midClosePos):
+            if (startPos, closePos) == (midStartPos, midClosePos):
                 return (
                     True,
                     [self.stream_read_pos(stream, midStartPos, midClosePos)],
@@ -150,7 +150,7 @@ class GrammarParser(object):
                     stream, startPos=midStartPos, closePos=midClosePos, **kwargs
                 )
 
-            stream.seek(closePos)
+            stream.seek(parsedEnd)
 
             # Create element
             if self.contentToken:
@@ -167,7 +167,7 @@ class GrammarParser(object):
                 elements = [
                     ParsedElementBlock(
                         token=self.token if self.token else self.comment,
-                        content=self.stream_read_pos(stream, startPos, closePos),
+                        content=self.stream_read_pos(stream, parsedStart, parsedEnd),
                         captures=midCaptured,
                         begin=beginCaptured[0] if beginCaptured else None,
                         end=endCaptured[0] if endCaptured else None,
@@ -175,8 +175,9 @@ class GrammarParser(object):
                 ]
 
         elif self.patterns:
-            startPos, closePos = startEnd if startEnd else (stream.tell(), self.stream_end_pos(stream))
-            captured = self.match_patterns(stream, startPos=startPos, closePos=closePos, **kwargs)
+            parsedStart = startPos
+            parsedEnd = closePos if closePos else self.stream_end_pos(stream)
+            captured = self.match_patterns(stream, startPos=parsedStart, closePos=parsedEnd, **kwargs)
             patternClosePos = stream.tell()
 
             if captured:
@@ -184,7 +185,7 @@ class GrammarParser(object):
                     elements = [
                         ParsedElement(
                             token=self.token,
-                            content=self.stream_read_pos(stream, startPos, patternClosePos),
+                            content=self.stream_read_pos(stream, parsedStart, patternClosePos),
                             captures=captured,
                         )
                     ]
@@ -194,18 +195,18 @@ class GrammarParser(object):
                 elements = []
 
         else:
-            if startEnd:
-                startPos = startEnd[0]
-                stream.seek(startEnd[0])
-                content = stream.read(startEnd[1] - startEnd[0])
+            if closePos is not None:
+                parsedStart = startPos
+                content = stream.read(closePos - startPos)
             else:
-                startPos = stream.tell()
+                print("This should not happen")
+                parsedStart = stream.tell()
                 content = stream.readline()
             elements = [ParsedElement(token=self.token if self.token else self.comment, content=content)]
 
-        endPos = stream.tell()
+        parsedEnd = stream.tell()
 
-        return True, elements, (startPos, endPos)
+        return True, elements, (parsedStart, parsedEnd)
 
     def match_patterns(self, stream: StringIO, startPos: int, closePos: int, **kwargs) -> List[ParsedElement]:
         """Find patterns between a starting and closing position."""
@@ -226,7 +227,7 @@ class GrammarParser(object):
                     )
                 else:
                     patternMatched, optPatternElements, optPatternPos = parser.parse(
-                        stream, startEnd=(patternStartPos, closePos), **kwargs
+                        stream, startPos=patternStartPos, closePos=closePos, **kwargs
                     )
                     if patternMatched:
                         parserLastElements[parser], parserLastPos[parser] = (
@@ -325,8 +326,10 @@ class GrammarParser(object):
                 group = matching.group(groupId)
                 if not group:
                     continue
-                span = tuple([pos + matchingToStreamPos for pos in matching.span(groupId)])
-                groupMatched, parsed_elements, _ = parser.parse(stream, startEnd=span)
+                span = matching.span(groupId)
+                groupMatched, parsed_elements, _ = parser.parse(
+                    stream, startPos=span[0] + matchingToStreamPos, closePos=span[1] + matchingToStreamPos
+                )
                 if not groupMatched:
                     stream.seek(initPos)
                     return None, [], None
