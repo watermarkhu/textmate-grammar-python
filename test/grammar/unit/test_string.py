@@ -20,16 +20,17 @@ class TestImport(unittest.TestCase):
         cls.parser = GrammarParser(TMLIST["repository"]["string"], key="string")
 
     def test_single_quoted(test):
-        (parsed, data, _) = test.single.parse(StringIO(r"' '' '"))
-        (parsed, data, _) = test.parser.parse(StringIO(r"'This %.3f is %% a \\ string\n'"))
+        (parsed, data, _) = test.parser.parse(StringIO(r"'This %.3f ''is'' %% a \\ string\n'"))
 
         outDict = {
             "token": "string.quoted.single.matlab",
             "begin": {"token": "punctuation.definition.string.begin.matlab", "content": "'"},
-            "content": "'This %.3f is %% a \\\\ string\\n'",
+            'content': "'This %.3f ''is'' %% a \\\\ string\\n'",
             "end": {"token": "punctuation.definition.string.end.matlab", "content": "'"},
             "captures": [
                 {"token": "constant.character.escape.matlab", "content": "%.3f"},
+                {"token": "constant.character.escape.matlab", "content": "''"},
+                {"token": "constant.character.escape.matlab", "content": "''"},
                 {"token": "constant.character.escape.matlab", "content": "%%"},
                 {"token": "constant.character.escape.matlab", "content": "\\\\"},
                 {"token": "constant.character.escape.matlab", "content": "\\n"},
@@ -40,13 +41,17 @@ class TestImport(unittest.TestCase):
         test.assertDictEqual(data[0].to_dict(allContent=True), outDict, MSG_NOT_PARSED)
 
     def test_double_quoted(test):
-        (parsed, data, _) = test.double.parse(StringIO(r'"This %.3f is %% a \\ string\n"'))
+        (parsed, data, _) = test.double.parse(StringIO(r'"This %.3f ""is"" %% a \\ string\n"'))
 
         outDict = {
             "token": "string.quoted.double.matlab",
             "begin": {"token": "punctuation.definition.string.begin.matlab", "content": '"'},
-            "content": '"This %.3f is %% a \\\\ string\\n"',
+            "content": '"This %.3f ""is"" %% a \\\\ string\\n"',
             "end": {"token": "punctuation.definition.string.end.matlab", "content": '"'},
+            "captures": [
+                {"token": "constant.character.escape.matlab", "content": '""'},
+                {"token": "constant.character.escape.matlab", "content": '""'},
+            ],
         }
 
         test.assertTrue(parsed, MSG_NO_MATCH)

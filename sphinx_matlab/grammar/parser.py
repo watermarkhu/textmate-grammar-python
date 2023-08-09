@@ -7,10 +7,14 @@ import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
 
 
+regex_nextline = re.compile("\n|$")
+REGEX_LOOKBEHIND_MAX = 100
+REGEX_LOOKBEHIND_STEP = 5
+
+
 class GrammarParser(object):
+
     PARSERSTORE = {}
-    regex_lookbehind_max = 100
-    regex_lookbehind_step = 5
 
     def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
         self.grammar = grammar
@@ -85,12 +89,21 @@ class GrammarParser(object):
         content = stream.read(end - start)
         stream.seek(end)
         return content
+    
+    @staticmethod
+    def nextline_pos(stream: StringIO, start:int) -> int:
+        currentPos = stream.tell()
+        stream.seek(start)
+        text = stream.read()
+        stream.seek(currentPos)
+        return regex_nextline.search(text).start()
 
     def parse(
         self, stream: StringIO, startPos: int = 0, closePos: Optional[int] = None, **kwargs
     ) -> Tuple[bool, List[ParsedElement], Optional[Tuple[int, int]]]:
         """Parse the input stream using the current parser."""
 
+        streamEndPos = self.stream_end_pos(stream)
         stream.seek(startPos)
 
         if self.match:
@@ -132,23 +145,63 @@ class GrammarParser(object):
             parsedEnd = stream.tell()
             if endString is None:
                 return False, [], None
-
+            
             # Find content
 
-            midCaptured = []
-
             if (startPos, closePos) == (midStartPos, midClosePos):
+                print("Recursion detected")
                 return (
                     True,
                     [self.stream_read_pos(stream, midStartPos, midClosePos)],
                     (midStartPos, midClosePos),
                 )
-                # raise Warning("Recursion detected")
+            
+            midCaptured = []
+            
+            if self.patterns:
+                parsers = [self.get_parser(callId) for callId in self.patterns]
+                patternStartPos = midStartPos
+                endlinePos = self.nextline_pos(stream, start=midStartPos)
 
-            elif self.patterns:
-                midCaptured = self.match_patterns(
-                    stream, startPos=midStartPos, closePos=midClosePos, **kwargs
-                )
+                while True:
+                    parserOut = [
+                        parser.parse(stream, startPos=patternStartPos, closePos=endlinePos, **kwargs)
+                        for parser in parsers
+                    ]
+                    patsMatched, patsElem, patsSpan = map(list, zip(*parserOut))
+
+                    if any(patsMatched):
+                        patsElem = [pe for (pe, pm) in zip(patsElem, patsMatched) if pm]
+                        patsSpan = [ps for (ps, pm) in zip(patsSpan, patsMatched) if pm]
+
+                        patSpan = sorted(patsSpan, key=lambda x:(x[0],x[0]-x[1]))[0]
+                        patElem = patsElem[patsSpan.index(patSpan)]
+
+                        if patSpan[0] <= midClosePos:
+                            midCaptured += patElem
+                            patternStartPos = patSpan[1]
+                            stream.seek(patternStartPos)
+
+                            if patSpan[1] > midClosePos:
+
+                                (endString, endCaptured, midClosePos) = self.search(
+                                    self.end,
+                                    stream,
+                                    parsers=self.endCaptures,
+                                    readSize=closePos - patternStartPos + 1 if closePos is not None else -1,
+                                    onlyLeadingWhiteSpace=False,
+                                    **kwargs,
+                                )
+                                parsedEnd = stream.tell()
+                                if endString is None:
+                                    return False, [], None
+                        else:
+                            break
+                    else:
+                        if (midClosePos < endlinePos) or (endlinePos + 1 >= streamEndPos):
+                            break
+                        else:
+                            endlinePos = self.nextline_pos(stream, start=endlinePos+1)
 
             stream.seek(parsedEnd)
 
@@ -176,7 +229,7 @@ class GrammarParser(object):
 
         elif self.patterns:
             parsedStart = startPos
-            parsedEnd = closePos if closePos else self.stream_end_pos(stream)
+            parsedEnd = closePos if closePos else streamEndPos
             captured = self.match_patterns(stream, startPos=parsedStart, closePos=parsedEnd, **kwargs)
             patternClosePos = stream.tell()
 
@@ -273,7 +326,7 @@ class GrammarParser(object):
         lookbehind, streamCanLookbehind = 0, True
         performLookbehind = "(?<" in regex._pattern
 
-        while lookbehind <= self.regex_lookbehind_max and streamCanLookbehind:
+        while lookbehind <= REGEX_LOOKBEHIND_MAX and streamCanLookbehind:
             if not performLookbehind:  # Only perform while loop once
                 streamCanLookbehind = False
             if (initPos - lookbehind) < 0:  # Set to start of stream of lookbehind is maximized
@@ -285,13 +338,13 @@ class GrammarParser(object):
                 lines = [
                     line + "\n" for line in stream.read(readSize + lookbehind).split("\n")
                 ]  # Add newline as tmlanguage expects it.
-                for lineNumber, line in enumerate(lines):
+                for line in lines:
                     matching = regex.search(line)
                     if matching:
                         break  # Find first match encountered per line
                     linePos += len(line)
                 else:
-                    lookbehind += self.regex_lookbehind_step
+                    lookbehind += REGEX_LOOKBEHIND_STEP
                     continue
                 matchingToStreamPos = linePos + initPos - lookbehind
             else:
@@ -301,7 +354,7 @@ class GrammarParser(object):
                 if not matching or (
                     onlyLeadingWhiteSpace and any(char != " " for char in line[: matching.start()])
                 ):  # If not matching or leading characters are not whitespace
-                    lookbehind += self.regex_lookbehind_step
+                    lookbehind += REGEX_LOOKBEHIND_STEP
                     continue
                 matchingToStreamPos = initPos + lookbehind
 
