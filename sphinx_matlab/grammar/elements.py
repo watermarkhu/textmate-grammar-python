@@ -8,20 +8,25 @@ class ParsedElement(object):
         self.content = content
         self.captures = captures
 
-    def to_dict(self, allContent: bool = False) -> dict:
+    def to_dict(self, content: bool = True) -> dict:
         outDict = dict(self.__dict__)
-        if not outDict["captures"]:
-            outDict.pop("captures")
+        if not content:
+            outDict.pop("content")
+        outDict = self.list_property_to_dict(outDict, "captures", content)
+        return outDict
+
+    def list_property_to_dict(self, outDict: dict, property: str, content: bool):
+        if not outDict[property]:
+            outDict.pop(property)
         else:
-            if not allContent:
-                outDict.pop("content")
-            outDict["captures"] = [
-                item.to_dict() if isinstance(item, ParsedElement) else item for item in self.captures
+            outDict[property] = [
+                item.to_dict(content=content) if isinstance(item, ParsedElement) else item
+                for item in getattr(self, property)
             ]
         return outDict
 
-    def print(self, allContent: bool = False) -> None:
-        pprint(self.to_dict(allContent=allContent), sort_dicts=False, width=120)
+    def print(self, content: bool = True) -> None:
+        pprint(self.to_dict(content=content), sort_dicts=False, width=120)
 
     def __repr__(self) -> str:
         return repr(f"{self.token}<{self.content}>({len(self.captures)})")
@@ -33,8 +38,8 @@ class ParsedElementBlock(ParsedElement):
         token: str,
         content: str,
         captures: List[ParsedElement] = [],
-        begin: Optional[ParsedElement] = None,
-        end: Optional[ParsedElement] = None,
+        begin: List[ParsedElement] = [],
+        end: List[ParsedElement] = [],
     ) -> None:
         self.token = token
         self.begin = begin
@@ -42,11 +47,8 @@ class ParsedElementBlock(ParsedElement):
         self.end = end
         self.captures = captures
 
-    def to_dict(self, *args, **kwargs) -> dict:
-        outDict = super().to_dict(*args, **kwargs)
-        for attr in ["begin", "end"]:
-            if getattr(self, attr) is None:
-                outDict.pop(attr)
-            else:
-                outDict[attr] = getattr(self, attr).to_dict()
+    def to_dict(self, *args, content:bool = True, **kwargs) -> dict:
+        outDict = super().to_dict(*args, content=content, **kwargs)
+        outDict = self.list_property_to_dict(outDict, "begin", content)
+        outDict = self.list_property_to_dict(outDict, "end", content)
         return outDict

@@ -20,15 +20,10 @@ class TestImport(unittest.TestCase):
         (parsed, data, _) = test.parser.parse(StringIO("... Some comment"))
         outDict = {
             "token": "meta.continuation.line.matlab",
+            "content": "... Some comment",
             "captures": [
-                {
-                    "token": "punctuation.separator.continuation.line.matlab",
-                    "content": "...",
-                },
-                {
-                    "token": "comment.continuation.line.matlab",
-                    "content": " Some comment",
-                },
+                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
+                {"token": "comment.continuation.line.matlab", "content": " Some comment"},
             ],
         }
 

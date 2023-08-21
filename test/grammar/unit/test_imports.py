@@ -20,10 +20,12 @@ class TestImport(unittest.TestCase):
         (parsed, data, _) = test.parser.parse(StringIO("import module.submodule.class"))
         outDict = {
             "token": "meta.import.matlab",
+            "content": "import module.submodule.class",
             "captures": [
                 {"token": "keyword.other.import.matlab", "content": "import"},
                 {
                     "token": "entity.name.namespace.matlab",
+                    "content": "module.submodule.",
                     "captures": [
                         {"token": "entity.name.module.matlab", "content": "module"},
                         {"token": "punctuation.separator.matlab", "content": "."},
@@ -42,10 +44,12 @@ class TestImport(unittest.TestCase):
         (parsed, data, _) = test.parser.parse(StringIO("import module.submodule.*"))
         outDict = {
             "token": "meta.import.matlab",
+            "content": "import module.submodule.*",
             "captures": [
                 {"token": "keyword.other.import.matlab", "content": "import"},
                 {
                     "token": "entity.name.namespace.matlab",
+                    "content": "module.submodule.",
                     "captures": [
                         {"token": "entity.name.module.matlab", "content": "module"},
                         {"token": "punctuation.separator.matlab", "content": "."},
@@ -56,6 +60,7 @@ class TestImport(unittest.TestCase):
                 },
             ],
         }
+
         test.assertTrue(parsed, MSG_NO_MATCH)
         test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
 

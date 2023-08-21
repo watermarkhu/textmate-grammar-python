@@ -145,6 +145,9 @@
             {
               "name": "punctuation.separator.parameter.comma.matlab",
               "match": ","
+            },
+            {
+              "include": "#line_continuation"
             }
           ]
         },
@@ -165,8 +168,14 @@
           "patterns": [
             {
               "include": "$self"
+            },
+            {
+              "include": "#line_continuation"
             }
           ]
+        },
+        {
+          "include": "#line_continuation"
         }
       ],
       "end": "(?=;|(?<=[^.])\\n|%)"

@@ -96,7 +96,7 @@ class GrammarParser(object):
         stream.seek(start)
         text = stream.read()
         stream.seek(currentPos)
-        return regex_nextline.search(text).start()
+        return regex_nextline.search(text).start() + start
 
     def parse(
         self, stream: StringIO, startPos: int = 0, closePos: Optional[int] = None, **kwargs
@@ -121,7 +121,6 @@ class GrammarParser(object):
 
         elif self.begin and self.end:
             # Find begin
-
             (beginString, beginCaptured, parsedStart) = self.search(
                 self.begin,
                 stream,
@@ -133,7 +132,7 @@ class GrammarParser(object):
                 return False, [], None
             midStartPos = stream.tell()
 
-            # Find end
+            # Fist attempt at finding an end
             (endString, endCaptured, midClosePos) = self.search(
                 self.end,
                 stream,
@@ -146,24 +145,23 @@ class GrammarParser(object):
             if endString is None:
                 return False, [], None
             
-            # Find content
-
-            if (startPos, closePos) == (midStartPos, midClosePos):
-                print("Recursion detected")
+            # Prevent recursion
+            endlinePos = self.nextline_pos(stream, start=midStartPos)
+            recursionEndPos = endlinePos if self.patterns else midClosePos
+            if (startPos, closePos) == (midStartPos, recursionEndPos):
                 return (
                     True,
                     [self.stream_read_pos(stream, midStartPos, midClosePos)],
                     (midStartPos, midClosePos),
                 )
             
+            # Find content            
             midCaptured = []
-            
             if self.patterns:
-                parsers = [self.get_parser(callId) for callId in self.patterns]
                 patternStartPos = midStartPos
-                endlinePos = self.nextline_pos(stream, start=midStartPos)
+                parsers = [self.get_parser(callId) for callId in self.patterns]
 
-                while True:
+                while patternStartPos != midClosePos:
                     parserOut = [
                         parser.parse(stream, startPos=patternStartPos, closePos=endlinePos, **kwargs)
                         for parser in parsers
@@ -177,12 +175,26 @@ class GrammarParser(object):
                         patSpan = sorted(patsSpan, key=lambda x:(x[0],x[0]-x[1]))[0]
                         patElem = patsElem[patsSpan.index(patSpan)]
 
-                        if patSpan[0] <= midClosePos:
+                        if patSpan[0] != patternStartPos:
+                            if (midClosePos < endlinePos) or (endlinePos + 1 >= streamEndPos):
+                                break
+                            else:
+                                endlinePos = self.nextline_pos(stream, start=endlinePos+1)
+
+                        elif patSpan[0] <= midClosePos:
+                            # Valid element
                             midCaptured += patElem
                             patternStartPos = patSpan[1]
                             stream.seek(patternStartPos)
 
-                            if patSpan[1] > midClosePos:
+                            if patternStartPos == endlinePos:
+                                if (midClosePos < endlinePos) or (endlinePos + 1 >= streamEndPos):
+                                    break
+                                else:
+                                    patternStartPos += 1
+                                    endlinePos = self.nextline_pos(stream, start=endlinePos+1)
+
+                            elif patternStartPos > midClosePos:
 
                                 (endString, endCaptured, midClosePos) = self.search(
                                     self.end,
@@ -197,6 +209,7 @@ class GrammarParser(object):
                                     return False, [], None
                         else:
                             break
+
                     else:
                         if (midClosePos < endlinePos) or (endlinePos + 1 >= streamEndPos):
                             break
@@ -212,8 +225,8 @@ class GrammarParser(object):
                         token=self.token,
                         content=self.stream_read_pos(stream, midStartPos, midClosePos),
                         captures=midCaptured,
-                        begin=beginCaptured[0] if beginCaptured else None,
-                        end=endCaptured[0] if endCaptured else None,
+                        begin=beginCaptured if beginCaptured else None,
+                        end=endCaptured if endCaptured else None,
                     )
                 ]
             else:
@@ -222,8 +235,8 @@ class GrammarParser(object):
                         token=self.token if self.token else self.comment,
                         content=self.stream_read_pos(stream, parsedStart, parsedEnd),
                         captures=midCaptured,
-                        begin=beginCaptured[0] if beginCaptured else None,
-                        end=endCaptured[0] if endCaptured else None,
+                        begin=beginCaptured if beginCaptured else None,
+                        end=endCaptured if endCaptured else None,
                     )
                 ]
 
