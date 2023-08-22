@@ -22,12 +22,12 @@ class TestComment(unittest.TestCase):
         outDict = {
             "token": "Inline comment",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
-            "content": " % Test this is a comment. ",
+            "content": "% Test this is a comment. ",
             "captures": [
                 {
                     "token": "comment.line.percentage.matlab",
                     "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
-                    "content": "% Test this is a comment. ",
+                    "content": " Test this is a comment. ",
                 }
             ],
         }
@@ -39,12 +39,12 @@ class TestComment(unittest.TestCase):
         outDict = {
             "token": "Section comment",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
-            "content": "  %% This is a section comment \n",
+            "content": "%% This is a section comment ",
             "captures": [
                 {
                     "token": "comment.line.double-percentage.matlab",
                     "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%%"}],
-                    "content": "%% This is a section comment \n",
+                    "content": " This is a section comment ",
                     "captures": [
                         {
                             "token": "",
@@ -68,7 +68,7 @@ class TestComment(unittest.TestCase):
                 {"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "},
                 {"token": "punctuation.definition.comment.begin.matlab", "content": "%{"},
             ],
-            "content": "  %{\nThis is a comment\nmultiple\n %}",
+            "content": "This is a comment\nmultiple\n",
             "end": [
                 {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "},
                 {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},
