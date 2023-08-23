@@ -25,7 +25,7 @@ class TestImport(unittest.TestCase):
         outDict = {
             "token": "string.quoted.single.matlab",
             "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": "'"}],
-            "content": "This %.3f ''is'' %% a \\\\ string\\n",
+            "content": "'This %.3f ''is'' %% a \\\\ string\\n'",
             "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
             "captures": [
                 {"token": "constant.character.escape.matlab", "content": "%.3f"},
@@ -46,7 +46,7 @@ class TestImport(unittest.TestCase):
         outDict = {
             "token": "string.quoted.double.matlab",
             "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": '"'}],
-            "content": 'This %.3f ""is"" %% a \\\\ string\\n',
+            "content": '"This %.3f ""is"" %% a \\\\ string\\n"',
             "end": [{"token": "punctuation.definition.string.end.matlab", "content": '"'}],
             "captures": [
                 {"token": "constant.character.escape.matlab", "content": '""'},

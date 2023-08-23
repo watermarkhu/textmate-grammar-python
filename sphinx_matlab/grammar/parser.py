@@ -146,30 +146,33 @@ class GrammarParser(object):
             )
             if endString is None:
                 return False, [], None
-
-            # Prevent recursion
-            if (startPos, closePos) == (midStartPos, midClosePos):
-                return (
-                    True,
-                    [self.stream_read_pos(stream, midStartPos, midClosePos)],
-                    (midStartPos, midClosePos),
-                )
+            parsedEnd = stream.tell()
 
             # Find content
-            midCaptured = []
+            midCaptured, recursionFound = [], False
             if self.patterns:
                 # Defines where to start looking for a pattern
                 patternStartPos = midStartPos
+                lastPatternStartPos = None
 
                 # Get parsers and create lookup store
                 parsers = [self.get_parser(callId) for callId in self.patterns]
                 foundPatternElem = {parser: None for parser in parsers}
                 foundPatternSpan = {parser: None for parser in parsers}
 
-                while patternStartPos != midClosePos:
+                while patternStartPos < midClosePos:
+                    
+                    if patternStartPos == lastPatternStartPos:
+                        break
+
                     # Find the next match per parser until the end of suspected end (midClosePos)
                     parsersElem, parsersSpan = [], []
                     for parser in parsers:  # Find match per parser
+                        if (startPos, closePos) == (patternStartPos, midClosePos) and parser is self:
+                            # Prevent recursion when start end are the same as level above
+                            parsers = [parser for parser in parsers if parser is not self]
+                            recursionFound = True
+                            continue
                         if (
                             foundPatternElem[parser] is not None
                             and foundPatternSpan[parser][0] >= patternStartPos
@@ -194,7 +197,7 @@ class GrammarParser(object):
                         if bestSpan[0] <= midClosePos:
                             # Valid best element, starting before suspected end
                             midCaptured += bestElem
-                            patternStartPos = bestSpan[1]
+                            lastPatternStartPos, patternStartPos = patternStartPos, bestSpan[1]
                             stream.seek(patternStartPos)
 
                             if patternStartPos > midClosePos:
@@ -209,6 +212,7 @@ class GrammarParser(object):
                                 )
                                 if endString is None:
                                     return False, [], None
+                                parsedEnd = stream.tell()
                         else:
                             break
 
@@ -218,10 +222,14 @@ class GrammarParser(object):
             stream.seek(midClosePos)
 
             # Create element
-            if self.contentToken:
+            if recursionFound:
+                # In recursive child, return captured as elements
+                elements = midCaptured
+            elif self.contentToken:
+                # Return with only mid as content of element
                 elements = [
                     ParsedElementBlock(
-                        token=self.token,
+                        token=self.contentToken,
                         content=self.stream_read_pos(stream, midStartPos, midClosePos),
                         captures=midCaptured,
                         begin=beginCaptured if beginCaptured else None,
@@ -229,10 +237,11 @@ class GrammarParser(object):
                     )
                 ]
             else:
+                # Return with begin and end included in content of element
                 elements = [
                     ParsedElementBlock(
                         token=self.token if self.token else self.comment,
-                        content=self.stream_read_pos(stream, midStartPos, midClosePos),
+                        content=self.stream_read_pos(stream, parsedStart, parsedEnd),
                         captures=midCaptured,
                         begin=beginCaptured if beginCaptured else None,
                         end=endCaptured if endCaptured else None,

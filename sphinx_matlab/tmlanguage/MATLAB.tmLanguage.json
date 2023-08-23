@@ -154,7 +154,7 @@
         {
           "name": "meta.parameters.matlab",
           "begin": "(?<=\\))[^\\S\\n]*(\\()?",
-          "end": "(\\))?[^\\S\\n]*(?=;|(?<=[^.])\\n|%)",
+          "end": "(\\))?[^\\S\\n]*(?=;|(?<!(?:\\.\\.\\..*))\\n|%)",
           "beginCaptures": {
             "1": {
               "name": "punctuation.section.group.begin.matlab"
@@ -178,7 +178,7 @@
           "include": "#line_continuation"
         }
       ],
-      "end": "(?=;|(?<=[^.])\\n|%)"
+      "end": "(?=;|(?<!(?:\\.\\.\\..*))\\n|%)"
     },
     "blocks": {
       "patterns": [
