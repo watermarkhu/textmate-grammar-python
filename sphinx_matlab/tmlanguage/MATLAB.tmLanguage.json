@@ -1573,7 +1573,7 @@
         {
           "comment": "Function handle accessor",
           "name": "keyword.operator.storage.at.matlab",
-          "match": "(?<!\\w)@(?=\\s{,4}\\w)"
+          "match": "(?<!\\w)@(?=[\\t ]*\\w)"
         },
         {
           "comment": "Metadata query for class properties",
@@ -1583,12 +1583,12 @@
         {
           "comment": "Arithmetic operator symbols",
           "name": "keyword.operator.arithmetic.matlab",
-          "match": "(?<=[a-zA-Z0-9\\s])(\\+|-|\\*|\\.\\*|/|\\./|\\\\|\\.\\\\|\\^|\\.\\^)(?=[a-zA-Z0-9\\s])"
+          "match": "(?<=[a-zA-Z0-9\\s])(\\+|-|\\*|\\.\\*|/|\\./|\\\\|\\.\\\\|\\^|\\.\\^)(?=[a-zA-Z0-9\\s]|(?:\\.\\.\\.))"
         },
         {
           "comment": "Operator symbols",
           "name": "keyword.operator.logical.matlab",
-          "match": "(?<=[a-zA-Z0-9\\s])(==|~=|&|&&|\\||\\|\\|)(?=[a-zA-Z0-9\\s])"
+          "match": "(?<=[a-zA-Z0-9\\s])(==|~=|&|&&|\\||\\|\\|)(?=[a-zA-Z0-9\\s]|(?:\\.\\.\\.))"
         },
         {
           "comment": "Assignment operator",
@@ -1598,12 +1598,12 @@
         {
           "comment": "Colon operator for vector creation/indexing",
           "name": "keyword.operator.vector.colon.matlab",
-          "match": "(?<=[a-zA-Z0-9_\\s(){,]|^):(?=[a-zA-Z0-9_\\s()},]|$)"
+          "match": "(?<=[a-zA-Z0-9_\\s(){,]|^):(?=[a-zA-Z0-9_\\s()},]|$||(?:\\.\\.\\.))"
         },
         {
           "comment": "Comparative operators",
           "name": "keyword.operator.relational.matlab",
-          "match": "(?<=[a-zA-Z0-9\\s])(>|>=|<|<=)(?=\\s)"
+          "match": "(?<=[a-zA-Z0-9\\s])(>|>=|<|<=)(?=[a-zA-Z0-9\\s]|(?:\\.\\.\\.))"
         }
       ]
     },

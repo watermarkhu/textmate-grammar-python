@@ -323,7 +323,7 @@ class GrammarParser(object):
                 else:
                     elements = captured
             else:
-                elements = []
+                return False, [], None
 
         else:
             if closePos is not None:

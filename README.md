@@ -43,7 +43,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | variables                 | ✅                     | ✅             | ✅     |                                               |
 | end_in_parentheses        | ✅                     | ✅             | 🚫     | Not required                                  |
 | numbers                   | ✅                     | ✅             | ✅     |                                               |
-| operators                 | 🔲                     | 🔲             | 🔲     |                                               |
+| operators                 | ✅                     | ✅             | ✅     |                                               |
 | punctuation               | ✅                     | ✅             | ✅     |                                               |
 | validators                | 🔲                     | 🔲             | 🔲     |                                               |
 | braced_validator_list     | 🔲                     | 🔲             | 🔲     |                                               |
