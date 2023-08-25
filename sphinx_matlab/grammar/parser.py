@@ -346,7 +346,6 @@ class GrammarParser(object):
         stream: StringIO,
         parsers: Dict[int, "GrammarParser"] = [],
         readSize: Optional[int] = None,
-        onlyLeadingWhiteSpace: bool = True,
         **kwargs,
     ) -> Tuple[List[ParsedElement], Optional[Tuple[int, int]]]:
         """Matches the stream against a capture group.
@@ -386,9 +385,7 @@ class GrammarParser(object):
                 stream.seek(initPos - lookbehind)
                 line = stream.readline()
                 matching = regex.search(line)
-                if not matching or (
-                    onlyLeadingWhiteSpace and any(char != " " for char in line[: matching.start()])
-                ):  # If not matching or leading characters are not whitespace
+                if not matching: 
                     lookbehind += REGEX_LOOKBEHIND_STEP
                     continue
                 matchingToStreamPos = initPos + lookbehind

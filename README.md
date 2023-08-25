@@ -19,10 +19,10 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | command_dual              | 🔲                     | 🔲             | 🔲     |                                               |
 | comment_block             | ✅                     | ✅             | ✅     |                                               |
 | comments                  | ✅                     | ✅             | ✅     |                                               |
-| control_statements        | 🔲                     | 🔲             | 🔲     |                                               |
+| control_statements        | ✅                     | ✅             | ✅     |                                               |
 | function                  | 🔲                     | 🔲             | 🔲     |                                               |
 | function_call             | 🔲                     | 🔲             | 🔲     |                                               |
-| global_persistent         | 🔲                     | 🔲             | 🔲     |                                               |
+| global_persistent         | ✅                     | ✅             | ✅     |                                               |
 | import                    | ✅                     | ✅             | ✅     |                                               |
 | indexing_by_expression    | 🔲                     | 🔲             | 🔲     |                                               |
 | multiple_assignment       | 🔲                     | 🔲             | 🔲     |                                               |
@@ -32,16 +32,16 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | curly_brackets            | 🔲                     | 🔲             | 🔲     |                                               |
 | indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |                                               |
 | line_continuation         | ✅                     | ✅             | ✅     |                                               |
-| shell_string              | 🔲                     | 🔲             | 🔲     |                                               |
-| string_quoted_double      | 🔲                     | 🔲             | 🔲     |                                               |
-| string_quoted_single      | 🔲                     | 🔲             | 🔲     |                                               |
+| shell_string              | ✅                     | ✅             | ⚠️     | Requires source.shell                         |
+| string_quoted_double      | ✅                     | ✅             | ✅     |                                               |
+| string_quoted_single      | ✅                     | ✅             | ✅     |                                               |
 | string                    | ✅                     | ✅             | ✅     |                                               |
 | superclass_method_call    | 🔲                     | 🔲             | 🔲     |                                               |
-| conjugate_transpos        | 🔲                     | 🔲             | 🔲     |                                               |
-| transpose                 | 🔲                     | 🔲             | 🔲     |                                               |
-| constants                 | 🔲                     | 🔲             | 🔲     |                                               |
-| variables                 | 🔲                     | 🔲             | 🔲     |                                               |
-| end_in_parentheses        | 🔲                     | 🔲             | 🔲     |                                               |
+| conjugate_transpos        | ✅                     | ✅             | ✅     |                                               |
+| transpose                 | ✅                     | ✅             | ✅     |                                               |
+| constants                 | ✅                     | ✅             | ✅     |                                               |
+| variables                 | ✅                     | ✅             | ✅     |                                               |
+| end_in_parentheses        | ✅                     | ✅             | 🚫     | Not required                                  |
 | numbers                   | ✅                     | ✅             | ✅     |                                               |
 | operators                 | 🔲                     | 🔲             | 🔲     |                                               |
 | punctuation               | ✅                     | ✅             | ✅     |                                               |
