@@ -1,29 +1,35 @@
-from typing import List, Optional
+from typing import List, Tuple
 from pprint import pprint
+from io import StringIO
 
 
 class ParsedElement(object):
-    def __init__(self, token: str, content: str, captures: List["ParsedElement"] = []) -> None:
+    def __init__(
+        self, token: str, stream: StringIO, span: Tuple[int, int], captures: List["ParsedElement"] = []
+    ) -> None:
         self.token = token
-        self.content = content
+        self.stream = stream
+        self.span = span
         self.captures = captures
+    
+    @property
+    def content(self):
+        self.stream.seek(self.span[0])
+        return self.stream.read(self.span[1] - self.span[0])
 
     def to_dict(self, content: bool = True) -> dict:
-        outDict = dict(self.__dict__)
-        if not content:
-            outDict.pop("content")
-        outDict = self.list_property_to_dict(outDict, "captures", content)
+        outDict = dict(token=self.token)
+        if content:
+            outDict["content"] = self.content
+        if self.captures:
+            outDict["captures"] = self.list_property_to_dict("captures", content)
         return outDict
 
-    def list_property_to_dict(self, outDict: dict, property: str, content: bool):
-        if not outDict[property]:
-            outDict.pop(property)
-        else:
-            outDict[property] = [
-                item.to_dict(content=content) if isinstance(item, ParsedElement) else item
-                for item in getattr(self, property)
-            ]
-        return outDict
+    def list_property_to_dict(self, property: str, content: bool):
+        return [
+            item.to_dict(content=content) if isinstance(item, ParsedElement) else item
+            for item in getattr(self, property, [])
+        ]
 
     def print(self, content: bool = True) -> None:
         pprint(self.to_dict(content=content), sort_dicts=False, width=120)
@@ -35,20 +41,19 @@ class ParsedElement(object):
 class ParsedElementBlock(ParsedElement):
     def __init__(
         self,
-        token: str,
-        content: str,
-        captures: List[ParsedElement] = [],
         begin: List[ParsedElement] = [],
         end: List[ParsedElement] = [],
+        **kwargs
     ) -> None:
-        self.token = token
+        super().__init__(**kwargs)
         self.begin = begin
-        self.content = content
         self.end = end
-        self.captures = captures
+        
 
-    def to_dict(self, *args, content:bool = True, **kwargs) -> dict:
+    def to_dict(self, *args, content: bool = True, **kwargs) -> dict:
         outDict = super().to_dict(*args, content=content, **kwargs)
-        outDict = self.list_property_to_dict(outDict, "begin", content)
-        outDict = self.list_property_to_dict(outDict, "end", content)
+        if self.begin:
+            outDict["begin"] = self.list_property_to_dict("begin", content)
+        if self.end:
+            outDict["end"] = self.list_property_to_dict("end", content)
         return outDict
