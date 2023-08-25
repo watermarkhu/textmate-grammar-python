@@ -119,7 +119,14 @@ class GrammarParser(object):
             )
             if span is None:
                 return False, [], None
-            elements = [ParsedElement(token=self.token, stream=stream, span=span, captures=captures)]
+            elements = [
+                ParsedElement(
+                    token=self.token if self.token else self.comment,
+                    stream=stream,
+                    span=span,
+                    captures=captures,
+                )
+            ]
             parsedStart, parsedEnd = span
 
         elif self.begin and self.end:
@@ -217,8 +224,6 @@ class GrammarParser(object):
 
                     else:  # No patterns found, suspected end (midClosePos) is true
                         break
-
-            stream.seek(midClosePos)
 
             # Create element
             if recursionFound:
@@ -385,7 +390,7 @@ class GrammarParser(object):
                 stream.seek(initPos - lookbehind)
                 line = stream.readline()
                 matching = regex.search(line)
-                if not matching: 
+                if not matching:
                     lookbehind += REGEX_LOOKBEHIND_STEP
                     continue
                 matchingToStreamPos = initPos + lookbehind
@@ -402,7 +407,13 @@ class GrammarParser(object):
 
         # No groups, but a parser existed. Use token of parser to create element
         if 0 in parsers:
-            elements = [ParsedElement(token=parsers[0].token, stream=stream, span=(startPos, closePos))]
+            elements = [
+                ParsedElement(
+                    token=parsers[0].token if parsers[0].token else parsers[0].comment,
+                    stream=stream,
+                    span=(startPos, closePos),
+                )
+            ]
         # Parse each capture group
         elif parsers:
             elements = []
@@ -411,12 +422,9 @@ class GrammarParser(object):
                 if not group:
                     continue
                 span = matching.span(groupId)
-                groupMatched, parsed_elements, _ = parser.parse(
+                _, parsed_elements, _ = parser.parse(
                     stream, startPos=span[0] + matchingToStreamPos, closePos=span[1] + matchingToStreamPos
                 )
-                if not groupMatched:
-                    stream.seek(initPos)
-                    return [], None
                 elements += parsed_elements
             if not elements:
                 return [], (startPos, closePos)

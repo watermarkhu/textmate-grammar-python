@@ -7,6 +7,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 - 🔲 No work done
 - ⚠️ Issue found
 - ⚒️ PR submitted
+- 🩹 PR accepted
 - ✅ Done
 - 🚫 Cannot be done
 - 👍 Not required
@@ -25,7 +26,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | function                  | 🔲                     | 🔲             | 🔲     |                                               |
 | function_call             | 🔲                     | 🔲             | 🔲     |                                               |
 | global_persistent         | ✅                     | ✅             | ✅     |                                               |
-| import                    | ✅                     | ✅             | ✅     |                                               |
+| import                    | 🩹                     | ✅             | ✅     |                                               |
 | indexing_by_expression    | 🔲                     | 🔲             | 🔲     |                                               |
 | multiple_assignment       | 🔲                     | 🔲             | 🔲     |                                               |
 | parentheses               | 🔲                     | 🔲             | 🔲     |                                               |
@@ -45,12 +46,12 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | variables                 | ✅                     | ✅             | ✅     |                                               |
 | end_in_parentheses        | ✅                     | ✅             | 👍     |                                               |
 | numbers                   | ✅                     | ✅             | ✅     |                                               |
-| operators                 | ✅                     | ✅             | ✅     |                                               |
+| operators                 | ⚒️                     | ✅             | ✅     |                                               |
 | punctuation               | ✅                     | ✅             | ✅     |                                               |
-| validators                | 🔲                     | 🔲             | 🔲     |                                               |
-| braced_validator_list     | 🔲                     | 🔲             | 🔲     |                                               |
-| validator_strings         | 🔲                     | 🔲             | 🔲     |                                               |
+| validators                | ✅                     | ✅             | ✅     |                                               |
+| braced_validator_list     | ✅                     | ✅             | ✅     |                                               |
+| validator_strings         | ✅                     | ✅             | ✅     |                                               |
 | readwrite_operations      | ✅                     | ✅             | ✅     |                                               |
-| property                  | ✅                     | ✅             | ✅     |                                               |
-| readwrite_variable        | ✅                     | ✅             | ✅     |                                               |
+| property                  | ⚒️                     | ✅             | ✅     |                                               |
+| readwrite_variable        | ⚒️                     | ✅             | ✅     |                                               |
 | property_access           | ✅                     | ✅             | ✅     |                                               |
