@@ -8,6 +8,8 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 - ⚠️ Issue found
 - ⚒️ PR submitted
 - ✅ Done
+- 🚫 Cannot be done
+- 👍 Not required
 
 | Scope                     | No issues with regex  | Implemented   | Test  | Comment                                       |
 |---------------------------|-----------------------|---------------|-------|-----------------------------------------------|
@@ -32,7 +34,7 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | curly_brackets            | 🔲                     | 🔲             | 🔲     |                                               |
 | indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |                                               |
 | line_continuation         | ✅                     | ✅             | ✅     |                                               |
-| shell_string              | ✅                     | ✅             | ⚠️     | Requires source.shell                         |
+| shell_string              | ✅                     | ✅             | 🚫     | Requires source.shell                         |
 | string_quoted_double      | ✅                     | ✅             | ✅     |                                               |
 | string_quoted_single      | ✅                     | ✅             | ✅     |                                               |
 | string                    | ✅                     | ✅             | ✅     |                                               |
@@ -41,14 +43,14 @@ The tokenization engine is based on the [syntax](https://github.com/mathworks/MA
 | transpose                 | ✅                     | ✅             | ✅     |                                               |
 | constants                 | ✅                     | ✅             | ✅     |                                               |
 | variables                 | ✅                     | ✅             | ✅     |                                               |
-| end_in_parentheses        | ✅                     | ✅             | 🚫     | Not required                                  |
+| end_in_parentheses        | ✅                     | ✅             | 👍     |                                               |
 | numbers                   | ✅                     | ✅             | ✅     |                                               |
 | operators                 | ✅                     | ✅             | ✅     |                                               |
 | punctuation               | ✅                     | ✅             | ✅     |                                               |
 | validators                | 🔲                     | 🔲             | 🔲     |                                               |
 | braced_validator_list     | 🔲                     | 🔲             | 🔲     |                                               |
 | validator_strings         | 🔲                     | 🔲             | 🔲     |                                               |
-| readwrite_operations      | 🔲                     | 🔲             | 🔲     |                                               |
-| property                  | 🔲                     | 🔲             | 🔲     |                                               |
-| readwrite_variable        | 🔲                     | 🔲             | 🔲     |                                               |
-| property_access           | 🔲                     | 🔲             | 🔲     |                                               |
+| readwrite_operations      | ✅                     | ✅             | ✅     |                                               |
+| property                  | ✅                     | ✅             | ✅     |                                               |
+| readwrite_variable        | ✅                     | ✅             | ✅     |                                               |
+| property_access           | ✅                     | ✅             | ✅     |                                               |
