@@ -1,0 +1,4 @@
+onigurumacffi
+pytest
+pytest-icdiff
+black

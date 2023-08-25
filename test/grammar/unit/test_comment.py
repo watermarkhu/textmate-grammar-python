@@ -5,21 +5,20 @@ from io import StringIO
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
-import unittest
+import pytest
 from sphinx_matlab.grammar import GrammarParser
 from sphinx_matlab.tmlanguage import TMLIST
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-class TestComment(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.blockParser = GrammarParser(TMLIST["repository"]["comment_block"], key="comment_block")
-        cls.parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
+GrammarParser(TMLIST["repository"]["comment_block"], key="comment_block")
+parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
-    def test_inline_comment(test):
-        (parsed, data, _) = test.parser.parse(StringIO(" % Test this is a comment. \n"))
-        outDict = {
+test_vector = [
+    (
+        "inline comment",
+        " % Test this is a comment. \n",
+        {
             "token": "Inline comment",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
             "content": " % Test this is a comment. ",
@@ -30,13 +29,12 @@ class TestComment(unittest.TestCase):
                     "content": "% Test this is a comment. ",
                 }
             ],
-        }
-        test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
-
-    def test_section_comment(test):
-        (parsed, data, _) = test.parser.parse(StringIO("  %% This is a section comment \n"))
-        outDict = {
+        },
+    ),
+    (
+        "section comment",
+        "  %% This is a section comment \n",
+        {
             "token": "Section comment",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
             "content": "  %% This is a section comment \n",
@@ -56,13 +54,12 @@ class TestComment(unittest.TestCase):
                     ],
                 }
             ],
-        }
-        test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertDictEqual(data[0].to_dict(), outDict, MSG_NOT_PARSED)
-
-    def test_multiline_comment(test):
-        (parsed, data, _) = test.blockParser.parse(StringIO("  %{\nThis is a comment\nmultiple\n %}"))
-        outDict = {
+        },
+    ),
+    (
+        "multiline comment",
+        "  %{\nThis is a comment\nmultiple\n %}",
+        {
             "token": "comment.block.percentage.matlab",
             "begin": [
                 {"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "},
@@ -77,11 +74,13 @@ class TestComment(unittest.TestCase):
                 {"token": "", "content": "This is a comment\n"},
                 {"token": "", "content": "multiple\n"},
             ],
-        }
+        },
+    ),
+]
 
-        test.assertTrue(parsed, MSG_NO_MATCH)
-        test.assertDictEqual(data[0].to_dict(content=True), outDict, MSG_NOT_PARSED)
+@pytest.mark.parametrize("case,input,expected", test_vector)
+def test_comment(case, input, expected):
+    (parsed, data, _) = parser.parse(StringIO(input))
+    assert parsed, MSG_NO_MATCH
+    assert data[0].to_dict() == expected, MSG_NOT_PARSED
 
-
-if __name__ == "__main__":
-    unittest.main()

@@ -249,9 +249,66 @@ class GrammarParser(object):
                 ]
 
         elif self.patterns:
-            parsedStart = startPos
+
             parsedEnd = closePos if closePos else streamEndPos
-            captured = self.match_patterns(stream, startPos=parsedStart, closePos=parsedEnd, **kwargs)
+
+            # Defines where to start looking for a pattern
+            patternStartPos = startPos
+            lastPatternStartPos = None
+
+            # Get parsers and create lookup store
+            parsers = [self.get_parser(callId) for callId in self.patterns]
+            foundPatternElem = {parser: None for parser in parsers}
+            foundPatternSpan = {parser: None for parser in parsers}
+            captured = []
+
+            while patternStartPos < parsedEnd:
+                
+                if patternStartPos == lastPatternStartPos:
+                    break
+
+                # Find the next match per parser until the end of suspected end (parsedEnd)
+                parsersElem, parsersSpan = [], []
+                for parser in parsers:  # Find match per parser
+                    if (startPos, closePos) == (patternStartPos, parsedEnd) and parser is self:
+                        # Prevent recursion when start end are the same as level above
+                        parsers = [parser for parser in parsers if parser is not self]
+                        recursionFound = True
+                        continue
+                    if (
+                        foundPatternElem[parser] is not None
+                        and foundPatternSpan[parser][0] >= patternStartPos
+                    ):
+                        # Use previous found match for current parser
+                        parsersElem.append(foundPatternElem[parser])
+                        parsersSpan.append(foundPatternSpan[parser])
+                    else:  # Try to find new match for current parser
+                        matched, elem, span = parser.parse(
+                            stream, startPos=patternStartPos, closePos=parsedEnd, **kwargs
+                        )
+                        if matched:
+                            parsersElem.append(elem)
+                            parsersSpan.append(span)
+                            foundPatternElem[parser], foundPatternSpan[parser] = elem, span
+
+                if parsersElem:  # There are patterns found
+                    # Sort by best found pattern (starting earliest and longest)
+                    bestSpan = sorted(parsersSpan, key=lambda x: (x[0], x[0] - x[1]))[0]
+                    bestElem = parsersElem[parsersSpan.index(bestSpan)]
+
+                    if bestSpan[0] <= parsedEnd:
+                        # Valid best element, starting before suspected end
+                        if not captured:
+                            parsedStart = bestSpan[0]
+                        captured += bestElem
+                        lastPatternStartPos, patternStartPos = patternStartPos, bestSpan[1]
+                        stream.seek(patternStartPos)
+                    else:
+                        break
+
+                else:  # No patterns found, suspected end (midClosePos) is true
+                    break
+
             patternClosePos = stream.tell()
 
             if captured:
@@ -282,49 +339,6 @@ class GrammarParser(object):
 
         return True, elements, (parsedStart, parsedEnd)
 
-    def match_patterns(self, stream: StringIO, startPos: int, closePos: int, **kwargs) -> List[ParsedElement]:
-        """Find patterns between a starting and closing position."""
-        captured = []
-        parsers = [self.get_parser(callId) for callId in self.patterns]
-        stream.seek(startPos)
-        patternStartPos = startPos
-
-        parserLastPos, parserLastElements = dict.fromkeys(parsers), dict.fromkeys(parsers)
-
-        while patternStartPos < closePos:
-            patternElements, patternPos = [], None
-            for parser in parsers:
-                if parserLastPos[parser] and parserLastPos[parser][0] >= patternStartPos:
-                    optPatternElements, optPatternPos = (
-                        parserLastElements[parser],
-                        parserLastPos[parser],
-                    )
-                else:
-                    patternMatched, optPatternElements, optPatternPos = parser.parse(
-                        stream, startPos=patternStartPos, closePos=closePos, **kwargs
-                    )
-                    if patternMatched:
-                        parserLastElements[parser], parserLastPos[parser] = (
-                            optPatternElements,
-                            optPatternPos,
-                        )
-                    else:
-                        continue
-
-                if (
-                    not patternElements
-                    or optPatternPos[0] < patternPos[0]
-                    or (optPatternPos[0] == patternPos[0] and optPatternPos[1] > patternPos[1])
-                ):
-                    patternElements, patternPos = optPatternElements, optPatternPos
-
-            if patternElements:
-                patternStartPos = patternPos[1]
-                captured += patternElements
-            else:
-                break
-
-        return captured
 
     def search(
         self,
