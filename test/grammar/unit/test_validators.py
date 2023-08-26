@@ -6,18 +6,14 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
+from sphinx_matlab.grammar import LanguageParser
 from sphinx_matlab.tmlanguage import TMLIST
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-GrammarParser(TMLIST["repository"]["numbers"], key="numbers")
-GrammarParser(TMLIST["repository"]["operators"], key="operators")
-GrammarParser(TMLIST["repository"]["punctuation"], key="punctuation")
-GrammarParser(TMLIST["repository"]["line_continuation"], key="line_continuation")
-GrammarParser(TMLIST["repository"]["validator_strings"], key="validator_strings")
-GrammarParser(TMLIST["repository"]["braced_validator_list"], key="braced_validator_list")
-parser = GrammarParser(TMLIST["repository"]["validators"], key="validators")
+matlabParser = LanguageParser(TMLIST)
+parser = matlabParser.get_parser("validators")
+
 
 test_vector = [
     (

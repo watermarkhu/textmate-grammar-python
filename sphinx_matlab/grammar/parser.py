@@ -68,7 +68,7 @@ class GrammarParser(object):
             else:
                 return grammar["include"][1:]
         else:
-            return GrammarParser(grammar, **kwargs)
+            return GrammarParser(grammar, parent=self.parent, **kwargs)
 
     @classmethod
     def get_parser(cls, callId: Union[str, "GrammarParser"]):

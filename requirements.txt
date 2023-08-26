@@ -1,1 +1,2 @@
 onigurumacffi
+charset-normalizer

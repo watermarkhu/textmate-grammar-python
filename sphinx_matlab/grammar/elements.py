@@ -35,7 +35,8 @@ class ParsedElement(object):
         pprint(self.to_dict(content=content), sort_dicts=False, width=120)
 
     def __repr__(self) -> str:
-        return repr(f"{self.token}<{self.content}>({len(self.captures)})")
+        content = self.content if len(self.content) < 15 else self.content[1:15] + "..."
+        return repr(f"{self.token}<<{content}>>({len(self.captures)})")
 
 
 class ParsedElementBlock(ParsedElement):

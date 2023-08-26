@@ -1,4 +1,5 @@
 onigurumacffi
+charset-normalizer
 pytest
 pytest-icdiff
 black

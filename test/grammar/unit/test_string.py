@@ -6,15 +6,13 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
+from sphinx_matlab.grammar import LanguageParser
 from sphinx_matlab.tmlanguage import TMLIST
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-GrammarParser(TMLIST["repository"]["shell_string"], key="shell_string")
-GrammarParser(TMLIST["repository"]["string_quoted_single"], key="string_quoted_single")
-GrammarParser(TMLIST["repository"]["string_quoted_double"], key="string_quoted_double")
-parser = GrammarParser(TMLIST["repository"]["string"], key="string")
+matlabParser = LanguageParser(TMLIST)
+parser = matlabParser.get_parser("string")
 
 test_vector = [
     (   
