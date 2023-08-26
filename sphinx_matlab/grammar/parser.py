@@ -16,8 +16,11 @@ class GrammarParser(object):
     PARSERSTORE = {}
     STREAMENDPOS = {}
 
-    def __init__(self, grammar: dict, key: str = "", **kwargs) -> None:
+    def __init__(
+        self, grammar: dict, key: str = "", parent: Optional["GrammarParser"] = None, **kwargs
+    ) -> None:
         self.grammar = grammar
+        self.parent = parent
         self.key = key
         self.token = grammar.get("name", "")
         self.contentToken = grammar.get("contentName", "")
@@ -61,7 +64,7 @@ class GrammarParser(object):
     def set_parser(self, grammar: dict, **kwargs):
         if "include" in grammar:
             if grammar["include"] == "$self":
-                return self
+                return self.parent
             else:
                 return grammar["include"][1:]
         else:
@@ -434,3 +437,14 @@ class GrammarParser(object):
 
         stream.seek(closePos)
         return elements, (startPos, closePos)
+
+
+class LanguageParser(GrammarParser):
+    def __init__(self, grammar: dict, **kwargs):
+        self.uuid = grammar["uuid"]
+        self.fileTypes = grammar["fileTypes"]
+
+        for key, value in grammar["repository"].items():
+            GrammarParser(value, key=key, parent=self, **kwargs)
+
+        super().__init__(grammar, key=grammar["scopeName"], **kwargs)

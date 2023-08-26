@@ -1,1 +1,1 @@
-from .parser import GrammarParser
+from .parser import GrammarParser, LanguageParser

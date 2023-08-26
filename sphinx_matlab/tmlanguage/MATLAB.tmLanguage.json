@@ -906,171 +906,167 @@
       "match": "\\s*(?<=^|[\\s,;])(break|continue|return)\\b"
     },
     "function": {
+      "comment": "Function definition",
+      "name": "meta.function.matlab",
+      "begin": "(?x)\n\t\t\t\t\t(^\\s*)\t\t\t\t\t\t\t\t\t\t\t# Leading whitespace\n\t\t\t\t\t(function)\n\t\t\t\t\t\\s+\n\t\t\t",
+      "end": "\\s*(?<=^|[\\s,;])(end)\\b(\\s*\\n)?",
+      "beginCaptures": {
+        "2": {
+          "name": "storage.type.function.matlab"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "storage.type.function.end.matlab"
+        }
+      },
       "patterns": [
         {
-          "comment": "Function definition",
-          "name": "meta.function.matlab",
-          "begin": "(?x)\n\t\t\t\t\t\t\t(^\\s*)\t\t\t\t\t\t\t\t\t\t\t# Leading whitespace\n\t\t\t\t\t\t\t(function)\n\t\t\t\t\t\t\t\\s+\n\t\t\t\t\t",
-          "end": "\\s*(?<=^|[\\s,;])(end)\\b(\\s*\\n)?",
-          "beginCaptures": {
-            "2": {
-              "name": "storage.type.function.matlab"
-            }
-          },
-          "endCaptures": {
-            "1": {
-              "name": "storage.type.function.end.matlab"
-            }
-          },
+          "name": "meta.function.declaration.matlab",
+          "begin": "\\G",
+          "end": "(?<=[\\)\\n])",
           "patterns": [
             {
-              "name": "meta.function.declaration.matlab",
-              "begin": "\\G",
-              "end": "(?<=[\\)\\n])",
+              "comment": "Function output",
+              "contentName": "meta.assignment.variable.output.matlab",
+              "begin": "\\G(?=.*?=)",
+              "end": "\\s*(=)\\s*",
+              "endCaptures": {
+                "1": {
+                  "name": "keyword.operator.assignment.matlab"
+                }
+              },
               "patterns": [
                 {
-                  "comment": "Function output",
-                  "contentName": "meta.assignment.variable.output.matlab",
-                  "begin": "\\G(?=.*?=)",
-                  "end": "\\s*(=)\\s*",
-                  "endCaptures": {
+                  "name": "punctuation.section.assignment.group.begin.matlab",
+                  "match": "\\G\\["
+                },
+                {
+                  "match": "(\\])\\s*\\z",
+                  "captures": {
                     "1": {
-                      "name": "keyword.operator.assignment.matlab"
+                      "name": "punctuation.section.assignment.group.end.matlab"
                     }
-                  },
-                  "patterns": [
-                    {
-                      "name": "punctuation.section.assignment.group.begin.matlab",
-                      "match": "\\G\\["
-                    },
-                    {
-                      "match": "(\\])\\s*\\z",
-                      "captures": {
-                        "1": {
-                          "name": "punctuation.section.assignment.group.end.matlab"
-                        }
-                      }
-                    },
-                    {
-                      "name": "variable.parameter.output.matlab",
-                      "match": "[a-zA-Z][a-zA-Z0-9_]*"
-                    },
-                    {
-                      "name": "punctuation.separator.parameter.comma.matlab",
-                      "match": ","
-                    },
-                    {
-                      "include": "#comments"
-                    },
-                    {
-                      "include": "#line_continuation"
-                    }
-                  ]
+                  }
                 },
                 {
-                  "comment": "Function name",
-                  "name": "entity.name.function.matlab",
-                  "match": "[a-zA-Z][a-zA-Z0-9_.]*(?=[^a-zA-Z0-9_.])",
-                  "patterns": [
-                    {
-                      "name": "punctuation.accessor.dot.matlab",
-                      "match": "\\."
-                    },
-                    {
-                      "include": "#line_continuation"
-                    }
-                  ]
+                  "name": "variable.parameter.output.matlab",
+                  "match": "[a-zA-Z][a-zA-Z0-9_]*"
                 },
                 {
-                  "comment": "Function arguments",
-                  "name": "meta.parameters.matlab",
-                  "begin": "(?<=[a-zA-Z0-9_])\\s*\\(",
-                  "end": "\\)",
-                  "beginCaptures": {
-                    "0": {
-                      "name": "punctuation.definition.parameters.begin.matlab"
-                    }
-                  },
-                  "endCaptures": {
-                    "0": {
-                      "name": "punctuation.definition.parameters.end.matlab"
-                    }
-                  },
-                  "patterns": [
-                    {
-                      "name": "variable.parameter.input.matlab",
-                      "match": "[a-zA-Z][a-zA-Z0-9_]*"
-                    },
-                    {
-                      "name": "variable.language.anonymous.matlab",
-                      "match": "~"
-                    },
-                    {
-                      "name": "punctuation.separator.parameter.comma.matlab",
-                      "match": ","
-                    },
-                    {
-                      "include": "#comments"
-                    },
-                    {
-                      "include": "#line_continuation"
-                    }
-                  ]
+                  "name": "punctuation.separator.parameter.comma.matlab",
+                  "match": ","
                 },
                 {
                   "include": "#comments"
+                },
+                {
+                  "include": "#line_continuation"
                 }
               ]
             },
             {
-              "name": "meta.arguments.matlab",
-              "begin": "(?x)\n\t\t\t\t\t\t\t\t\t(^\\s*)\t\t\t\t\t\t\t\t# Leading whitespace\n\t\t\t\t\t\t\t\t\t(arguments)\\b([^%]*)\n\t\t\t\t\t\t\t\t\t\\s*\n\t\t\t\t\t\t\t\t\t(\t\t\t\t\t\t\t\t\t# Optional attributes\n\t\t\t\t\t\t\t\t\t\t\\( [^)]* \\)\n\t\t\t\t\t\t\t\t\t)?\n\t\t\t\t\t\t\t\t\t\\s*($|(?=%))\n\t\t\t\t\t\t\t\t",
-              "end": "\\s*(?<=^|[\\s,;])(end)\\b",
-              "beginCaptures": {
-                "2": {
-                  "name": "keyword.control.arguments.matlab"
+              "comment": "Function name",
+              "name": "entity.name.function.matlab",
+              "match": "[a-zA-Z][a-zA-Z0-9_.]*(?=[^a-zA-Z0-9_.])",
+              "patterns": [
+                {
+                  "name": "punctuation.accessor.dot.matlab",
+                  "match": "\\."
                 },
-                "3": {
-                  "name": "meta.arguments.declaration.matlab",
-                  "patterns": [
-                    {
-                      "name": "punctuation.section.parens.begin.matlab",
-                      "match": "\\("
-                    },
-                    {
-                      "name": "storage.modifier.arguments.matlab",
-                      "match": "[a-zA-Z][a-zA-Z0-9_]*"
-                    },
-                    {
-                      "name": "punctuation.section.parens.end.matlab",
-                      "match": "\\)"
-                    }
-                  ]
+                {
+                  "include": "#line_continuation"
+                }
+              ]
+            },
+            {
+              "comment": "Function arguments",
+              "name": "meta.parameters.matlab",
+              "begin": "(?<=[a-zA-Z0-9_])\\s*\\(",
+              "end": "\\)",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.parameters.begin.matlab"
                 }
               },
               "endCaptures": {
-                "1": {
-                  "name": "keyword.control.end.arguments.matlab"
+                "0": {
+                  "name": "punctuation.definition.parameters.end.matlab"
                 }
               },
               "patterns": [
                 {
-                  "comment": "Class property name-value arguments",
-                  "name": "keyword.operator.other.matlab",
-                  "match": "(?<=\\w)\\.\\?(?=\\w)"
+                  "name": "variable.parameter.input.matlab",
+                  "match": "[a-zA-Z][a-zA-Z0-9_]*"
                 },
                 {
-                  "include": "#validators"
+                  "name": "variable.language.anonymous.matlab",
+                  "match": "~"
                 },
                 {
-                  "include": "$self"
+                  "name": "punctuation.separator.parameter.comma.matlab",
+                  "match": ","
+                },
+                {
+                  "include": "#comments"
+                },
+                {
+                  "include": "#line_continuation"
                 }
               ]
+            },
+            {
+              "include": "#comments"
+            }
+          ]
+        },
+        {
+          "name": "meta.arguments.matlab",
+          "begin": "(?x)\n\t\t\t\t\t\t\t(^\\s*)\t\t\t\t\t\t\t\t# Leading whitespace\n\t\t\t\t\t\t\t(arguments)\\b([^%]*)\n\t\t\t\t\t\t\t\\s*\n\t\t\t\t\t\t\t(\t\t\t\t\t\t\t\t\t# Optional attributes\n\t\t\t\t\t\t\t\t\\( [^)]* \\)\n\t\t\t\t\t\t\t)?\n\t\t\t\t\t\t\t\\s*($|(?=%))\n\t\t\t\t\t\t",
+          "end": "\\s*(?<=^|[\\s,;])(end)\\b",
+          "beginCaptures": {
+            "2": {
+              "name": "keyword.control.arguments.matlab"
+            },
+            "3": {
+              "name": "meta.arguments.declaration.matlab",
+              "patterns": [
+                {
+                  "name": "punctuation.section.parens.begin.matlab",
+                  "match": "\\("
+                },
+                {
+                  "name": "storage.modifier.arguments.matlab",
+                  "match": "[a-zA-Z][a-zA-Z0-9_]*"
+                },
+                {
+                  "name": "punctuation.section.parens.end.matlab",
+                  "match": "\\)"
+                }
+              ]
+            }
+          },
+          "endCaptures": {
+            "1": {
+              "name": "keyword.control.end.arguments.matlab"
+            }
+          },
+          "patterns": [
+            {
+              "comment": "Class property name-value arguments",
+              "name": "keyword.operator.other.matlab",
+              "match": "(?<=\\w)\\.\\?(?=\\w)"
+            },
+            {
+              "include": "#validators"
             },
             {
               "include": "$self"
             }
           ]
+        },
+        {
+          "include": "$self"
         }
       ]
     },
