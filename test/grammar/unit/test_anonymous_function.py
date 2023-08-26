@@ -6,13 +6,13 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
+from sphinx_matlab.grammar import LanguageParser
 from sphinx_matlab.tmlanguage import TMLIST
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-GrammarParser(TMLIST["repository"]["line_continuation"], key="line_continuation")
-parser = GrammarParser(TMLIST["repository"]["anonymous_function"], key="anonymous_function")
+matlabParser = LanguageParser(TMLIST)
+parser = matlabParser.get_parser("anonymous_function")
 
 test_vector = [
     (
@@ -34,7 +34,20 @@ test_vector = [
                         {"token": "variable.parameter.input.matlab", "content": "y"},
                     ],
                 },
-                {"token": "meta.parameters.matlab", "content": " x.^2+y"},
+                {
+                    "token": "meta.parameters.matlab",
+                    "content": " x.^2+y",
+                    "captures": [
+                        {
+                            "token": "MATLAB",
+                            "content": ".^2+y",
+                            "captures": [
+                                {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
+                                {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                            ],
+                        }
+                    ],
+                },
             ],
         },
     ),
@@ -140,4 +153,3 @@ def test_anonymous_function(case, input, expected):
     (parsed, data, _) = parser.parse(StringIO(input))
     assert parsed, MSG_NO_MATCH
     assert data[0].to_dict() == expected, MSG_NOT_PARSED
-

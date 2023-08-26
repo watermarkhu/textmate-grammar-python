@@ -19,23 +19,23 @@ test_vector = [
         "inline comment",
         " % Test this is a comment. \n",
         {
-            "token": "Inline comment",
-            "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
+            "token": "",
             "content": " % Test this is a comment. ",
             "captures": [
                 {
                     "token": "comment.line.percentage.matlab",
-                    "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
                     "content": "% Test this is a comment. ",
+                    "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
                 }
             ],
+            "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
         },
     ),
     (
         "section comment",
         "  %% This is a section comment \n",
         {
-            "token": "Section comment",
+            "token": "",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
             "content": "  %% This is a section comment \n",
             "captures": [
@@ -78,9 +78,9 @@ test_vector = [
     ),
 ]
 
+
 @pytest.mark.parametrize("case,input,expected", test_vector)
 def test_comment(case, input, expected):
     (parsed, data, _) = parser.parse(StringIO(input))
     assert parsed, MSG_NO_MATCH
     assert data[0].to_dict() == expected, MSG_NOT_PARSED
-

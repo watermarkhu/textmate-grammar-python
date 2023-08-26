@@ -31,11 +31,11 @@ class ParsedElement(object):
             for item in getattr(self, property, [])
         ]
 
-    def print(self, content: bool = True) -> None:
-        pprint(self.to_dict(content=content), sort_dicts=False, width=120)
+    def print(self, content: bool = True, **kwargs) -> None:
+        pprint(self.to_dict(content=content), sort_dicts=False, width=150, **kwargs)
 
     def __repr__(self) -> str:
-        content = self.content if len(self.content) < 15 else self.content[1:15] + "..."
+        content = self.content if len(self.content) < 15 else self.content[:15] + "..."
         return repr(f"{self.token}<<{content}>>({len(self.captures)})")
 
 
@@ -57,4 +57,7 @@ class ParsedElementBlock(ParsedElement):
             outDict["begin"] = self.list_property_to_dict("begin", content)
         if self.end:
             outDict["end"] = self.list_property_to_dict("end", content)
-        return outDict
+
+        orderedKeys = [key for key in ["token", "begin", "end", "content", "captures"] if key in outDict]
+        orderedDict = {key: outDict[key] for key in orderedKeys}
+        return orderedDict

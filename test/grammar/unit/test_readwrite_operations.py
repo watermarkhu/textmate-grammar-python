@@ -18,13 +18,17 @@ test_vector = [
     (
         "simple",
         "variable",
-        {"token": "", "content": "variable", "captures": [{"token": "", "content": "variable"}]},
+        {
+            "token": "readwrite_operations",
+            "content": "variable",
+            "captures": [{"token": "", "content": "variable"}],
+        },
     ),
     (
         "property",
         "variable.property",
         {
-            "token": "",
+            "token": "readwrite_operations",
             "content": "variable.property",
             "captures": [{"token": "", "content": "variable.property"}],
         },
@@ -33,7 +37,7 @@ test_vector = [
         "subproperty",
         "variable.class.property",
         {
-            "token": "",
+            "token": "readwrite_operations",
             "content": "variable.class.property",
             "captures": [{"token": "", "content": "variable.class.property"}],
         },
@@ -41,12 +45,20 @@ test_vector = [
     (
         "property access",
         "variable.property(0)",
-        {"token": "", "content": "variable", "captures": [{"token": "", "content": "variable"}]},
+        {
+            "token": "readwrite_operations",
+            "content": "variable",
+            "captures": [{"token": "", "content": "variable"}],
+        },
     ),
     (
         "class method",
         "variable.function(argument)",
-        {"token": "", "content": "variable", "captures": [{"token": "", "content": "variable"}]},
+        {
+            "token": "readwrite_operations",
+            "content": "variable",
+            "captures": [{"token": "", "content": "variable"}],
+        },
     ),
 ]
 

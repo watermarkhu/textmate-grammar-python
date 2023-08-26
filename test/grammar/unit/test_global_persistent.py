@@ -18,7 +18,7 @@ test_vector = [
         "global",
         "   global variable",
         {
-            "token": "",
+            "token": "global_persistent",
             "content": "   global",
             "captures": [{"token": "storage.modifier.matlab", "content": "global"}],
         },
@@ -27,7 +27,7 @@ test_vector = [
         "persistent",
         "   persistent variable",
         {
-            "token": "",
+            "token": "global_persistent",
             "content": "   persistent",
             "captures": [{"token": "storage.modifier.matlab", "content": "persistent"}],
         },
