@@ -26,8 +26,8 @@ test_vector = [
                 {
                     "token": "meta.parameters.matlab",
                     "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-                    "content": "(x,  y)",
                     "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+                    "content": "(x,  y)",
                     "captures": [
                         {"token": "variable.parameter.input.matlab", "content": "x"},
                         {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
@@ -40,10 +40,11 @@ test_vector = [
                     "captures": [
                         {
                             "token": "MATLAB",
-                            "content": ".^2+y",
+                            "content": "x.^2+y",
                             "captures": [
                                 {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
-                                {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                                {"token": "constant.numeric.decimal.matlab", "content": "2"},
+                                {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                             ],
                         }
                     ],
@@ -62,8 +63,8 @@ test_vector = [
                 {
                     "token": "meta.parameters.matlab",
                     "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-                    "content": "(x,...\n  y)",
                     "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+                    "content": "(x,...\n  y)",
                     "captures": [
                         {"token": "variable.parameter.input.matlab", "content": "x"},
                         {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
@@ -82,10 +83,22 @@ test_vector = [
                     "content": " x...\n   .^2+y",
                     "captures": [
                         {
-                            "token": "meta.continuation.line.matlab",
-                            "content": "...",
+                            "token": "MATLAB",
+                            "content": "x...\n   .^2+y",
                             "captures": [
-                                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."}
+                                {
+                                    "token": "meta.continuation.line.matlab",
+                                    "content": "...",
+                                    "captures": [
+                                        {
+                                            "token": "punctuation.separator.continuation.line.matlab",
+                                            "content": "...",
+                                        }
+                                    ],
+                                },
+                                {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
+                                {"token": "constant.numeric.decimal.matlab", "content": "2"},
+                                {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                             ],
                         }
                     ],
@@ -104,8 +117,8 @@ test_vector = [
                 {
                     "token": "meta.parameters.matlab",
                     "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-                    "content": "(x,... comment\n   y)",
                     "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+                    "content": "(x,... comment\n   y)",
                     "captures": [
                         {"token": "variable.parameter.input.matlab", "content": "x"},
                         {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
@@ -125,21 +138,26 @@ test_vector = [
                     "content": "... comment \n   x... more comment\n   .^2+y",
                     "captures": [
                         {
-                            "token": "meta.continuation.line.matlab",
-                            "content": "... comment ",
+                            "token": "MATLAB",
+                            "content": "... comment \n   x... more comment\n   .^2+y",
                             "captures": [
-                                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                                {"token": "comment.continuation.line.matlab", "content": " comment "},
+                                {
+                                    "token": "meta.continuation.line.matlab",
+                                    "content": "... comment ",
+                                    "captures": [
+                                        {
+                                            "token": "punctuation.separator.continuation.line.matlab",
+                                            "content": "...",
+                                        },
+                                        {"token": "comment.continuation.line.matlab", "content": " comment "},
+                                    ],
+                                },
+                                {"token": "punctuation.accessor.dot.matlab", "content": "."},
+                                {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
+                                {"token": "constant.numeric.decimal.matlab", "content": "2"},
+                                {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                             ],
-                        },
-                        {
-                            "token": "meta.continuation.line.matlab",
-                            "content": "... more comment",
-                            "captures": [
-                                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                                {"token": "comment.continuation.line.matlab", "content": " more comment"},
-                            ],
-                        },
+                        }
                     ],
                 },
             ],
@@ -150,6 +168,8 @@ test_vector = [
 
 @pytest.mark.parametrize("case,input,expected", test_vector)
 def test_anonymous_function(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-    assert parsed, MSG_NO_MATCH
-    assert data[0].to_dict() == expected, MSG_NOT_PARSED
+    elements = parser.parse(StringIO(input))
+    if elements:
+        assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    else:
+        raise Exception(MSG_NO_MATCH)

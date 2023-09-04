@@ -5,9 +5,10 @@ from io import StringIO
 
 class ParsedElement(object):
     def __init__(
-        self, token: str, stream: StringIO, span: Tuple[int, int], captures: List["ParsedElement"] = []
+        self, token: str, grammar: dict, stream: StringIO, span: Tuple[int, int], captures: List["ParsedElement"] = [], 
     ) -> None:
         self.token = token
+        self.grammar = grammar
         self.stream = stream
         self.span = span
         self.captures = captures
@@ -32,7 +33,7 @@ class ParsedElement(object):
         ]
 
     def print(self, content: bool = True, **kwargs) -> None:
-        pprint(self.to_dict(content=content), sort_dicts=False, width=150, **kwargs)
+        pprint(self.to_dict(content=content), sort_dicts=False, width=kwargs.pop('width', 150), **kwargs)
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."

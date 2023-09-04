@@ -81,6 +81,8 @@ test_vector = [
 
 @pytest.mark.parametrize("case,input,expected", test_vector)
 def test_comment(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-    assert parsed, MSG_NO_MATCH
-    assert data[0].to_dict() == expected, MSG_NOT_PARSED
+    elements = parser.parse(StringIO(input))
+    if elements:
+        assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    else:
+        raise Exception(MSG_NO_MATCH)
