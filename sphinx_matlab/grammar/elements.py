@@ -4,36 +4,47 @@ from io import StringIO
 
 
 class ParsedElement(object):
+    """The base parsed element object."""
+
     def __init__(
-        self, token: str, grammar: dict, stream: StringIO, span: Tuple[int, int], captures: List["ParsedElement"] = [], 
+        self,
+        token: str,
+        grammar: dict,
+        stream: StringIO,
+        span: Tuple[int, int],
+        captures: List["ParsedElement"] = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
         self.stream = stream
         self.span = span
         self.captures = captures
-    
+
     @property
     def content(self):
+        """Returns the content of the current element."""
         self.stream.seek(self.span[0])
         return self.stream.read(self.span[1] - self.span[0])
 
     def to_dict(self, content: bool = True) -> dict:
-        outDict = dict(token=self.token)
+        "Converts the object to dictionary."
+        out_dict = {"token": self.token}
         if content:
-            outDict["content"] = self.content
+            out_dict["content"] = self.content
         if self.captures:
-            outDict["captures"] = self.list_property_to_dict("captures", content)
-        return outDict
+            out_dict["captures"] = self.list_property_to_dict("captures", content)
+        return out_dict
 
-    def list_property_to_dict(self, property: str, content: bool):
+    def list_property_to_dict(self, prop: str, content: bool):
+        """Makes a dictionary from a property."""
         return [
             item.to_dict(content=content) if isinstance(item, ParsedElement) else item
-            for item in getattr(self, property, [])
+            for item in getattr(self, prop, [])
         ]
 
     def print(self, content: bool = True, **kwargs) -> None:
-        pprint(self.to_dict(content=content), sort_dicts=False, width=kwargs.pop('width', 150), **kwargs)
+        """Prints the current object recursively by converting to dictionary."""
+        pprint(self.to_dict(content=content), sort_dicts=False, width=kwargs.pop("width", 150), **kwargs)
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."
@@ -41,24 +52,20 @@ class ParsedElement(object):
 
 
 class ParsedElementBlock(ParsedElement):
-    def __init__(
-        self,
-        begin: List[ParsedElement] = [],
-        end: List[ParsedElement] = [],
-        **kwargs
-    ) -> None:
+    """A parsed element with a begin and a end"""
+
+    def __init__(self, begin: List[ParsedElement] = [], end: List[ParsedElement] = [], **kwargs) -> None:
         super().__init__(**kwargs)
         self.begin = begin
         self.end = end
-        
 
     def to_dict(self, *args, content: bool = True, **kwargs) -> dict:
-        outDict = super().to_dict(*args, content=content, **kwargs)
+        out_dict = super().to_dict(*args, content=content, **kwargs)
         if self.begin:
-            outDict["begin"] = self.list_property_to_dict("begin", content)
+            out_dict["begin"] = self.list_property_to_dict("begin", content)
         if self.end:
-            outDict["end"] = self.list_property_to_dict("end", content)
+            out_dict["end"] = self.list_property_to_dict("end", content)
 
-        orderedKeys = [key for key in ["token", "begin", "end", "content", "captures"] if key in outDict]
-        orderedDict = {key: outDict[key] for key in orderedKeys}
-        return orderedDict
+        ordered_keys = [key for key in ["token", "begin", "end", "content", "captures"] if key in out_dict]
+        ordered_dict = {key: out_dict[key] for key in ordered_keys}
+        return ordered_dict

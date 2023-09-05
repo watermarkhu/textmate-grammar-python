@@ -13,34 +13,27 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 parser = GrammarParser(TMLIST["repository"]["global_persistent"], key="global_persistent")
 
-test_vector = [
-    (
-        "global",
-        "   global variable",
-        {
-            "token": "global_persistent",
-            "content": "   global",
-            "captures": [{"token": "storage.modifier.matlab", "content": "global"}],
-        },
-    ),
-    (
-        "persistent",
-        "   persistent variable",
-        {
-            "token": "global_persistent",
-            "content": "   persistent",
-            "captures": [{"token": "storage.modifier.matlab", "content": "persistent"}],
-        },
-    ),
-]
+test_vector = {}
+
+test_vector["   global variable"] = {
+    "token": "global_persistent",
+    "content": "   global",
+    "captures": [{"token": "storage.modifier.matlab", "content": "global"}],
+}
+
+test_vector["   persistent variable"] = {
+    "token": "global_persistent",
+    "content": "   persistent",
+    "captures": [{"token": "storage.modifier.matlab", "content": "persistent"}],
+}
 
 
-@pytest.mark.parametrize("case,input,expected", test_vector)
-def test_global_persistent(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-
+@pytest.mark.parametrize("check,expected", test_vector.items())
+def test_global_persistent(check, expected):
+    """Test global persistent"""
+    elements = parser.parse(StringIO(check))
     if expected:
-        assert parsed, MSG_NO_MATCH
-        assert data[0].to_dict() == expected, MSG_NOT_PARSED
+        assert elements, MSG_NO_MATCH
+        assert elements[0].to_dict() == expected, MSG_NOT_PARSED
     else:
-        assert ~parsed
+        assert not elements

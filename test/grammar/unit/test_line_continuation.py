@@ -13,24 +13,22 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 parser = GrammarParser(TMLIST["repository"]["line_continuation"], key="line_continuation")
 
-test_vector = [
-    (
-        "line continuation",
-        "... Some comment",
-        {
-            "token": "meta.continuation.line.matlab",
-            "content": "... Some comment",
-            "captures": [
-                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                {"token": "comment.continuation.line.matlab", "content": " Some comment"},
-            ],
-        },
-    )
-]
+test_vector = {}
+
+test_vector["... Some comment"] = {
+    "token": "meta.continuation.line.matlab",
+    "content": "... Some comment",
+    "captures": [
+        {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
+        {"token": "comment.continuation.line.matlab", "content": " Some comment"},
+    ],
+}
 
 
-@pytest.mark.parametrize("case,input,expected", test_vector)
-def test_line_continuation(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-    assert parsed, MSG_NO_MATCH
-    assert data[0].to_dict() == expected, MSG_NOT_PARSED
+@pytest.mark.parametrize("check,expected", test_vector.items())
+def test_line_continuation(check, expected):
+    """Test line continuation"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+

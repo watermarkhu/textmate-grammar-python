@@ -15,169 +15,136 @@ matlabParser = LanguageParser(TMLIST)
 parser = matlabParser.get_parser("validators")
 
 
-test_vector = [
-    (
-        "simple",
-        "argument\n",
+test_vector = {}
+
+# Simple
+test_vector["argument\n"] = {
+    "token": "meta.assignment.definition.property.matlab",
+    "content": "argument\n",
+    "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
+}
+
+# default and commente
+test_vector["argument = 1 % description"] = {
+    "token": "meta.assignment.definition.property.matlab",
+    "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
+    "content": "argument = 1 % description",
+    "end": [
         {
-            "token": "meta.assignment.definition.property.matlab",
-            "content": "argument\n",
-            "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
-        },
-    ),
-    (
-        "default and comment",
-        "argument = 1 % description",
-        {
-            "token": "meta.assignment.definition.property.matlab",
-            "content": "argument = 1 % description",
-            "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
-            "end": [{"token": "Handle things like arg = val; nextArg", "content": "= 1 % description"}],
-        },
-    ),
-    (
-        "size and type",
-        "argument (1,1) string;",
-        {
-            "token": "meta.assignment.definition.property.matlab",
-            "content": "argument (1,1) string;",
+            "token": "",
+            "content": "= 1 % description",
             "captures": [
                 {
-                    "token": "Size declaration",
-                    "content": " (1,1)",
+                    "token": "MATLAB",
+                    "content": "= 1 % description",
                     "captures": [
-                        {"token": "punctuation.section.parens.begin.matlab", "content": "("},
-                        {
-                            "token": "meta.parens.size.matlab",
-                            "content": "1,1",
-                            "captures": [
-                                {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                                {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                            ],
-                        },
-                        {"token": "punctuation.section.parens.end.matlab", "content": ")"},
+                        {"token": "keyword.operator.assignment.matlab", "content": "="},
+                        {"token": "constant.numeric.decimal.matlab", "content": "1"},
+                        {"token": "", "content": "% description"},
                     ],
-                },
-                {"token": "storage.type.matlab", "content": "string"},
-            ],
-            "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
-        },
-    ),
-    (
-        "using validation functions",
-        "x (1,:) {mustBeNumeric,mustBeReal}\n",
-        {
-            "token": "meta.assignment.definition.property.matlab",
-            "content": "x (1,:) {mustBeNumeric,mustBeReal}\n",
-            "captures": [
-                {
-                    "token": "Size declaration",
-                    "content": " (1,:)",
-                    "captures": [
-                        {"token": "punctuation.section.parens.begin.matlab", "content": "("},
-                        {
-                            "token": "meta.parens.size.matlab",
-                            "content": "1,:",
-                            "captures": [
-                                {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                                {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                            ],
-                        },
-                        {"token": "punctuation.section.parens.end.matlab", "content": ")"},
-                    ],
-                },
-                {
-                    "token": "meta.block.validation.matlab",
-                    "content": "mustBeNumeric,mustBeReal",
-                    "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
-                    "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-                },
-            ],
-            "begin": [{"token": "variable.object.property.matlab", "content": "x"}],
-        },
-    ),
-    (
-        "string in validation function",
-        "method {mustBeMember(method,{'linear','spline'})}",
-        {
-            "token": "meta.assignment.definition.property.matlab",
-            "content": "method {mustBeMember(method,{'linear','spline'})}",
-            "captures": [
-                {
-                    "token": "meta.block.validation.matlab",
-                    "content": "mustBeMember(method,{'linear','spline'})",
-                    "captures": [
-                        {
-                            "token": "meta.block.validation.matlab",
-                            "content": "'linear','spline'",
-                            "captures": [
-                                {
-                                    "token": "string.quoted.single.matlab",
-                                    "content": "'linear'",
-                                    "captures": [{"token": "", "content": "linear"}],
-                                    "begin": [
-                                        {
-                                            "token": "punctuation.definition.string.begin.matlab",
-                                            "content": "'",
-                                        }
-                                    ],
-                                    "end": [
-                                        {"token": "punctuation.definition.string.end.matlab", "content": "'"}
-                                    ],
-                                },
-                                {
-                                    "token": "string.quoted.single.matlab",
-                                    "content": "'spline'",
-                                    "captures": [{"token": "", "content": "spline"}],
-                                    "begin": [
-                                        {
-                                            "token": "punctuation.definition.string.begin.matlab",
-                                            "content": "'",
-                                        }
-                                    ],
-                                    "end": [
-                                        {"token": "punctuation.definition.string.end.matlab", "content": "'"}
-                                    ],
-                                },
-                            ],
-                            "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
-                            "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-                        },
-                        {
-                            "token": "string.quoted.single.matlab",
-                            "content": "'spline'",
-                            "captures": [{"token": "", "content": "spline"}],
-                            "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
-                            ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
-                        },
-                        {
-                            "token": "string.quoted.single.matlab",
-                            "content": "','spline'",
-                            "captures": [
-                                {"token": "", "content": ","},
-                                {"token": "", "content": "'"},
-                                {"token": "", "content": "spline"},
-                            ],
-                            "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
-                            ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
-                        },
-                    ],
-                    "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
-                    "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
                 }
             ],
-            "begin": [{"token": "variable.object.property.matlab", "content": "method"}],
+        }
+    ],
+}
+
+# size and type
+test_vector["argument (1,1) string;"] = {
+    "token": "meta.assignment.definition.property.matlab",
+    "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
+    "end": [
+        {
+            "token": "MATLAB",
+            "content": ";",
+            "captures": [{"token": "punctuation.terminator.semicolon.matlab", "content": ";"}],
+        }
+    ],
+    "content": "argument (1,1) string;",
+    "captures": [
+        {
+            "token": "",
+            "content": " (1,1)",
+            "captures": [
+                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
+                {
+                    "token": "meta.parens.size.matlab",
+                    "content": "1,1",
+                    "captures": [
+                        {"token": "constant.numeric.decimal.matlab", "content": "1"},
+                        {"token": "punctuation.separator.comma.matlab", "content": ","},
+                        {"token": "constant.numeric.decimal.matlab", "content": "1"},
+                    ],
+                },
+                {"token": "punctuation.section.parens.end.matlab", "content": ")"},
+            ],
         },
-    ),
-]
+        {"token": "storage.type.matlab", "content": "string"},
+    ],
+}
 
 
-@pytest.mark.parametrize("case,input,expected", test_vector)
-def test_validators(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-    assert parsed, MSG_NO_MATCH
-    assert data[0].to_dict() == expected, MSG_NOT_PARSED
+# using validation functions
+test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
+    "token": "meta.assignment.definition.property.matlab",
+    "begin": [{"token": "variable.object.property.matlab", "content": "x"}],
+    "content": "x (1,:) {mustBeNumeric,mustBeReal}\n",
+    "captures": [
+        {
+            "token": "",
+            "content": " (1,:)",
+            "captures": [
+                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
+                {
+                    "token": "meta.parens.size.matlab",
+                    "content": "1,:",
+                    "captures": [
+                        {"token": "constant.numeric.decimal.matlab", "content": "1"},
+                        {"token": "punctuation.separator.comma.matlab", "content": ","},
+                        {"token": "keyword.operator.vector.colon.matlab", "content": ":"},
+                    ],
+                },
+                {"token": "punctuation.section.parens.end.matlab", "content": ")"},
+            ],
+        },
+        {
+            "token": "meta.block.validation.matlab",
+            "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
+            "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
+            "content": "mustBeNumeric,mustBeReal",
+        },
+    ],
+}
+
+# string in validation function
+test_vector["method {mustBeMember(method,{'linear','spline'})}"] = {
+    "token": "meta.assignment.definition.property.matlab",
+    "begin": [{"token": "variable.object.property.matlab", "content": "method"}],
+    "content": "method {mustBeMember(method,{'linear','spline'})}",
+    "captures": [
+        {"token": "storage.type.matlab", "content": "mustBeMember"},
+        {
+            "token": "",
+            "content": "(method,{'linear','spline'})",
+            "captures": [
+                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
+                {
+                    "token": "meta.parens.size.matlab",
+                    "content": "method,{'linear','spline'}",
+                    "captures": [
+                        {"token": "punctuation.separator.comma.matlab", "content": ","},
+                        {"token": "punctuation.separator.comma.matlab", "content": ","},
+                    ],
+                },
+                {"token": "punctuation.section.parens.end.matlab", "content": ")"},
+            ],
+        },
+    ],
+}
+
+
+@pytest.mark.parametrize("check,expected", test_vector.items())
+def test_validators(check, expected):
+    """Test validators"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].to_dict() == expected, MSG_NOT_PARSED

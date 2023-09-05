@@ -15,26 +15,26 @@ parser = GrammarParser(TMLIST["repository"]["constants"], key="constants")
 
 
 @pytest.mark.parametrize(
-    "input", ["eps", "Inf", "inf", "intmax", "intmin", "namelengthmax", "realmax", "realmin", "pi"]
+    "check", ["eps", "Inf", "inf", "intmax", "intmin", "namelengthmax", "realmax", "realmin", "pi"]
 )
-def test_numeric(input):
-    parsed, data, _ = parser.parse(StringIO(input))
-
-    assert parsed, MSG_NOT_PARSED
-    assert data[0].token == "constant.numeric.matlab", MSG_NO_MATCH
-
-
-@pytest.mark.parametrize("input", ["NaN", "nan", "NaT", "nat"])
-def test_value_representations(input):
-    parsed, data, _ = parser.parse(StringIO(input))
-
-    assert parsed, MSG_NOT_PARSED
-    assert data[0].token == "constant.language.nan.matlab", MSG_NO_MATCH
+def test_numeric(check):
+    """Test constant numeric"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].token == "constant.numeric.matlab", MSG_NOT_PARSED
 
 
-@pytest.mark.parametrize("input", ["on", "off", "false", "true"])
-def test_binary(input):
-    parsed, data, _ = parser.parse(StringIO(input))
+@pytest.mark.parametrize("check", ["NaN", "nan", "NaT", "nat"])
+def test_value_representations(check):
+    """Test constant value representations"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].token == "constant.language.nan.matlab", MSG_NOT_PARSED
 
-    assert parsed, MSG_NOT_PARSED
-    assert data[0].token == "constant.language.boolean.matlab", MSG_NO_MATCH
+
+@pytest.mark.parametrize("check", ["on", "off", "false", "true"])
+def test_binary(check):
+    """Test constant binary"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].token == "constant.language.boolean.matlab", MSG_NOT_PARSED

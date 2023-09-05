@@ -14,9 +14,9 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 parser = GrammarParser(TMLIST["repository"]["variables"], key="variables")
 
 
-@pytest.mark.parametrize("input", ["nargin", "nargout", "varargin", "varargout"])
-def test_variables(input):
-    parsed, data, _ = parser.parse(StringIO(input))
-
-    assert parsed, MSG_NOT_PARSED
-    assert data[0].token == "variable.language.function.matlab", MSG_NO_MATCH
+@pytest.mark.parametrize("check", ["nargin", "nargout", "varargin", "varargout"])
+def test_variables(check):
+    """Test variables"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NOT_PARSED
+    assert elements[0].token == "variable.language.function.matlab", MSG_NO_MATCH

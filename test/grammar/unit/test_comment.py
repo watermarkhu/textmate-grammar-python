@@ -14,75 +14,64 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 GrammarParser(TMLIST["repository"]["comment_block"], key="comment_block")
 parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
-test_vector = [
-    (
-        "inline comment",
-        " % Test this is a comment. \n",
+test_vector = {}
+
+test_vector[" % Test this is a comment. \n"] = {  # inline comment
+    "token": "",
+    "content": " % Test this is a comment. ",
+    "captures": [
         {
-            "token": "",
-            "content": " % Test this is a comment. ",
-            "captures": [
-                {
-                    "token": "comment.line.percentage.matlab",
-                    "content": "% Test this is a comment. ",
-                    "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
-                }
-            ],
-            "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
-        },
-    ),
-    (
-        "section comment",
-        "  %% This is a section comment \n",
-        {
-            "token": "",
-            "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
-            "content": "  %% This is a section comment \n",
-            "captures": [
-                {
-                    "token": "comment.line.double-percentage.matlab",
-                    "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%%"}],
-                    "content": "%% This is a section comment \n",
-                    "captures": [
-                        {
-                            "token": "entity.name.section.matlab",
-                            "begin": [
-                                {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}
-                            ],
-                            "content": "This is a section comment ",
-                        }
-                    ],
-                }
-            ],
-        },
-    ),
-    (
-        "multiline comment",
-        "  %{\nThis is a comment\nmultiple\n %}",
-        {
-            "token": "comment.block.percentage.matlab",
-            "begin": [
-                {"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "},
-                {"token": "punctuation.definition.comment.begin.matlab", "content": "%{"},
-            ],
-            "content": "  %{\nThis is a comment\nmultiple\n %}",
-            "end": [
-                {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "},
-                {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},
-            ],
-            "captures": [
-                {"token": "", "content": "This is a comment\n"},
-                {"token": "", "content": "multiple\n"},
-            ],
-        },
-    ),
-]
+            "token": "comment.line.percentage.matlab",
+            "content": "% Test this is a comment. ",
+            "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
+        }
+    ],
+    "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
+}
 
 
-@pytest.mark.parametrize("case,input,expected", test_vector)
-def test_comment(case, input, expected):
-    elements = parser.parse(StringIO(input))
-    if elements:
-        assert elements[0].to_dict() == expected, MSG_NOT_PARSED
-    else:
-        raise Exception(MSG_NO_MATCH)
+test_vector["  %% This is a section comment \n"] = {  # section comment
+    "token": "",
+    "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
+    "content": "  %% This is a section comment ",
+    "captures": [
+        {
+            "token": "comment.line.double-percentage.matlab",
+            "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%%"}],
+            "content": "%% This is a section comment \n",
+            "captures": [
+                {
+                    "token": "entity.name.section.matlab",
+                    "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
+                    "content": "This is a section comment ",
+                }
+            ],
+        }
+    ],
+}
+
+
+test_vector["  %{\nThis is a comment\nmultiple\n %}"] = {  # multiline comment
+    "token": "comment.block.percentage.matlab",
+    "begin": [
+        {"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "},
+        {"token": "punctuation.definition.comment.begin.matlab", "content": "%{"},
+    ],
+    "content": "  %{\nThis is a comment\nmultiple\n %}",
+    "end": [
+        {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "},
+        {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},
+    ],
+    "captures": [
+        {"token": "", "content": "This is a comment\n"},
+        {"token": "", "content": "multiple\n"},
+    ],
+}
+
+
+@pytest.mark.parametrize("check,expected", test_vector.items())
+def test_comment(check, expected):
+    """Test comment"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].to_dict() == expected, MSG_NOT_PARSED

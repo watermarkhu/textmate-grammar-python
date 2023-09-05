@@ -1,5 +1,6 @@
 from typing import List
 
+
 class IncludedParserNotFound(Exception):
     def __init__(self, key: str = "UNKNOWN", **kwargs) -> None:
         message = f"Included parser <{key}> not found in store."
@@ -12,25 +13,19 @@ class CannotCloseEnd(Exception):
         super().__init__(message, **kwargs)
 
 
-class RegexGroupsMismatch(Exception):
-    def __init__(self, **kwargs) -> None:
-        message = f"Number of captures does not match regex"
-        super().__init__(message, **kwargs)
-
-
 class IncompatibleFileType(Exception):
-    def __init__(self, extensions:List[str], **kwargs) -> None:
+    def __init__(self, extensions: List[str], **kwargs) -> None:
         message = f"Input file must have extension {' / '.join(extensions)}"
         super().__init__(message, **kwargs)
 
 
 class FileNotFound(Exception):
-    def __init__(self, file:str, **kwargs) -> None:
+    def __init__(self, file: str, **kwargs) -> None:
         message = f"File not found: {file}"
         super().__init__(message, **kwargs)
 
 
 class FileNotParsed(Exception):
-    def __init__(self, file:str, **kwargs) -> None:
+    def __init__(self, file: str, **kwargs) -> None:
         message = f"File not parsed: {file}"
         super().__init__(message, **kwargs)

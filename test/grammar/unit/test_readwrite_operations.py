@@ -14,57 +14,47 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 matlabParser = LanguageParser(TMLIST)
 parser = matlabParser.get_parser("readwrite_operations")
 
-test_vector = [
-    (
-        "simple",
-        "variable",
-        {
-            "token": "readwrite_operations",
-            "content": "variable",
-            "captures": [{"token": "", "content": "variable"}],
-        },
-    ),
-    (
-        "property",
-        "variable.property",
-        {
-            "token": "readwrite_operations",
-            "content": "variable.property",
-            "captures": [{"token": "", "content": "variable.property"}],
-        },
-    ),
-    (
-        "subproperty",
-        "variable.class.property",
-        {
-            "token": "readwrite_operations",
-            "content": "variable.class.property",
-            "captures": [{"token": "", "content": "variable.class.property"}],
-        },
-    ),
-    (
-        "property access",
-        "variable.property(0)",
-        {
-            "token": "readwrite_operations",
-            "content": "variable",
-            "captures": [{"token": "", "content": "variable"}],
-        },
-    ),
-    (
-        "class method",
-        "variable.function(argument)",
-        {
-            "token": "readwrite_operations",
-            "content": "variable",
-            "captures": [{"token": "", "content": "variable"}],
-        },
-    ),
-]
+test_vector = {}
+
+# simple
+test_vector["variable"] = {
+    "token": "readwrite_operations",
+    "content": "variable",
+    "captures": [{"token": "", "content": "variable"}],
+}
+
+# property
+test_vector["variable.property"] = {
+    "token": "readwrite_operations",
+    "content": "variable.property",
+    "captures": [{"token": "", "content": "variable.property"}],
+}
+
+# subproperty
+test_vector["variable.class.property"] = {
+    "token": "readwrite_operations",
+    "content": "variable.class.property",
+    "captures": [{"token": "", "content": "variable.class.property"}],
+}
+
+# property access
+test_vector["variable.property(0)"] = {
+    "token": "readwrite_operations",
+    "content": "variable",
+    "captures": [{"token": "", "content": "variable"}],
+}
+
+# class method
+test_vector["variable.function(argument)"] = {
+    "token": "readwrite_operations",
+    "content": "variable",
+    "captures": [{"token": "", "content": "variable"}],
+}
 
 
-@pytest.mark.parametrize("case,input,expected", test_vector)
-def test_readwrite_operation(case, input, expected):
-    (parsed, data, _) = parser.parse(StringIO(input))
-    assert parsed, MSG_NO_MATCH
-    assert data[0].to_dict() == expected, MSG_NOT_PARSED
+@pytest.mark.parametrize("check,expected", test_vector.items())
+def test_readwrite_operation(check, expected):
+    """Test read/write operations"""
+    elements = parser.parse(StringIO(check))
+    assert elements, MSG_NO_MATCH
+    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
