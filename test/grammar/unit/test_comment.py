@@ -16,7 +16,8 @@ parser = GrammarParser(TMLIST["repository"]["comments"], key="comments")
 
 test_vector = {}
 
-test_vector[" % Test this is a comment. \n"] = {  # inline comment
+# inline comment
+test_vector[" % Test this is a comment. \n"] = {
     "token": "",
     "content": " % Test this is a comment. ",
     "captures": [
@@ -29,8 +30,8 @@ test_vector[" % Test this is a comment. \n"] = {  # inline comment
     "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
 }
 
-
-test_vector["  %% This is a section comment \n"] = {  # section comment
+# section comment
+test_vector["  %% This is a section comment \n"] = {
     "token": "",
     "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
     "content": "  %% This is a section comment ",
@@ -50,22 +51,19 @@ test_vector["  %% This is a section comment \n"] = {  # section comment
     ],
 }
 
-
-test_vector["  %{\nThis is a comment\nmultiple\n %}"] = {  # multiline comment
+# multiline comment
+test_vector["  %{\nThis is a comment\nmultiple\n %}"] = {
     "token": "comment.block.percentage.matlab",
     "begin": [
         {"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "},
         {"token": "punctuation.definition.comment.begin.matlab", "content": "%{"},
     ],
-    "content": "  %{\nThis is a comment\nmultiple\n %}",
     "end": [
         {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "},
         {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},
     ],
-    "captures": [
-        {"token": "", "content": "This is a comment\n"},
-        {"token": "", "content": "multiple\n"},
-    ],
+    "content": "  %{\nThis is a comment\nmultiple\n %}",
+    "captures": [{"token": "", "content": "This is a comment\n"}, {"token": "", "content": "multiple\n"}],
 }
 
 

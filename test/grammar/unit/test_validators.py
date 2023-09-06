@@ -24,28 +24,24 @@ test_vector["argument\n"] = {
     "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
 }
 
-# default and commente
-test_vector["argument = 1 % description"] = {
+# default
+test_vector["argument ="] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
-    "content": "argument = 1 % description",
     "end": [
         {
             "token": "",
-            "content": "= 1 % description",
+            "content": "=",
             "captures": [
                 {
                     "token": "MATLAB",
-                    "content": "= 1 % description",
-                    "captures": [
-                        {"token": "keyword.operator.assignment.matlab", "content": "="},
-                        {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                        {"token": "", "content": "% description"},
-                    ],
+                    "content": "=",
+                    "captures": [{"token": "keyword.operator.assignment.matlab", "content": "="}],
                 }
             ],
         }
     ],
+    "content": "argument =",
 }
 
 # size and type
@@ -121,23 +117,40 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}"] = {
     "begin": [{"token": "variable.object.property.matlab", "content": "method"}],
     "content": "method {mustBeMember(method,{'linear','spline'})}",
     "captures": [
-        {"token": "storage.type.matlab", "content": "mustBeMember"},
         {
-            "token": "",
-            "content": "(method,{'linear','spline'})",
+            "token": "meta.block.validation.matlab",
+            "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
+            "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
+            "content": "mustBeMember(method,{'linear','spline'})",
             "captures": [
-                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
                 {
-                    "token": "meta.parens.size.matlab",
-                    "content": "method,{'linear','spline'}",
+                    "token": "meta.block.validation.matlab",
+                    "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
+                    "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
+                    "content": "'linear','spline'",
                     "captures": [
-                        {"token": "punctuation.separator.comma.matlab", "content": ","},
-                        {"token": "punctuation.separator.comma.matlab", "content": ","},
+                        {
+                            "token": "string.quoted.single.matlab",
+                            "begin": [
+                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                            ],
+                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
+                            "content": "'linear'",
+                            "captures": [{"token": "", "content": "linear"}],
+                        },
+                        {
+                            "token": "string.quoted.single.matlab",
+                            "begin": [
+                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                            ],
+                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
+                            "content": "'spline'",
+                            "captures": [{"token": "", "content": "spline"}],
+                        },
                     ],
-                },
-                {"token": "punctuation.section.parens.end.matlab", "content": ")"},
+                }
             ],
-        },
+        }
     ],
 }
 

@@ -39,11 +39,12 @@ test_vector["@(x,  y) x.^2+y;"] = {
             "captures": [
                 {
                     "token": "MATLAB",
-                    "content": "x.^2+y",
+                    "content": "x.^2+y;",
                     "captures": [
                         {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
                         {"token": "constant.numeric.decimal.matlab", "content": "2"},
                         {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                        {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                     ],
                 }
             ],
@@ -81,7 +82,7 @@ test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
             "captures": [
                 {
                     "token": "MATLAB",
-                    "content": "x...\n   .^2+y",
+                    "content": "x...\n   .^2+y;",
                     "captures": [
                         {
                             "token": "meta.continuation.line.matlab",
@@ -93,6 +94,7 @@ test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
                         {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
                         {"token": "constant.numeric.decimal.matlab", "content": "2"},
                         {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                        {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                     ],
                 }
             ],
@@ -131,7 +133,7 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;
             "captures": [
                 {
                     "token": "MATLAB",
-                    "content": "... comment \n   x... more comment\n   .^2+y",
+                    "content": "... comment \n   x... more comment\n   .^2+y;",
                     "captures": [
                         {
                             "token": "meta.continuation.line.matlab",
@@ -152,6 +154,7 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;
                         {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
                         {"token": "constant.numeric.decimal.matlab", "content": "2"},
                         {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                        {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
                     ],
                 }
             ],

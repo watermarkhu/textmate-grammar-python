@@ -21,7 +21,7 @@ test_vector[r"'This %.3f ''is'' %% a \\ string\n'"] = {
     "token": "string.quoted.single.matlab",
     "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": "'"}],
     "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
-    "content": "'This %.3f ''is''",
+    "content": "'This %.3f ''is'' %% a \\\\ string\\n'",
     "captures": [
         {"token": "constant.character.escape.matlab", "content": "%.3f"},
         {"token": "constant.character.escape.matlab", "content": "''"},
@@ -37,7 +37,7 @@ test_vector[r'"This %.3f ""is"" %% a \\ string\n"'] = {
     "token": "string.quoted.double.matlab",
     "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": '"'}],
     "end": [{"token": "punctuation.definition.string.end.matlab", "content": '"'}],
-    "content": '"This %.3f ""is""',
+    "content": '"This %.3f ""is"" %% a \\\\ string\\n"',
     "captures": [
         {"token": "constant.character.escape.matlab", "content": '""'},
         {"token": "constant.character.escape.matlab", "content": '""'},

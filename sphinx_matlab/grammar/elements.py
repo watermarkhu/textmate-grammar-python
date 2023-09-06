@@ -10,21 +10,15 @@ class ParsedElement(object):
         self,
         token: str,
         grammar: dict,
-        stream: StringIO,
+        content: str,
         span: Tuple[int, int],
         captures: List["ParsedElement"] = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
-        self.stream = stream
+        self.content = content
         self.span = span
         self.captures = captures
-
-    @property
-    def content(self):
-        """Returns the content of the current element."""
-        self.stream.seek(self.span[0])
-        return self.stream.read(self.span[1] - self.span[0])
 
     def to_dict(self, content: bool = True) -> dict:
         "Converts the object to dictionary."

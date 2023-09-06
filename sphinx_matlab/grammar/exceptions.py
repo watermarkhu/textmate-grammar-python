@@ -29,3 +29,8 @@ class FileNotParsed(Exception):
     def __init__(self, file: str, **kwargs) -> None:
         message = f"File not parsed: {file}"
         super().__init__(message, **kwargs)
+
+
+class ImpossibleSpan(Exception):
+    def __init__(self, **kwargs) -> None:
+        super().__init__("The closing position cannot be less or equal than the starting position", **kwargs)

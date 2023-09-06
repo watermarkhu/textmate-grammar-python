@@ -13,17 +13,17 @@ def parse_file(filePath: Union[str, Path], parser: LanguageParser) -> List[Parse
     if type(filePath) != Path:
         filePath = Path(filePath)
 
-    if filePath.suffix.split('.')[-1] not in parser.fileTypes:
-        raise IncompatibleFileType(extensions=parser.fileTypes)
+    if filePath.suffix.split('.')[-1] not in parser.file_types:
+        raise IncompatibleFileType(extensions=parser.file_types)
 
     if not filePath.exists():
         raise FileNotFound(str(filePath))
     
     stream = StringIO(str(from_path(filePath).best()))
 
-    parsed, elements, _ = parser.parse(stream)
+    elements = parser.parse(stream)
 
-    if not parsed:
+    if not elements:
         raise FileNotParsed(str(filePath))
 
     return elements
