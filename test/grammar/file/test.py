@@ -10,7 +10,7 @@ from sphinx_matlab.tmlanguage import TMLIST
 
 
 parser = LanguageParser(TMLIST)
-filePath = "/home/watermarkhu/repositories/sphinx-matlab/test/test_data/script.m"
+filePath = "/home/watermarkhu/repositories/sphinx-matlab/test/test_data/script_with_comment_header.m"
 
 elements = parse_file(filePath, parser)
 

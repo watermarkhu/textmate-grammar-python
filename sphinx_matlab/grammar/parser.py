@@ -36,7 +36,7 @@ def search_stream(
     must match the number of capture groups of the expression, or there must be a single parser
     and no capture groups.
     """
-    if close_pos and start_pos >= close_pos:
+    if close_pos and start_pos > close_pos:
         raise ImpossibleSpan
 
     lookbehind, can_look_behind = 0, True
@@ -51,7 +51,8 @@ def search_stream(
         stream.seek(start_pos - lookbehind)
         if close_pos:
             line_pos = 0
-            buffer = stream.read(close_pos - start_pos + 1 + lookbehind)
+            read_length = close_pos - start_pos + 1 + lookbehind
+            buffer = stream.read(read_length)
             lines = [line + "\n" for line in buffer.split("\n")]  # Add newline as tmlanguage expects it.
             for line in lines:
                 matching = regex.search(line)
@@ -196,7 +197,7 @@ class GrammarParser(object):
         """Parse the input stream using the current parser."""
         if close_pos:
             if start_pos >= close_pos:
-                raise ImpossibleSpan
+                return []
         else:
             close_pos = len(stream.getvalue())
 
@@ -323,23 +324,24 @@ class GrammarParser(object):
         elements_per_parser = defaultdict(list)
         null_search_close = {}
         captured_elements, captured_end = [], []
-        pattern_start, end_start = start_pos, -1
+        pattern_start = start_pos
+
+        if search_end:
+            captured_end, end_span = search_stream(
+                self.end,
+                stream,
+                parsers=self.captures_end,
+                start_pos=pattern_start,
+                close_pos=close_pos,
+                onlyLeadingWhiteSpace=False,
+                **kwargs,
+            )
+            if end_span is None:
+                return None
+            (end_start, _) = end_span
 
         while pattern_start < close_pos:
-            if search_end and pattern_start > end_start:
-                captured_end, end_span = search_stream(
-                    self.end,
-                    stream,
-                    parsers=self.captures_end,
-                    start_pos=pattern_start,
-                    close_pos=close_pos,
-                    onlyLeadingWhiteSpace=False,
-                    **kwargs,
-                )
-                if end_span is None:
-                    return None
-                (end_start, _) = end_span
-
+ 
             elements_per_parser_round = defaultdict(list)
             for parser in parsers:  # Find match per parser
                 skipped_index = next(
@@ -379,8 +381,22 @@ class GrammarParser(object):
             else:
                 pattern_start += 1
 
-            if pattern_start == end_start:
-                break
+            if search_end:
+                if pattern_start == end_start:
+                    break
+                elif pattern_start > end_start:
+                    captured_end, end_span = search_stream(
+                        self.end,
+                        stream,
+                        parsers=self.captures_end,
+                        start_pos=pattern_start,
+                        close_pos=close_pos,
+                        onlyLeadingWhiteSpace=False,
+                        **kwargs,
+                    )
+                    if end_span is None:
+                        return None
+                    (end_start, _) = end_span
 
         return (captured_elements, captured_end, end_span) if search_end else (captured_elements, None, None)
 

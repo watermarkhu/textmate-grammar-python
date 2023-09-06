@@ -20,7 +20,7 @@ test_vector = {}
 test_vector["@(x,  y) x.^2+y;"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
-    "content": "@(x,  y) x.^2+y",
+    "content": "@(x,  y) x.^2+y;",
     "captures": [
         {
             "token": "meta.parameters.matlab",
@@ -35,7 +35,7 @@ test_vector["@(x,  y) x.^2+y;"] = {
         },
         {
             "token": "meta.parameters.matlab",
-            "content": " x.^2+y",
+            "content": " x.^2+y;",
             "captures": [
                 {
                     "token": "MATLAB",
@@ -56,7 +56,7 @@ test_vector["@(x,  y) x.^2+y;"] = {
 test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
-    "content": "@(x,...\n  y) x...\n   .^2+y",
+    "content": "@(x,...\n  y) x...\n   .^2+y;",
     "captures": [
         {
             "token": "meta.parameters.matlab",
@@ -78,7 +78,7 @@ test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
         },
         {
             "token": "meta.parameters.matlab",
-            "content": " x...\n   .^2+y",
+            "content": " x...\n   .^2+y;",
             "captures": [
                 {
                     "token": "MATLAB",
@@ -106,7 +106,7 @@ test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
 test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
-    "content": "@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y",
+    "content": "@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;",
     "captures": [
         {
             "token": "meta.parameters.matlab",
@@ -129,7 +129,7 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;
         },
         {
             "token": "meta.parameters.matlab",
-            "content": "... comment \n   x... more comment\n   .^2+y",
+            "content": "... comment \n   x... more comment\n   .^2+y;",
             "captures": [
                 {
                     "token": "MATLAB",
