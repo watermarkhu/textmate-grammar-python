@@ -322,7 +322,6 @@ class GrammarParser(object):
         parsers = [self.get_parser(call_id) for call_id in self.patterns]
         elements_on_pos = defaultdict(list)
         elements_per_parser = defaultdict(list)
-        null_search_close = {}
         captured_elements, captured_end = [], []
         pattern_start = start_pos
 
@@ -341,8 +340,13 @@ class GrammarParser(object):
             (end_start, _) = end_span
 
         while pattern_start < close_pos:
+
+            for pos in [pos for pos in elements_on_pos.keys() if pos < pattern_start]:
+                elements_on_pos.pop(pos)
  
             elements_per_parser_round = defaultdict(list)
+
+            invalid_parsers = []
             for parser in parsers:  # Find match per parser
                 skipped_index = next(
                     (
@@ -355,14 +359,17 @@ class GrammarParser(object):
                 if skipped_index:
                     elements_per_parser[parser] = elements_per_parser[parser][skipped_index:]
 
-                if not elements_per_parser[parser] and null_search_close.get(parser, None) != close_pos:
+                if not elements_per_parser[parser]:
                     elements = parser.parse(stream, start_pos=pattern_start, close_pos=close_pos, **kwargs)
                     if elements:
                         elements_per_parser_round[parser].extend(elements)
                         for element in elements:
                             elements_on_pos[element.span[0]].append(element)
                     else:
-                        null_search_close[parser] = close_pos
+                        invalid_parsers.append(parser)
+                        
+            for parser in invalid_parsers:
+                parsers.remove(parser)
 
             if elements_per_parser_round:
                 for parser, elements in elements_per_parser_round.items():
@@ -371,7 +378,7 @@ class GrammarParser(object):
                 break
 
             if pattern_start in elements_on_pos:
-                elements = elements_on_pos[pattern_start]
+                elements = elements_on_pos.pop(pattern_start)
                 element = sorted(elements, key=lambda element: element.span[1], reverse=True)[0]
                 captured_elements.append(element)
                 if type(element) is ParsedElementBlock and element.end:
@@ -379,7 +386,7 @@ class GrammarParser(object):
                 else:
                     pattern_start = element.span[1]
             else:
-                pattern_start += 1
+                pattern_start = min(elements_on_pos.keys())
 
             if search_end:
                 if pattern_start == end_start:
