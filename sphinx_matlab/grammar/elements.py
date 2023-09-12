@@ -31,7 +31,9 @@ class ParsedElement(object):
         if content:
             out_dict["content"] = self.content
         if self.captures:
-            out_dict["captures"] = self._list_property_to_dict("captures", content=content, parse_unparsed=parse_unparsed)
+            out_dict["captures"] = self._list_property_to_dict(
+                "captures", content=content, parse_unparsed=parse_unparsed
+            )
         return out_dict
 
     def print(self, **kwargs) -> None:
@@ -54,10 +56,7 @@ class ParsedElement(object):
 
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
-        return [
-            item.to_dict(**kwargs) if isinstance(item, ParsedElement) else item
-            for item in getattr(self, prop, [])
-        ]
+        return [item.to_dict(**kwargs) if isinstance(item, ParsedElement) else item for item in getattr(self, prop, [])]
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."
@@ -92,14 +91,13 @@ class ParsedElementBlock(ParsedElement):
 
 class UnparsedElement(ParsedElement):
     """The to-be-parsed Element type.
-    
-    If a matched regex pattern includes groups that are to be parsed iteratively, an UnparsedElement is 
+
+    If a matched regex pattern includes groups that are to be parsed iteratively, an UnparsedElement is
     created. Unparsed elements are to be parsed at a later moment and allows for faster pattern matching.
     """
-    def __init__(self, stream: 'StringIO', parser: 'GrammarParser', span: Tuple[int, int], **kwargs):
-        super().__init__(
-            parser.token if parser.token else parser.content_token, parser.grammar, "UNPARSED", span
-        )
+
+    def __init__(self, stream: "StringIO", parser: "GrammarParser", span: Tuple[int, int], **kwargs):
+        super().__init__(parser.token if parser.token else parser.content_token, parser.grammar, "UNPARSED", span)
         self.stream = stream
         self.parser = parser
         self.parser_kwargs = kwargs

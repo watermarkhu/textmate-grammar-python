@@ -34,7 +34,7 @@ test_vector[" % Test this is a comment. \n"] = {
 test_vector["  %% This is a section comment \n"] = {
     "token": "",
     "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": "  "}],
-    "content": "  %% This is a section comment \n",
+    "content": "  %% This is a section comment ",
     "captures": [
         {
             "token": "comment.line.double-percentage.matlab",
