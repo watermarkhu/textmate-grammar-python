@@ -26,7 +26,7 @@ def search_stream(
     stream: StringIO,
     parsers: Dict[int, "GrammarParser"] = [],
     start_pos: int = 0,
-    close_pos: Optional[int] = None,
+    close_pos: int = -1,
     **kwargs,
 ) -> Tuple[List[ParsedElement], Optional[Tuple[int, int]]]:
     """Matches the stream against a capture group.
@@ -36,48 +36,44 @@ def search_stream(
     must match the number of capture groups of the expression, or there must be a single parser
     and no capture groups.
     """
-    if close_pos and start_pos > close_pos:
+    if close_pos == -1:
+        close_pos = len(stream.getvalue())
+    elif start_pos > close_pos:
         raise ImpossibleSpan
 
     lookbehind, can_look_behind = 0, True
     do_look_behind = "(?<" in regex._pattern
 
     while lookbehind <= REGEX_LOOKBEHIND_MAX and can_look_behind:
-        if not do_look_behind:  # Only perform while loop once
+        if not do_look_behind: 
+            # Only perform while loop once
             can_look_behind = False
-        if (start_pos - lookbehind) < 0:  # Set to start of stream of lookbehind is maximized
+
+        if (start_pos - lookbehind) < 0:  
+            # Set to start of stream of lookbehind is maximized
             lookbehind, can_look_behind = start_pos, False
 
+        # Read buffer
         stream.seek(start_pos - lookbehind)
-        if close_pos:
-            line_pos = 0
-            read_length = close_pos - start_pos + 1 + lookbehind
-            buffer = stream.read(read_length)
-            lines = [line + "\n" for line in buffer.split("\n")]  # Add newline as tmlanguage expects it.
-            for line in lines:
-                matching = regex.search(line)
-                if matching:
-                    break  # Find first match encountered per line
-                line_pos += len(line)
-            else:
-                lookbehind += REGEX_LOOKBEHIND_STEP
-                continue
-            match_stream_delta = line_pos + start_pos - lookbehind
-        else:
+        match_stream_delta = start_pos
+        while stream.tell() < close_pos:
             line = stream.readline()
             matching = regex.search(line)
-            if not matching:
-                lookbehind += REGEX_LOOKBEHIND_STEP
-                continue
-            match_stream_delta = start_pos + lookbehind
+            if matching:
+                break
+            match_stream_delta += len(line)
+        else:
+            lookbehind += REGEX_LOOKBEHIND_STEP
+            continue
 
-        if matching is not None:
+        if matching.end() + match_stream_delta <= close_pos:
             break
+
+        lookbehind += REGEX_LOOKBEHIND_STEP
     else:
         return [], None
 
     match_span = (match_stream_delta + matching.start(), match_stream_delta + matching.end())
-    close_pos = match_stream_delta + matching.end()
 
     if match_span[0] < start_pos:
         return [], None
@@ -187,8 +183,6 @@ class GrammarParser(object):
         stream: StringIO,
         start_pos: int = 0,
         close_pos: Optional[int] = None,
-        end_pattern: Optional[Pattern] = None,
-        call_stack: List["GrammarParser"] = [],
         **kwargs,
     ) -> List[ParsedElement]:
         """Parse the input stream using the current parser."""
@@ -198,12 +192,6 @@ class GrammarParser(object):
         else:
             close_pos = len(stream.getvalue())
 
-        if (stream, start_pos, close_pos) == self.last_parse and self in call_stack:
-            # Prevent the same parser being called recursively
-            return []
-        current_call_stack = [parser for parser in call_stack] + [self]
-
-        self.last_parse = (stream, start_pos, close_pos)
         stream.seek(start_pos)
 
         if self.match:
@@ -213,7 +201,6 @@ class GrammarParser(object):
                 parsers=self.captures,
                 start_pos=start_pos,
                 close_pos=close_pos,
-                call_stack=current_call_stack,
                 **kwargs,
             )
             if span is None:
@@ -237,7 +224,6 @@ class GrammarParser(object):
                 parsers=self.captures_begin,
                 start_pos=start_pos,
                 close_pos=close_pos,
-                call_stack=current_call_stack,
                 **kwargs,
             )
             if begin_span is None:
@@ -250,8 +236,7 @@ class GrammarParser(object):
                 stream,
                 start_pos=begin_close,
                 close_pos=close_pos,
-                end_pattern=end_pattern,
-                call_stack=current_call_stack,
+                **kwargs,
             )
             if not pattern_result:
                 return []
@@ -277,8 +262,7 @@ class GrammarParser(object):
                 stream,
                 start_pos=start_pos,
                 close_pos=close_pos,
-                end_pattern=end_pattern,
-                call_stack=current_call_stack,
+                **kwargs,
             )
 
             if captured_elements:
@@ -319,105 +303,95 @@ class GrammarParser(object):
         stream,
         start_pos: int,
         close_pos: int,
-        end_pattern: Optional[Pattern],
         **kwargs,
     ):
         "Parse a number of patterns"
         # get parsers and create lookup store
-        next_end_pattern = self.end if self.end is not None else end_pattern
-        elements_on_pos_all = defaultdict(list)
-        elements_per_parser = {self.get_parser(call_id): {} for call_id in self.patterns}
+
+        parsers = [self.get_parser(call_id) for call_id in self.patterns]
+        elements_on_pos = defaultdict(list)
+        elements_per_parser = defaultdict(dict)
         captured_elements, captured_end = [], []
         pattern_start = start_pos
-        end_start, ancestor_end_start = -1, -1
+        end_start = -1
 
         while pattern_start < close_pos:
             # keep doing until closing position is reached
 
-            if self.end is not None and pattern_start > end_start:
-                # search for end when necessary
-                captured_end, end_span = search_stream(
-                    self.end,
-                    stream,
-                    parsers=self.captures_end,
-                    start_pos=pattern_start,
-                    close_pos=close_pos,
-                    **kwargs,
-                )
-                if end_span is None:
-                    return None
-                (end_start, end_close) = end_span
+            if self.end is not None:
 
-            if end_pattern is not None and pattern_start > end_close:
-                # search for ancestor end when necessary
-                _, ancestor_end_span = search_stream(
-                    end_pattern,
-                    stream,
-                    start_pos=end_close,
-                    close_pos=close_pos,
-                    **kwargs,
-                )
-                if ancestor_end_span:
-                    ancestor_end_start = ancestor_end_span[0]
+                if pattern_start >= end_start:
+                    # search for end when necessary
+                    captured_end, end_span = search_stream(
+                        self.end,
+                        stream,
+                        parsers=self.captures_end,
+                        start_pos=pattern_start,
+                        # close_pos=close_pos,
+                        **kwargs,
+                    )
+                    if end_span is None:
+                        return None
+                    (end_start, end_close) = end_span
+                    parsers = [self.get_parser(call_id) for call_id in self.patterns]
 
-            # if pattern_start == end_start:
-            #     # Found end encountered
-            #     break
-
-            for pos in [pos for pos in elements_on_pos.keys() if pos < pattern_start]:
-                # Clear positional elements store for passed positions
+            # Clear positional elements store for passed positions
+            passed_pos = [pos for pos in elements_on_pos.keys() if pos < pattern_start]
+            for pos in passed_pos:
                 elements_on_pos.pop(pos)
 
             invalid_parsers = []
-            for parser in parsers:  
-                # Find match per parser
-                skipped_index = next(
-                    (
-                        index
-                        for index, element in enumerate(elements_per_parser[parser])
-                        if element.span[0] >= pattern_start
-                    ),
-                    len(elements_per_parser[parser]),
-                )
-                if skipped_index:
-                    elements_per_parser[parser] = elements_per_parser[parser][skipped_index:]
+            for parser in parsers:
+                # Loop over parsers
+                parser_elements = elements_per_parser[parser]
 
-                if not elements_per_parser[parser]:
+                # Clear poisitional element store per parser for passed positions
+                passed_pos = [pos for pos in parser_elements.keys() if pos < pattern_start]
+                for pos in passed_pos:
+                    parser_elements.pop(pos)
+
+                if not parser_elements:
+                    # Perform search of none in element store of parser
                     elements = parser.parse(
                         stream,
                         start_pos=pattern_start,
-                        close_pos=close_pos,
-                        end_pattern=next_end_pattern,
+                        close_pos=end_close if self.end else close_pos,
                         **kwargs,
                     )
-                    if elements:
-                        elements_per_parser[parser].extend(elements)
-                        for element in elements:
-                            elements_on_pos[element.span[0]].append(element)
-                    else:
+                    for element in elements:
+                        # Add found elements to element stores
+                        elements_on_pos[element.span[0]].append(element)
+                        parser_elements[element.span[0]] = element
+                    if not elements:
+                        # None found, this parser is invalid (for the current search scope)
                         invalid_parsers.append(parser)
 
-            if not any((pos >= pattern_start for pos in elements_on_pos.keys())):
+            # No more elements current or future positions within current scope
+            element_on_pos_final_pos = end_start if self.end else close_pos
+            if not any((pos <= element_on_pos_final_pos for pos in elements_on_pos.keys())):
                 break
 
             for parser in invalid_parsers:
+                # Remove parser from list for the current scope
                 parsers.remove(parser)
 
             if pattern_start in elements_on_pos:
+                # Use the element from the current position
                 elements = elements_on_pos.pop(pattern_start)
                 element = sorted(elements, key=lambda element: element.span[1], reverse=True)[0]
                 captured_elements.append(element)
+                # Get the next pattern search starting position from the element
                 if isinstance(element, ParsedElementBlock) and element.end:
                     pattern_start = element.end[-1].span[1]
                 else:
                     pattern_start = element.span[1]
             else:
+                # Get the next pattern search starting position from the element store
                 next_element_start = min(elements_on_pos.keys())
-                pattern_start = next_element_start
-                # if next_element_start < end_start:
-                #     pattern_start = next_element_start
-                # else:
-                #     break
+                if next_element_start <= element_on_pos_final_pos:
+                    pattern_start = next_element_start
+                else:
+                    break
 
         return (captured_elements, captured_end, end_span) if self.end else (captured_elements, None, None)
 

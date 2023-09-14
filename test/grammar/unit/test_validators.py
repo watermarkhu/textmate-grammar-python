@@ -28,19 +28,7 @@ test_vector["argument\n"] = {
 test_vector["argument ="] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
-    "end": [
-        {
-            "token": "",
-            "content": "=",
-            "captures": [
-                {
-                    "token": "MATLAB",
-                    "content": "=",
-                    "captures": [{"token": "keyword.operator.assignment.matlab", "content": "="}],
-                }
-            ],
-        }
-    ],
+    "end": [{"token": "", "content": "="}],
     "content": "argument =",
 }
 
