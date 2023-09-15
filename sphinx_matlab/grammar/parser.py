@@ -45,11 +45,11 @@ def search_stream(
     do_look_behind = "(?<" in regex._pattern
 
     while lookbehind <= REGEX_LOOKBEHIND_MAX and can_look_behind:
-        if not do_look_behind: 
+        if not do_look_behind:
             # Only perform while loop once
             can_look_behind = False
 
-        if (start_pos - lookbehind) < 0:  
+        if (start_pos - lookbehind) < 0:
             # Set to start of stream of lookbehind is maximized
             lookbehind, can_look_behind = start_pos, False
 
@@ -114,7 +114,9 @@ class GrammarParser(object):
     "The parser object for a single TMLanguage grammar scope."
     PARSERSTORE = {}
 
-    def __init__(self, grammar: dict, key: str = "", parent: Optional["GrammarParser"] = None, **kwargs) -> None:
+    def __init__(
+        self, grammar: dict, key: str = "", parent: Optional["GrammarParser"] = None, **kwargs
+    ) -> None:
         self.grammar = grammar
         self.parent = parent
         self.key = key
@@ -307,20 +309,23 @@ class GrammarParser(object):
     ):
         "Parse a number of patterns"
         # get parsers and create lookup store
+        if start_pos >= close_pos:
+            return None
 
         parsers = [self.get_parser(call_id) for call_id in self.patterns]
         elements_on_pos = defaultdict(list)
         elements_per_parser = defaultdict(dict)
         captured_elements, captured_end = [], []
         pattern_start = start_pos
-        end_start = -1
+        end_start, end_close = -1, -1
 
         while pattern_start < close_pos:
             # keep doing until closing position is reached
 
             if self.end is not None:
-
-                if pattern_start >= end_start:
+                if (end_start == end_close and pattern_start > end_start) or (
+                    end_start != end_close and pattern_start >= end_start
+                ):
                     # search for end when necessary
                     captured_end, end_span = search_stream(
                         self.end,

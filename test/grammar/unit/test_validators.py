@@ -100,10 +100,10 @@ test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
 }
 
 # string in validation function
-test_vector["method {mustBeMember(method,{'linear','spline'})}"] = {
+test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "method"}],
-    "content": "method {mustBeMember(method,{'linear','spline'})}",
+    "content": "method {mustBeMember(method,{'linear','spline'})}\n",
     "captures": [
         {
             "token": "meta.block.validation.matlab",
@@ -116,26 +116,6 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}"] = {
                     "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
                     "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
                     "content": "'linear','spline'",
-                    "captures": [
-                        {
-                            "token": "string.quoted.single.matlab",
-                            "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
-                            ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
-                            "content": "'linear'",
-                            "captures": [{"token": "", "content": "linear"}],
-                        },
-                        {
-                            "token": "string.quoted.single.matlab",
-                            "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
-                            ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
-                            "content": "'spline'",
-                            "captures": [{"token": "", "content": "spline"}],
-                        },
-                    ],
                 }
             ],
         }
