@@ -6,8 +6,8 @@ if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
-class ParsedElement(object):
-    """The base parsed element object."""
+class ContentElement(object):
+    """The base grammar element object."""
 
     def __init__(
         self,
@@ -15,7 +15,7 @@ class ParsedElement(object):
         grammar: dict,
         content: str,
         span: Tuple[int, int],
-        captures: List["ParsedElement"] = [],
+        captures: List["ContentElement"] = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
@@ -56,17 +56,17 @@ class ParsedElement(object):
 
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
-        return [item.to_dict(**kwargs) if isinstance(item, ParsedElement) else item for item in getattr(self, prop, [])]
+        return [item.to_dict(**kwargs) if isinstance(item, ContentElement) else item for item in getattr(self, prop, [])]
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."
         return repr(f"{self.token}<<{content}>>({len(self.captures)})")
 
 
-class ParsedElementBlock(ParsedElement):
+class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
 
-    def __init__(self, begin: List[ParsedElement] = [], end: List[ParsedElement] = [], **kwargs) -> None:
+    def __init__(self, begin: List[ContentElement] = [], end: List[ContentElement] = [], **kwargs) -> None:
         super().__init__(**kwargs)
         self.begin = begin
         self.end = end
@@ -89,7 +89,7 @@ class ParsedElementBlock(ParsedElement):
         self._parse_unparsed_property("end")
 
 
-class UnparsedElement(ParsedElement):
+class UnparsedElement(ContentElement):
     """The to-be-parsed Element type.
 
     If a matched regex pattern includes groups that are to be parsed iteratively, an UnparsedElement is
@@ -102,7 +102,7 @@ class UnparsedElement(ParsedElement):
         self.parser = parser
         self.parser_kwargs = kwargs
 
-    def parse(self) -> List[ParsedElement]:
+    def parse(self) -> List[ContentElement]:
         """Parses the stream."""
         elements = self.parser.parse(self.stream, start_pos=self.span[0], close_pos=self.span[1])
         return elements

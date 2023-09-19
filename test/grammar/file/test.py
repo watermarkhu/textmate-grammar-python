@@ -9,7 +9,7 @@ from sphinx_matlab.tmlanguage import TMLIST
 
 
 parser = LanguageParser(TMLIST)
-filePath = "/workspaces/sphinx-matlab/test/test_data/ValidateProps.m"
+filePath =  Path(__file__).parents[2] / "test_data" / "ValidateProps.m"
 
 elements = parse_file(filePath, parser)
 

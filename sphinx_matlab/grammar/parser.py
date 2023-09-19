@@ -4,21 +4,32 @@ from collections import defaultdict
 import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
 from .exceptions import IncludedParserNotFound, CannotCloseEnd, ImpossibleSpan
-from .elements import ParsedElement, ParsedElementBlock, UnparsedElement
+from .elements import ContentElement, ContentBlockElement, UnparsedElement
 
 
 regex_nextline = re.compile("\n|$")
-REGEX_LOOKBEHIND_MAX = 100
-REGEX_LOOKBEHIND_STEP = 5
+REGEX_LOOKBEHIND_MAX = 20
+REGEX_LOOKBEHIND_STEP = 4
 
 
 def stream_read_pos(stream: StringIO, start_pos: int, close_pos: int) -> str:
-    "Reads the stream between the start and end positions."
+    """Reads the stream between the start and end positions."""
     if start_pos > close_pos:
         raise ImpossibleSpan
     stream.seek(start_pos)
     content = stream.read(close_pos - start_pos)
     return content
+
+
+def stream_endline_pos(stream: StringIO, start_pos: int) -> int:
+    """Finds the position of the next endline character or EOS."""
+    stream.seek(start_pos)
+    content = stream.read()
+    new_line_from_start = content.find("\n")
+    if new_line_from_start == -1:
+        return start_pos + len(content)
+    else:
+        return start_pos + new_line_from_start
 
 
 def search_stream(
@@ -28,7 +39,7 @@ def search_stream(
     start_pos: int = 0,
     close_pos: int = -1,
     **kwargs,
-) -> Tuple[List[ParsedElement], Optional[Tuple[int, int]]]:
+) -> Tuple[List[ContentElement], Optional[Tuple[int, int]]]:
     """Matches the stream against a capture group.
 
     The stream is matched against the input pattern. If there are any capture groups,
@@ -81,7 +92,7 @@ def search_stream(
     # No groups, but a parser existed. Use token of parser to create element
     if 0 in parsers:
         elements = [
-            ParsedElement(
+            ContentElement(
                 token=parsers[0].token if parsers[0].token else parsers[0].comment,
                 grammar=parsers[0].grammar,
                 content=stream_read_pos(stream, match_span[0], match_span[1]),
@@ -186,7 +197,7 @@ class GrammarParser(object):
         start_pos: int = 0,
         close_pos: Optional[int] = None,
         **kwargs,
-    ) -> List[ParsedElement]:
+    ) -> List[ContentElement]:
         """Parse the input stream using the current parser."""
         if close_pos:
             if start_pos >= close_pos:
@@ -209,8 +220,8 @@ class GrammarParser(object):
                 return []
             content = stream_read_pos(stream, span[0], span[1])
             elements = [
-                ParsedElement(
-                    token=self.token if self.token else self.key,
+                ContentElement(
+                    token=self.token,
                     grammar=self.grammar,
                     content=content,
                     span=span,
@@ -244,11 +255,11 @@ class GrammarParser(object):
                 return []
             captured_elements, captured_end, (end_start, end_close) = pattern_result
 
-            token = self.content_token if self.content_token else self.token if self.token else self.key
+            token = self.content_token if self.content_token else self.token
             start, close = (begin_close, end_start) if self.content_token else (begin_start, end_close)
 
             elements = [
-                ParsedElementBlock(
+                ContentBlockElement(
                     token=token,
                     grammar=self.grammar,
                     content=stream_read_pos(stream, start, close),
@@ -268,10 +279,13 @@ class GrammarParser(object):
             )
 
             if captured_elements:
-                if self.token:
+
+                if isinstance(self, LanguageParser) or not self.token:
+                    elements = captured_elements
+                else:
                     content = stream_read_pos(stream, start_pos, close_pos)
                     elements = [
-                        ParsedElement(
+                        ContentElement(
                             token=self.token,
                             grammar=self.grammar,
                             content=content,
@@ -279,8 +293,7 @@ class GrammarParser(object):
                             captures=captured_elements,
                         )
                     ]
-                else:
-                    elements = captured_elements
+                    
             else:
                 return []
 
@@ -288,8 +301,8 @@ class GrammarParser(object):
             if close_pos is not None:
                 content = stream_read_pos(stream, start_pos, close_pos)
                 elements = [
-                    ParsedElement(
-                        token=self.token if self.token else self.key,
+                    ContentElement(
+                        token=self.token,
                         grammar=self.grammar,
                         content=content,
                         span=(start_pos, close_pos),
@@ -317,12 +330,13 @@ class GrammarParser(object):
         elements_per_parser = defaultdict(dict)
         captured_elements, captured_end = [], []
         pattern_start = start_pos
-        end_start, end_close = -1, -1
+        end_start, end_close, next_newline_pos = -1, -1, -1
 
         while pattern_start < close_pos:
             # keep doing until closing position is reached
 
-            if self.end is not None:
+            if self.end:
+
                 if (end_start == end_close and pattern_start > end_start) or (
                     end_start != end_close and pattern_start >= end_start
                 ):
@@ -332,20 +346,22 @@ class GrammarParser(object):
                         stream,
                         parsers=self.captures_end,
                         start_pos=pattern_start,
-                        # close_pos=close_pos,
                         **kwargs,
                     )
                     if end_span is None:
                         return None
                     (end_start, end_close) = end_span
-                    parsers = [self.get_parser(call_id) for call_id in self.patterns]
+                    # parsers = [self.get_parser(call_id) for call_id in self.patterns]
+
+            if pattern_start > next_newline_pos:
+                next_newline_pos = stream_endline_pos(stream, pattern_start)
 
             # Clear positional elements store for passed positions
             passed_pos = [pos for pos in elements_on_pos.keys() if pos < pattern_start]
             for pos in passed_pos:
                 elements_on_pos.pop(pos)
 
-            invalid_parsers = []
+            # invalid_parsers = []
             for parser in parsers:
                 # Loop over parsers
                 parser_elements = elements_per_parser[parser]
@@ -360,25 +376,26 @@ class GrammarParser(object):
                     elements = parser.parse(
                         stream,
                         start_pos=pattern_start,
-                        close_pos=end_close if self.end else close_pos,
+                        close_pos=end_close if self.end else next_newline_pos,
                         **kwargs,
                     )
                     for element in elements:
                         # Add found elements to element stores
                         elements_on_pos[element.span[0]].append(element)
                         parser_elements[element.span[0]] = element
-                    if not elements:
-                        # None found, this parser is invalid (for the current search scope)
-                        invalid_parsers.append(parser)
+
+                    # if not elements:
+                    #     # None found, this parser is invalid (for the current search scope)
+                    #     invalid_parsers.append(parser)
 
             # No more elements current or future positions within current scope
             element_on_pos_final_pos = end_start if self.end else close_pos
             if not any((pos <= element_on_pos_final_pos for pos in elements_on_pos.keys())):
                 break
 
-            for parser in invalid_parsers:
-                # Remove parser from list for the current scope
-                parsers.remove(parser)
+            # for parser in invalid_parsers:
+            #     # Remove parser from list for the current scope
+            #     parsers.remove(parser)
 
             if pattern_start in elements_on_pos:
                 # Use the element from the current position
@@ -386,7 +403,7 @@ class GrammarParser(object):
                 element = sorted(elements, key=lambda element: element.span[1], reverse=True)[0]
                 captured_elements.append(element)
                 # Get the next pattern search starting position from the element
-                if isinstance(element, ParsedElementBlock) and element.end:
+                if isinstance(element, ContentBlockElement) and element.end:
                     pattern_start = element.end[-1].span[1]
                 else:
                     pattern_start = element.span[1]
