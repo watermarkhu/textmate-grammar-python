@@ -11,6 +11,6 @@ if tmLanguageFile.exists():
    shutil.copyfile(tmLanguageFile, tmLanguageYAML)
 
 with open(tmLanguageYAML, "r") as file:
-    TMLIST = yaml.load(file.read())
+   GRAMMAR = yaml.load(file.read())
 
 
