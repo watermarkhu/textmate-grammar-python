@@ -1,8 +1,12 @@
-from typing import Optional
+from typing import List, Union, Tuple
+from pathlib import Path
 from .parser import GrammarParser, PatternsParser, init_parser
+from .exceptions import IncompatibleFileType, FileNotFound, FileNotParsed
+from .elements import ContentElement
 
 
 LANGUAGE_PARSERS = {}
+
 
 class DummyParser(GrammarParser):
     def __init__(self):
@@ -14,6 +18,7 @@ class DummyParser(GrammarParser):
 
     def parse(self, *args, **kwargs):
         pass
+
 
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
@@ -39,10 +44,31 @@ class LanguageParser(PatternsParser):
     def _find_include_scopes(key: str):
         return LANGUAGE_PARSERS.get(key, DummyParser())
 
+    def parse_file(
+        self, filePath: Union[str, Path], **kwargs
+    ) -> Tuple[bool, List[ContentElement]]:
+        if type(filePath) != Path:
+            filePath = Path(filePath)
+
+        if filePath.suffix.split('.')[-1] not in self.file_types:
+            raise IncompatibleFileType(extensions=self.file_types)
+
+        if not filePath.exists():
+            raise FileNotFound(str(filePath))
+        
+        stream = open(filePath, "r")
+
+        parsed, elements = self.parse(stream, **kwargs)
+
+        stream.close()
+
+        return parsed, elements
+
+
 
 def gen_repositories(grammar, key="repository"):
     """Recursively gets all repositories from a grammar dictionary"""
-    if hasattr(grammar,'items'):
+    if hasattr(grammar, "items"):
         for k, v in grammar.items():
             if k == key:
                 yield v

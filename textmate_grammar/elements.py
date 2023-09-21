@@ -1,8 +1,8 @@
 from typing import List, Tuple, TYPE_CHECKING
 from pprint import pprint
+from io import TextIOBase
 
 if TYPE_CHECKING:
-    from io import StringIO
     from .parser import GrammarParser
 
 
@@ -96,13 +96,15 @@ class UnparsedElement(ContentElement):
     created. Unparsed elements are to be parsed at a later moment and allows for faster pattern matching.
     """
 
-    def __init__(self, stream: "StringIO", parser: "GrammarParser", span: Tuple[int, int], **kwargs):
-        super().__init__(parser.token if parser.token else parser.content_token, parser.grammar, "UNPARSED", span)
+    def __init__(self, stream: TextIOBase, parser: "GrammarParser", span: Tuple[int, int], **kwargs):
+        super().__init__("UNPARSED", parser.grammar, "", span)
         self.stream = stream
         self.parser = parser
         self.parser_kwargs = kwargs
 
     def parse(self) -> List[ContentElement]:
         """Parses the stream."""
-        elements = self.parser.parse(self.stream, start_pos=self.span[0], close_pos=self.span[1])
+
+        self.stream.seek(self.span[0])
+        parsed, elements = self.parser.parse(self.stream, boundary=self.span[1])
         return elements
