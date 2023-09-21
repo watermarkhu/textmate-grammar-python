@@ -15,10 +15,12 @@ def init_parser(grammar: dict, **kwargs):
     "Initializes the parser based on the grammar."
     if "include" in grammar:
         return grammar["include"]
-    elif "match" in grammar:
+    elif "exp_match" in grammar:
         return MatchParser(grammar, **kwargs)
-    elif "begin" in grammar and "end" in grammar:
+    elif "exp_begin" in grammar and "exp_end" in grammar:
         return BeginEndParser(grammar, **kwargs)
+    elif "exp_begin" in grammar and "exp_while" in grammar:
+        return BeginWhileParser(grammar, **kwargs)
     elif "patterns" in grammar:
         return PatternsParser(grammar, **kwargs)
     else:
@@ -47,7 +49,10 @@ class GrammarParser(ABC):
         return captures
 
     def _find_include(self, key: str, **kwargs):
-        if key == "$self":
+        if not self.language:
+            raise IncludedParserNotFound(key)
+        
+        if key in ["$self", "$base"]:
             return self.language
         elif key[0] == "#":
             return self.language.repository.get(key[1:], None)
@@ -103,9 +108,16 @@ class TokenParser(GrammarParser):
 class MatchParser(GrammarParser):
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
-        self.match = re.compile(grammar["match"])
+        self.exp_match = re.compile(grammar["match"])
         self.captures = self._init_captures(grammar, key="captures")
         self.token = grammar.get("name", None)
+
+    def __repr__(self) -> str:
+        if self.token:
+            return f"{self.__class__.__name__}:{self.token}"
+        else:
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
+            return f"{self.__class__.__name__}:<{identifier}>"
 
     def initialize_repository(self):
         self.initialized = True
@@ -124,7 +136,7 @@ class MatchParser(GrammarParser):
         **kwargs,
     ) -> Tuple[bool, List[ContentElement]]:
         captures, span = search_stream(
-            self.match,
+            self.exp_match,
             stream,
             parsers=self.captures,
             start_pos=start_pos,
@@ -164,6 +176,11 @@ class PatternsParser(GrammarParser):
             if not parser.initialized: 
                 parser.initialize_repository()
 
+        pattern_parsers = [parser for parser in self.patterns if type(parser)==PatternsParser]
+        for parser in pattern_parsers:
+            parser_index = self.patterns.index(parser)
+            self.patterns[parser_index:parser_index+1] = parser.patterns
+
     def parse(
         self,
         stream: StringIO,
@@ -183,11 +200,18 @@ class BeginEndParser(PatternsParser):
         else:
             self.token = grammar.get("name", None)
             self.between_content = False
-        self.begin = re.compile(grammar["begin"])
-        self.end = re.compile(grammar["end"])
+        self.exp_begin = re.compile(grammar["begin"])
+        self.exp_end = re.compile(grammar["end"])
         self.captures_begin = self._init_captures(grammar, key="beginCaptures")
         self.captures_end = self._init_captures(grammar, key="endCaptures")
 
+    def __repr__(self) -> str:
+        if self.token:
+            return f"{self.__class__.__name__}:{self.token}"
+        else:
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
+            return f"{self.__class__.__name__}:<{identifier}>"
+        
     def initialize_repository(self):
         self.initialized = True
         super().initialize_repository()
@@ -197,10 +221,10 @@ class BeginEndParser(PatternsParser):
         for key, value in self.captures_begin.items():
             if not isinstance(value, GrammarParser):
                 self.captures_begin[key] = self._find_include(value)
-        for parser in self.captures_end.values():
+        for parser in self.captures_begin.values():
             if not parser.initialized:
                 parser.initialize_repository()
-        for parser in self.captures_begin.values():
+        for parser in self.captures_end.values():
             if not parser.initialized:
                 parser.initialize_repository()
 
@@ -213,6 +237,51 @@ class BeginEndParser(PatternsParser):
     ) -> Tuple[bool, List[ContentElement]]:
         pass
 
+class BeginWhileParser(PatternsParser):
+    def __init__(self, grammar: dict, **kwargs) -> None:
+        super().__init__(grammar, **kwargs)
+        if "contentName" in grammar:
+            self.token = grammar["contentName"]
+            self.between_content = True
+        else:
+            self.token = grammar.get("name", None)
+            self.between_content = False
+        self.exp_begin = re.compile(grammar["begin"])
+        self.exp_while = re.compile(grammar["while"])
+        self.captures_begin = self._init_captures(grammar, key="beginCaptures")
+        self.captures_while = self._init_captures(grammar, key="whileCaptures")
+
+    def __repr__(self) -> str:
+        if self.token:
+            return f"{self.__class__.__name__}:{self.token}"
+        else:
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
+            return f"{self.__class__.__name__}:<{identifier}>"
+        
+    def initialize_repository(self):
+        self.initialized = True
+        super().initialize_repository()
+        for key, value in self.captures_end.items():
+            if not isinstance(value, GrammarParser):
+                self.captures_end[key] = self._find_include(value)
+        for key, value in self.captures_while.items():
+            if not isinstance(value, GrammarParser):
+                self.captures_while[key] = self._find_include(value)
+        for parser in self.captures_begin.values():
+            if not parser.initialized:
+                parser.initialize_repository()
+        for parser in self.captures_while.values():
+            if not parser.initialized:
+                parser.initialize_repository()
+
+    def parse(
+        self,
+        stream: StringIO,
+        start_pos: int,
+        close_pos: int,
+        **kwargs,
+    ) -> Tuple[bool, List[ContentElement]]:
+        pass
 
 # class GrammarParser(object):
 #     "The parser object for a single TMLanguage grammar scope."
@@ -224,17 +293,17 @@ class BeginEndParser(PatternsParser):
 #         self.token = grammar.get("name", "")
 #         self.content_token = grammar.get("contentName", "")
 #         self.comment = grammar.get("comment", "")
-#         self.match, self.begin, self.end = None, None, None
+#         self.exp_match, self.exp_begin, self.exp_end = None, None, None
 #         self.captures, self.captures_begin, self.captures_end = {}, {}, {}
 #         self.patterns = []
 #         self.last_parse = None
 
 #         if "match" in grammar:
-#             self.match = re.compile(grammar["match"])
+#             self.exp_match = re.compile(grammar["match"])
 #             self.captures = self._init_captures(grammar, key="captures")
 #         elif "begin" in grammar and "end" in grammar:
-#             self.begin = re.compile(grammar["begin"])
-#             self.end = re.compile(grammar["end"])
+#             self.exp_begin = re.compile(grammar["begin"])
+#             self.exp_end = re.compile(grammar["end"])
 #             self.captures_begin = self._init_captures(grammar, key="beginCaptures")
 #             self.captures_end = self._init_captures(grammar, key="endCaptures")
 #         if "patterns" in grammar:
@@ -291,9 +360,9 @@ class BeginEndParser(PatternsParser):
 
 #         stream.seek(start_pos)
 
-#         if self.match:
+#         if self.exp_match:
 #             captures, span = search_stream(
-#                 self.match,
+#                 self.exp_match,
 #                 stream,
 #                 parsers=self.captures,
 #                 start_pos=start_pos,
@@ -313,10 +382,10 @@ class BeginEndParser(PatternsParser):
 #                 )
 #             ]
 
-#         elif self.begin and self.end:
+#         elif self.exp_begin and self.exp_end:
 #             # Find begin
 #             captured_begin, begin_span = search_stream(
-#                 self.begin,
+#                 self.exp_begin,
 #                 stream,
 #                 parsers=self.captures_begin,
 #                 start_pos=start_pos,
@@ -418,14 +487,14 @@ class BeginEndParser(PatternsParser):
     #     while pattern_start < close_pos:
     #         # keep doing until closing position is reached
 
-    #         if self.end:
+    #         if self.exp_end:
 
     #             if (end_start == end_close and pattern_start > end_start) or (
     #                 end_start != end_close and pattern_start >= end_start
     #             ):
     #                 # search for end when necessary
     #                 captured_end, end_span = search_stream(
-    #                     self.end,
+    #                     self.exp_end,
     #                     stream,
     #                     parsers=self.captures_end,
     #                     start_pos=pattern_start,
@@ -459,7 +528,7 @@ class BeginEndParser(PatternsParser):
     #                 elements = parser.parse(
     #                     stream,
     #                     start_pos=pattern_start,
-    #                     close_pos=end_close if self.end else next_newline_pos,
+    #                     close_pos=end_close if self.exp_end else next_newline_pos,
     #                     **kwargs,
     #                 )
     #                 for element in elements:
@@ -472,7 +541,7 @@ class BeginEndParser(PatternsParser):
     #                 #     invalid_parsers.append(parser)
 
     #         # No more elements current or future positions within current scope
-    #         element_on_pos_final_pos = end_start if self.end else close_pos
+    #         element_on_pos_final_pos = end_start if self.exp_end else close_pos
     #         if not any((pos <= element_on_pos_final_pos for pos in elements_on_pos.keys())):
     #             break
 
@@ -486,8 +555,8 @@ class BeginEndParser(PatternsParser):
     #             element = sorted(elements, key=lambda element: element.span[1], reverse=True)[0]
     #             captured_elements.append(element)
     #             # Get the next pattern search starting position from the element
-    #             if isinstance(element, ContentBlockElement) and element.end:
-    #                 pattern_start = element.end[-1].span[1]
+    #             if isinstance(element, ContentBlockElement) and element.exp_end:
+    #                 pattern_start = element.exp_end[-1].span[1]
     #             else:
     #                 pattern_start = element.span[1]
     #         else:
@@ -498,4 +567,4 @@ class BeginEndParser(PatternsParser):
     #             else:
     #                 break
 
-    #     return (captured_elements, captured_end, end_span) if self.end else (captured_elements, None, None)
+    #     return (captured_elements, captured_end, end_span) if self.exp_end else (captured_elements, None, None)

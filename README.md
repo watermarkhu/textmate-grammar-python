@@ -13,6 +13,7 @@
 - [x] Use yaml in stead of json
 - [x] Grammar initialization with *repository* at any level
 - [ ] Proper line-by-line parsing
+- [ ] `\G` anchoring
 - [ ] Option to *disable* a grammar
 - [ ] Apply *applyEndPatternLast* option
 - [ ] Something with *injections*
