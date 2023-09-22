@@ -31,16 +31,6 @@ def stream_read_length(stream: TextIOBase, start_pos: int, length: int) -> str:
     return content
 
 
-def stream_check_pos(stream: TextIOBase, pos: int) -> int:
-    """Checks that the position of stream charactor is not newline"""
-    stream.seek(pos)
-    if stream.read(1) == "\n":
-        return pos + 1
-    else:
-        stream.seek(pos)
-        return pos
-
-
 def search_stream(
     stream: TextIOBase,
     regex: Pattern,

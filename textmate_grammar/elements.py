@@ -23,12 +23,12 @@ class ContentElement(object):
         self.span = span
         self.captures = captures
 
-    def to_dict(self, content: bool = True, parse_unparsed: bool = True, **kwargs) -> dict:
+    def to_dict(self, content: bool = False, parse_unparsed: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
         if parse_unparsed:
             self.parse_unparsed()
         out_dict = {"token": self.token}
-        if content:
+        if content or (type(self) is ContentElement and not self.captures):
             out_dict["content"] = self.content
         if self.captures:
             out_dict["captures"] = self._list_property_to_dict(
@@ -36,33 +36,36 @@ class ContentElement(object):
             )
         return out_dict
 
-    def print(self, **kwargs) -> None:
+    def print(self, content: bool = False, **kwargs) -> None:
         """Prints the current object recursively by converting to dictionary."""
-        pprint(self.to_dict(**kwargs), sort_dicts=False, width=kwargs.pop("width", 150), **kwargs)
+        pprint(self.to_dict(content=content, **kwargs), sort_dicts=False, width=kwargs.pop("width", 150), **kwargs)
 
     def parse_unparsed(self) -> "ContentElement":
         """Parses the unparsed elements contained in the current element."""
-        self._parse_unparsed_property("captures")
+        self.captures = self._parse_unparsed_elements(self.captures)
         return self
-
-    def _parse_unparsed_property(self, prop: str):
-        """Parses the unparsed elements of the UnparsedElement type of a property."""
-        elements, parsed_elements = getattr(self, prop, []), []
-        for element in elements:
-            if type(element) is UnparsedElement:
-                parsed_elements += element.parse()
-            else:
-                parsed_elements.append(element)
-        setattr(self, prop, parsed_elements)
 
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
-        return [item.to_dict(**kwargs) if isinstance(item, ContentElement) else item for item in getattr(self, prop, [])]
+        return [
+            item.to_dict(**kwargs) if isinstance(item, ContentElement) else item for item in getattr(self, prop, [])
+        ]
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."
         return repr(f"{self.token}<<{content}>>({len(self.captures)})")
 
+    @staticmethod
+    def _parse_unparsed_elements(elements: List["ContentElement"]):
+        """Parses the unparsed elements of the UnparsedElement type of a property."""
+        parsed_elements = []
+        for element in elements:
+            if type(element) is UnparsedElement:
+                for unparsed_parsed in element.parse():
+                    parsed_elements.append(unparsed_parsed.parse_unparsed())
+            else:
+                parsed_elements.append(element.parse_unparsed())
+        return parsed_elements
 
 class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
@@ -85,9 +88,9 @@ class ContentBlockElement(ContentElement):
 
     def parse_unparsed(self):
         """Parses the unparsed elements contained in the current element."""
-        self._parse_unparsed_property("captures")
-        self._parse_unparsed_property("begin")
-        self._parse_unparsed_property("end")
+        self.captures = self._parse_unparsed_elements(self.captures)
+        self.begin = self._parse_unparsed_elements(self.begin)
+        self.end = self._parse_unparsed_elements(self.end)
         return self
 
 
@@ -109,4 +112,5 @@ class UnparsedElement(ContentElement):
 
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
-        return elements
+        
+        return self._parse_unparsed_elements(elements)
