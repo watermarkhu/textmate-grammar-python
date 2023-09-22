@@ -203,6 +203,7 @@ repository:
         name: meta.while.declaration.matlab
       - include: $self
   braced_validator_list:
+    applyEndPatternLast: true
     begin: \s*({)\s*
     beginCaptures:
       '1':
@@ -990,7 +991,7 @@ repository:
         name: variable.object.property.matlab
     comment: Property and argument validation. Match an identifier allowing . and
       ?.
-    end: ([;\n%=].*)
+    end: +
     endCaptures:
       '1':
         patterns:

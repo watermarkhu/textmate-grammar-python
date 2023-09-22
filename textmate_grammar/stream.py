@@ -16,8 +16,8 @@ regex_nextline = re.compile("\n|$")
 
 def stream_read_pos(stream: TextIOBase, start_pos: int, close_pos: int) -> str:
     """Reads the stream between the start and end positions."""
-    
-    return stream_read_length(stream, start_pos, close_pos-start_pos)
+
+    return stream_read_length(stream, start_pos, close_pos - start_pos)
 
 
 def stream_read_length(stream: TextIOBase, start_pos: int, length: int) -> str:
@@ -31,12 +31,23 @@ def stream_read_length(stream: TextIOBase, start_pos: int, length: int) -> str:
     return content
 
 
+def stream_check_pos(stream: TextIOBase, pos: int) -> int:
+    """Checks that the position of stream charactor is not newline"""
+    stream.seek(pos)
+    if stream.read(1) == "\n":
+        return pos + 1
+    else:
+        stream.seek(pos)
+        return pos
+
+
 def search_stream(
     stream: TextIOBase,
     regex: Pattern,
     parsers: Dict[int, "GrammarParser"] = {},
     boundary: Optional[int] = None,
     anchor: Optional[int] = None,
+    ws_only: bool = True,
     **kwargs,
 ) -> Tuple[Tuple[int, int], List[ContentElement]]:
     """Matches the stream against a capture group.
@@ -51,7 +62,7 @@ def search_stream(
     if regex._pattern == "\Z":
         line = stream.readline()
         end_pos = stream.tell()
-        return (end_pos, end_pos), [] 
+        return (end_pos, end_pos), []
     elif regex._pattern[:2] == "\G":
         if anchor is None:
             raise SyntaxError
@@ -63,7 +74,11 @@ def search_stream(
     if "(?<" not in regex._pattern:
         line = stream.readline()
         matching = regex.search(line)
-        if not matching or (matching.start() and not stream_read_length(stream, init_pos, matching.start()).isspace()):
+        if not matching or (
+            ws_only
+            and matching.start()
+            and not stream_read_length(stream, init_pos, matching.start()).isspace()
+        ):
             stream.seek(init_pos)
             return None, []
     else:
@@ -80,7 +95,8 @@ def search_stream(
                 not matching
                 or matching.start() < look_behind_shift
                 or (
-                    matching.start() > look_behind_shift
+                    ws_only
+                    and matching.start() > look_behind_shift
                     and not stream_read_length(stream, init_pos, matching.start() - look_behind_shift).isspace()
                 )
             ):
@@ -121,7 +137,7 @@ def search_stream(
                 UnparsedElement(
                     stream,
                     parser,
-                    (match_shift + span[0], match_shift + span[1]), 
+                    (match_shift + span[0], match_shift + span[1]),
                 )
             )
 

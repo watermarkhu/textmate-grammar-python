@@ -40,9 +40,10 @@ class ContentElement(object):
         """Prints the current object recursively by converting to dictionary."""
         pprint(self.to_dict(**kwargs), sort_dicts=False, width=kwargs.pop("width", 150), **kwargs)
 
-    def parse_unparsed(self):
+    def parse_unparsed(self) -> "ContentElement":
         """Parses the unparsed elements contained in the current element."""
         self._parse_unparsed_property("captures")
+        return self
 
     def _parse_unparsed_property(self, prop: str):
         """Parses the unparsed elements of the UnparsedElement type of a property."""
@@ -87,6 +88,7 @@ class ContentBlockElement(ContentElement):
         self._parse_unparsed_property("captures")
         self._parse_unparsed_property("begin")
         self._parse_unparsed_property("end")
+        return self
 
 
 class UnparsedElement(ContentElement):
@@ -106,5 +108,5 @@ class UnparsedElement(ContentElement):
         """Parses the stream."""
 
         self.stream.seek(self.span[0])
-        parsed, elements = self.parser.parse(self.stream, boundary=self.span[1])
+        _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
         return elements

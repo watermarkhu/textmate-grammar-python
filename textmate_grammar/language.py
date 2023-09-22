@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 from pathlib import Path
 from .parser import GrammarParser, PatternsParser, init_parser
 from .exceptions import IncompatibleFileType, FileNotFound, FileNotParsed
@@ -27,6 +27,7 @@ class LanguageParser(PatternsParser):
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
+        self.token = grammar.get("scopeName", "myScope")
 
         self.repository = {}
         for repo in gen_repositories(grammar):
@@ -46,7 +47,7 @@ class LanguageParser(PatternsParser):
 
     def parse_file(
         self, filePath: Union[str, Path], **kwargs
-    ) -> Tuple[bool, List[ContentElement]]:
+    ) -> Optional[ContentElement]:
         if type(filePath) != Path:
             filePath = Path(filePath)
 
@@ -58,7 +59,8 @@ class LanguageParser(PatternsParser):
         
         stream = open(filePath, "r")
 
-        parsed, elements = self.parse(stream, **kwargs)
+        parsed, elements, _ = self.parse(stream, find_one=False, **kwargs)
+        elements = [element.parse_unparsed() for element in elements]
 
         stream.close()
 

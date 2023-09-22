@@ -89,19 +89,21 @@ class TokenParser(GrammarParser):
         stream: TextIOBase,
         boundary: Optional[int],
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
+        
         init_pos = stream.tell()
+        span = (init_pos, boundary)
         content = stream_read_pos(stream, init_pos, boundary)
         elements = [
             ContentElement(
                 token=self.token,
                 grammar=self.grammar,
                 content=content,
-                span=(init_pos, boundary),
+                span=span,
             )
         ]
         stream.seek(boundary)
-        return True, elements
+        return True, elements, span
 
 
 class MatchParser(GrammarParser):
@@ -132,11 +134,12 @@ class MatchParser(GrammarParser):
         stream: TextIOBase,
         boundary: Optional[int] = None,
         anchor: Optional[int] = None,
+        ws_only: bool = True,
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
-        span, captures = search_stream(stream, self.exp_match, self.captures, boundary, anchor=anchor)
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
+        span, captures = search_stream(stream, self.exp_match, self.captures, boundary, anchor=anchor, ws_only=ws_only)
         if span is None:
-            return False, []
+            return False, [], None
 
         if self.token:
             content = stream_read_pos(stream, span[0], span[1])
@@ -150,11 +153,11 @@ class MatchParser(GrammarParser):
                 )
             ]
         else:
-            elements = []
+            elements = captures
 
         stream.seek(span[1])
 
-        return True, elements
+        return True, elements, span
 
 
 class PatternsParser(GrammarParser):
@@ -179,14 +182,29 @@ class PatternsParser(GrammarParser):
     def parse(
         self,
         stream: TextIOBase,
-        *args,
+        boundary: Optional[int] = None,
+        find_one: bool = True,
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
-        for parser in self.patterns:
-            parsed, elements = parser.parse(stream, *args, **kwargs)
-            if parsed:
-                return parser, elements
-        return False, []
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
+        init_pos = stream.tell()
+        if boundary is None:
+            boundary = stream.seek(0, 2)
+            stream.seek(init_pos)
+
+        elements = []
+
+        while stream.tell() <= boundary:
+            for parser in self.patterns:
+                parsed, candidate_elements, candidate_span = parser.parse(stream, boundary=boundary, **kwargs)
+                if parsed:
+                    if find_one:
+                        return True, candidate_elements, candidate_span
+                    elements.extend(candidate_elements)
+                    break
+            else:
+                break
+
+        return parsed, elements, (init_pos, stream.tell())
 
 
 class BeginEndParser(PatternsParser):
@@ -198,7 +216,7 @@ class BeginEndParser(PatternsParser):
         else:
             self.token = grammar.get("name", None)
             self.between_content = False
-        self.apply_end_pattern_last = grammar.get("applyEndPatternLast ", False)
+        self.apply_end_pattern_last = grammar.get("applyEndPatternLast", False)
         self.exp_begin = re.compile(grammar["begin"])
         self.exp_end = re.compile(grammar["end"])
         self.captures_begin = self._init_captures(grammar, key="beginCaptures")
@@ -232,12 +250,14 @@ class BeginEndParser(PatternsParser):
         stream: TextIOBase,
         boundary: Optional[int] = None,
         anchor: Optional[int] = None,
+        ws_only: bool = True,
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
-        
-        begin_span, begin_elements = search_stream(stream, self.exp_begin, self.captures_begin, boundary, anchor=anchor)
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
+        begin_span, begin_elements = search_stream(
+            stream, self.exp_begin, self.captures_begin, boundary, anchor=anchor, ws_only=ws_only
+        )
         if not begin_span:
-            return False, []
+            return False, [], None
 
         init_pos = stream.tell()
         if boundary is None:
@@ -247,38 +267,55 @@ class BeginEndParser(PatternsParser):
         end_elements, mid_elements = [], []
 
         while stream.tell() <= boundary:
-            end_span, candidate_end_elements = search_stream(stream, self.exp_end, self.captures_end, boundary)
-
             stream.seek(init_pos)
             parsed = False
             for parser in self.patterns:
-                parsed, candidate_mid_elements = parser.parse(stream, boundary=boundary, anchor=begin_span[1], **kwargs)
+                parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
+                    stream, boundary=boundary, anchor=begin_span[1], ws_only=True, **kwargs
+                )
                 if parsed:
-                    pattern_end = stream.tell()
                     break
+            stream.seek(init_pos)
+            end_span, candidate_end_elements = search_stream(
+                stream, self.exp_end, self.captures_end, boundary, ws_only=True
+            )
+            
+            if not parsed and not end_span:
+                
+                for parser in self.patterns:
+                    parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
+                        stream, boundary=boundary, anchor=begin_span[1], ws_only=False, **kwargs
+                    )
+                    if parsed:
+                        break
 
+                stream.seek(init_pos)
+                end_span, candidate_end_elements = search_stream(
+                    stream, self.exp_end, self.captures_end, boundary, ws_only=False
+                )
+        
             if end_span:
                 if parsed:
-                    if pattern_end > end_span[1]:
-                        mid_elements.extend(candidate_mid_elements)
-                        init_pos = pattern_end
-                    elif pattern_end == end_span[1]:
+                    if candidate_mid_span[1] == end_span[1]:
                         if end_span[0] == end_span[1]:
                             mid_elements.extend(candidate_mid_elements)
                             close = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
                             break
-                        elif self.apply_end_pattern_last:
-                            mid_elements.extend(candidate_mid_elements)
-                            init_pos = pattern_end
-                        else:
+                        elif not self.apply_end_pattern_last:
                             close = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
                             break
-                    else:
+                        else:
+                            mid_elements.extend(candidate_mid_elements)
+                            init_pos = candidate_mid_span[1]
+                    elif candidate_mid_span[0] > end_span[1]:
                         close = end_span[0] if self.between_content else end_span[1]
                         end_elements = candidate_end_elements
                         break
+                    else:
+                        mid_elements.extend(candidate_mid_elements)
+                        init_pos = candidate_mid_span[1]
                 else:
                     close = end_span[0] if self.between_content else end_span[1]
                     end_elements = candidate_end_elements
@@ -286,7 +323,7 @@ class BeginEndParser(PatternsParser):
             else:
                 if parsed:
                     mid_elements.extend(candidate_mid_elements)
-                    init_pos = pattern_end
+                    init_pos = candidate_mid_span[1]
                 else:
                     stream.readline()
                     init_pos = stream.tell()
@@ -310,9 +347,9 @@ class BeginEndParser(PatternsParser):
         else:
             elements = begin_elements + mid_elements + end_elements
 
-        stream.seek(close)
+        stream.seek(end_span[1])
 
-        return True, elements
+        return True, elements, (begin_span[0], end_span[1])
 
 
 class BeginWhileParser(PatternsParser):
