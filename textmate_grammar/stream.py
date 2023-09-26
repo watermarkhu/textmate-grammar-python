@@ -1,4 +1,5 @@
 from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
+from warnings import warn
 from io import TextIOBase
 import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
@@ -118,7 +119,11 @@ def search_stream(
     elif parsers:
         elements = []
         for group_id, parser in parsers.items():
-            group = matching.group(group_id)
+            try:
+                group = matching.group(group_id)
+            except IndexError:
+                warn(f"The capture group {group_id} does not exist in regex {regex._pattern}")
+                continue
             if not group:
                 continue
             span = matching.span(group_id)

@@ -183,6 +183,7 @@ class PatternsParser(GrammarParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
+        ws_only: bool = True,
         find_one: bool = True,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
@@ -195,15 +196,22 @@ class PatternsParser(GrammarParser):
         current_pos = init_pos
         while current_pos <= boundary:
             for parser in self.patterns:
-                parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, **kwargs)
+                parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=ws_only, **kwargs)
                 if parsed:
                     if find_one:
                         return True, candidate_elements, span
                     elements.extend(candidate_elements)
                     break
             else:
-                break
-
+                for parser in self.patterns:
+                    parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=False, **kwargs)
+                    if parsed:
+                        if find_one:
+                            return True, candidate_elements, span
+                        elements.extend(candidate_elements)
+                        break
+                else:
+                    break
             if stream.tell() == current_pos:
                 warn("Recursing detected, exiting...")
                 break
@@ -335,7 +343,10 @@ class BeginEndParser(PatternsParser):
             else:
                 if parsed:
                     mid_elements.extend(candidate_mid_elements)
-                    init_pos = candidate_mid_span[1]
+                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
+                        init_pos = candidate_mid_span[1] - 1
+                    else:
+                        init_pos = candidate_mid_span[1]
                 else:
                     stream.readline()
                     init_pos = stream.tell()
@@ -408,4 +419,3 @@ class BeginWhileParser(PatternsParser):
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         pass
-
