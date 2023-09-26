@@ -1,10 +1,11 @@
 from typing import List, Tuple, Optional, TYPE_CHECKING
 from io import TextIOBase
 from abc import ABC, abstractmethod
+from warnings import warn
 import onigurumacffi as re
 from .exceptions import IncludedParserNotFound, CannotCloseEnd
 from .elements import ContentElement, ContentBlockElement
-from .stream import stream_read_pos, search_stream
+from .stream import stream_read_pos, stream_read_length, search_stream
 
 if TYPE_CHECKING:
     from .language import LanguageParser
@@ -68,7 +69,7 @@ class GrammarParser(ABC):
         boundary: Optional[int] = None,
         anchor: Optional[int] = None,
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         pass
 
 
@@ -90,7 +91,6 @@ class TokenParser(GrammarParser):
         boundary: Optional[int],
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
-        
         init_pos = stream.tell()
         span = (init_pos, boundary)
         content = stream_read_pos(stream, init_pos, boundary)
@@ -139,7 +139,7 @@ class MatchParser(GrammarParser):
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         span, captures = search_stream(stream, self.exp_match, self.captures, boundary, anchor=anchor, ws_only=ws_only)
         if span is None:
-            return False, [], None
+            return False, [], (0, 0)
 
         if self.token:
             content = stream_read_pos(stream, span[0], span[1])
@@ -191,20 +191,26 @@ class PatternsParser(GrammarParser):
             boundary = stream.seek(0, 2)
             stream.seek(init_pos)
 
-        elements = []
-
-        while stream.tell() <= boundary:
+        parsed, elements = False, []
+        current_pos = init_pos
+        while current_pos <= boundary:
             for parser in self.patterns:
-                parsed, candidate_elements, candidate_span = parser.parse(stream, boundary=boundary, **kwargs)
+                parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, **kwargs)
                 if parsed:
                     if find_one:
-                        return True, candidate_elements, candidate_span
+                        return True, candidate_elements, span
                     elements.extend(candidate_elements)
                     break
             else:
                 break
 
-        return parsed, elements, (init_pos, stream.tell())
+            if stream.tell() == current_pos:
+                warn("Recursing detected, exiting...")
+                break
+            current_pos = stream.tell()
+
+        close_pos = stream.tell()
+        return parsed, elements, (init_pos, close_pos)
 
 
 class BeginEndParser(PatternsParser):
@@ -257,7 +263,7 @@ class BeginEndParser(PatternsParser):
             stream, self.exp_begin, self.captures_begin, boundary, anchor=anchor, ws_only=ws_only
         )
         if not begin_span:
-            return False, [], None
+            return False, [], (0, 0)
 
         init_pos = stream.tell()
         if boundary is None:
@@ -279,9 +285,8 @@ class BeginEndParser(PatternsParser):
             end_span, candidate_end_elements = search_stream(
                 stream, self.exp_end, self.captures_end, boundary, ws_only=True
             )
-            
+
             if not parsed and not end_span:
-                
                 for parser in self.patterns:
                     parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
                         stream, boundary=boundary, anchor=begin_span[1], ws_only=False, **kwargs
@@ -293,31 +298,38 @@ class BeginEndParser(PatternsParser):
                 end_span, candidate_end_elements = search_stream(
                     stream, self.exp_end, self.captures_end, boundary, ws_only=False
                 )
-        
+
             if end_span:
                 if parsed:
-                    if candidate_mid_span[1] == end_span[1]:
-                        if end_span[0] == end_span[1]:
+                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
+                        pattern_at_end = end_span[1] in [candidate_mid_span[1] - 1, candidate_mid_span[1]]
+                    else:
+                        pattern_at_end = end_span[1] == candidate_mid_span[1]
+
+                    if pattern_at_end:
+                        empty_span_end = end_span[1] == end_span[0]
+
+                        if empty_span_end:
                             mid_elements.extend(candidate_mid_elements)
-                            close = end_span[0] if self.between_content else end_span[1]
+                            close_pos = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
                             break
                         elif not self.apply_end_pattern_last:
-                            close = end_span[0] if self.between_content else end_span[1]
+                            close_pos = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
                             break
                         else:
                             mid_elements.extend(candidate_mid_elements)
                             init_pos = candidate_mid_span[1]
-                    elif candidate_mid_span[0] > end_span[1]:
-                        close = end_span[0] if self.between_content else end_span[1]
-                        end_elements = candidate_end_elements
-                        break
-                    else:
+                    elif candidate_mid_span[0] < end_span[1]:
                         mid_elements.extend(candidate_mid_elements)
                         init_pos = candidate_mid_span[1]
+                    else:
+                        close_pos = end_span[0] if self.between_content else end_span[1]
+                        end_elements = candidate_end_elements
+                        break
                 else:
-                    close = end_span[0] if self.between_content else end_span[1]
+                    close_pos = end_span[0] if self.between_content else end_span[1]
                     end_elements = candidate_end_elements
                     break
             else:
@@ -328,7 +340,7 @@ class BeginEndParser(PatternsParser):
                     stream.readline()
                     init_pos = stream.tell()
         else:
-            close = boundary
+            close_pos = boundary
 
         start = begin_span[1] if self.between_content else begin_span[0]
 
@@ -337,8 +349,8 @@ class BeginEndParser(PatternsParser):
                 ContentBlockElement(
                     token=self.token,
                     grammar=self.grammar,
-                    content=stream_read_pos(stream, start, close),
-                    span=(start, close),
+                    content=stream_read_pos(stream, start, close_pos),
+                    span=(start, close_pos),
                     captures=mid_elements,
                     begin=begin_elements,
                     end=end_elements,
@@ -394,292 +406,6 @@ class BeginWhileParser(PatternsParser):
         stream: TextIOBase,
         *args,
         **kwargs,
-    ) -> Tuple[bool, List[ContentElement]]:
+    ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         pass
 
-
-# class GrammarParser(object):
-#     "The parser object for a single TMLanguage grammar scope."
-
-#     def __init__(self, grammar: dict, key: str = "", language: Optional["LanguageParser"] = None, **kwargs) -> None:
-#         self.grammar = grammar
-#         self.language = language
-#         self.key = key
-#         self.token = grammar.get("name", "")
-#         self.content_token = grammar.get("contentName", "")
-#         self.comment = grammar.get("comment", "")
-#         self.exp_match, self.exp_begin, self.exp_end = None, None, None
-#         self.captures, self.captures_begin, self.captures_end = {}, {}, {}
-#         self.patterns = []
-#         self.last_parse = None
-
-#         if "match" in grammar:
-#             self.exp_match = re.compile(grammar["match"])
-#             self.captures = self._init_captures(grammar, key="captures")
-#         elif "begin" in grammar and "end" in grammar:
-#             self.exp_begin = re.compile(grammar["begin"])
-#             self.exp_end = re.compile(grammar["end"])
-#             self.captures_begin = self._init_captures(grammar, key="beginCaptures")
-#             self.captures_end = self._init_captures(grammar, key="endCaptures")
-#         if "patterns" in grammar:
-#             self.patterns = [self._set_parser(pattern) for pattern in grammar["patterns"]]
-
-#     def __call__(self, *args, **kwargs):
-#         return self.parse(*args, **kwargs)
-
-#     def __repr__(self) -> str:
-#         repr = f"{self.__class__.__name__}:"
-#         if self.token or self.key:
-#             repr += self.token if self.token else f"<{self.key}>"
-#         else:
-#             repr += "PATTERN"
-#         return repr
-
-#     def _init_captures(self, grammar: dict, key: str = "captures") -> dict:
-#         captures = {}
-#         if key in grammar:
-#             for group_id, pattern in grammar[key].items():
-#                 captures[int(group_id)] = self._set_parser(pattern)
-#         return captures
-
-#     def _set_parser(self, grammar: dict, **kwargs):
-#         "Sets the parser based on the grammar. If $self then the language grammar is used."
-#         if "include" in grammar:
-#             return grammar["include"]
-#         else:
-#             return GrammarParser(grammar, language=self.language, **kwargs)
-
-#     @classmethod
-#     def get_parser(cls, call_id: Union[str, "GrammarParser"]):
-#         "Gets the parser from the PARSERSTORE, updates the call_id with the parser itself in the store."
-#         if isinstance(call_id, str):
-#             if call_id in cls.PARSERSTORE:
-#                 call_id = cls.PARSERSTORE[call_id]
-#             else:
-#                 raise IncludedParserNotFound(call_id)
-#         return call_id
-
-#     def parse(
-#         self,
-#         stream: TextIOBase,
-#         start_pos: int = 0,
-#         close_pos: Optional[int] = None,
-#         **kwargs,
-#     ) -> List[ContentElement]:
-#         """Parse the input stream using the current parser."""
-#         if close_pos:
-#             if start_pos >= close_pos:
-#                 return []
-#         else:
-#             close_pos = len(stream.getvalue())
-
-#         stream.seek(start_pos)
-
-#         if self.exp_match:
-#             captures, span = search_stream(
-#                 self.exp_match,
-#                 stream,
-#                 parsers=self.captures,
-#                 start_pos=start_pos,
-#                 close_pos=close_pos,
-#                 **kwargs,
-#             )
-#             if span is None:
-#                 return []
-#             content = stream_read_pos(stream, span[0], span[1])
-#             elements = [
-#                 ContentElement(
-#                     token=self.token,
-#                     grammar=self.grammar,
-#                     content=content,
-#                     span=span,
-#                     captures=captures,
-#                 )
-#             ]
-
-#         elif self.exp_begin and self.exp_end:
-#             # Find begin
-#             captured_begin, begin_span = search_stream(
-#                 self.exp_begin,
-#                 stream,
-#                 parsers=self.captures_begin,
-#                 start_pos=start_pos,
-#                 close_pos=close_pos,
-#                 **kwargs,
-#             )
-#             if begin_span is None:
-#                 return []
-#             (begin_start, begin_close) = begin_span
-#             if close_pos and begin_close > close_pos:
-#                 return []
-
-#             pattern_result = self.parse_patterns(
-#                 stream,
-#                 start_pos=begin_close,
-#                 close_pos=close_pos,
-#                 **kwargs,
-#             )
-#             if not pattern_result:
-#                 return []
-#             captured_elements, captured_end, (end_start, end_close) = pattern_result
-
-#             token = self.content_token if self.content_token else self.token
-#             start, close = (begin_close, end_start) if self.content_token else (begin_start, end_close)
-
-#             elements = [
-#                 ContentBlockElement(
-#                     token=token,
-#                     grammar=self.grammar,
-#                     content=stream_read_pos(stream, start, close),
-#                     span=(start, close),
-#                     captures=captured_elements,
-#                     begin=captured_begin,
-#                     end=captured_end,
-#                 )
-#             ]
-
-#         elif self.patterns:
-#             captured_elements, _, _ = self.parse_patterns(
-#                 stream,
-#                 start_pos=start_pos,
-#                 close_pos=close_pos,
-#                 **kwargs,
-#             )
-
-#             if captured_elements:
-#                 if isinstance(self, LanguageParser) or not self.token:
-#                     elements = captured_elements
-#                 else:
-#                     content = stream_read_pos(stream, start_pos, close_pos)
-#                     elements = [
-#                         ContentElement(
-#                             token=self.token,
-#                             grammar=self.grammar,
-#                             content=content,
-#                             span=(start_pos, close_pos),
-#                             captures=captured_elements,
-#                         )
-#                     ]
-
-#             else:
-#                 return []
-
-#         else:
-#             if close_pos is not None:
-#                 content = stream_read_pos(stream, start_pos, close_pos)
-#                 elements = [
-#                     ContentElement(
-#                         token=self.token,
-#                         grammar=self.grammar,
-#                         content=content,
-#                         span=(start_pos, close_pos),
-#                     )
-#                 ]
-#             else:
-#                 raise CannotCloseEnd(stream.read())
-
-#         return elements
-
-# def parse_patterns(
-#     self,
-#     stream,
-#     start_pos: int,
-#     close_pos: int,
-#     **kwargs,
-# ):
-#     "Parse a number of patterns"
-#     # get parsers and create lookup store
-#     if start_pos >= close_pos:
-#         return None
-
-#     parsers = [self.get_parser(call_id) for call_id in self.patterns]
-#     elements_on_pos = defaultdict(list)
-#     elements_per_parser = defaultdict(dict)
-#     captured_elements, captured_end = [], []
-#     pattern_start = start_pos
-#     end_start, end_close, next_newline_pos = -1, -1, -1
-
-#     while pattern_start < close_pos:
-#         # keep doing until closing position is reached
-
-#         if self.exp_end:
-
-#             if (end_start == end_close and pattern_start > end_start) or (
-#                 end_start != end_close and pattern_start >= end_start
-#             ):
-#                 # search for end when necessary
-#                 captured_end, end_span = search_stream(
-#                     self.exp_end,
-#                     stream,
-#                     parsers=self.captures_end,
-#                     start_pos=pattern_start,
-#                     **kwargs,
-#                 )
-#                 if end_span is None:
-#                     return None
-#                 (end_start, end_close) = end_span
-#                 # parsers = [self.get_parser(call_id) for call_id in self.patterns]
-
-#         if pattern_start > next_newline_pos:
-#             next_newline_pos = stream_endline_pos(stream, pattern_start)
-
-#         # Clear positional elements store for passed positions
-#         passed_pos = [pos for pos in elements_on_pos.keys() if pos < pattern_start]
-#         for pos in passed_pos:
-#             elements_on_pos.pop(pos)
-
-#         # invalid_parsers = []
-#         for parser in parsers:
-#             # Loop over parsers
-#             parser_elements = elements_per_parser[parser]
-
-#             # Clear poisitional element store per parser for passed positions
-#             passed_pos = [pos for pos in parser_elements.keys() if pos < pattern_start]
-#             for pos in passed_pos:
-#                 parser_elements.pop(pos)
-
-#             if not parser_elements:
-#                 # Perform search of none in element store of parser
-#                 elements = parser.parse(
-#                     stream,
-#                     start_pos=pattern_start,
-#                     close_pos=end_close if self.exp_end else next_newline_pos,
-#                     **kwargs,
-#                 )
-#                 for element in elements:
-#                     # Add found elements to element stores
-#                     elements_on_pos[element.span[0]].append(element)
-#                     parser_elements[element.span[0]] = element
-
-#                 # if not elements:
-#                 #     # None found, this parser is invalid (for the current search scope)
-#                 #     invalid_parsers.append(parser)
-
-#         # No more elements current or future positions within current scope
-#         element_on_pos_final_pos = end_start if self.exp_end else close_pos
-#         if not any((pos <= element_on_pos_final_pos for pos in elements_on_pos.keys())):
-#             break
-
-#         # for parser in invalid_parsers:
-#         #     # Remove parser from list for the current scope
-#         #     parsers.remove(parser)
-
-#         if pattern_start in elements_on_pos:
-#             # Use the element from the current position
-#             elements = elements_on_pos.pop(pattern_start)
-#             element = sorted(elements, key=lambda element: element.span[1], reverse=True)[0]
-#             captured_elements.append(element)
-#             # Get the next pattern search starting position from the element
-#             if isinstance(element, ContentBlockElement) and element.exp_end:
-#                 pattern_start = element.exp_end[-1].span[1]
-#             else:
-#                 pattern_start = element.span[1]
-#         else:
-#             # Get the next pattern search starting position from the element store
-#             next_element_start = min(elements_on_pos.keys())
-#             if next_element_start <= element_on_pos_final_pos:
-#                 pattern_start = next_element_start
-#             else:
-#                 break
-
-#     return (captured_elements, captured_end, end_span) if self.exp_end else (captured_elements, None, None)

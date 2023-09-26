@@ -23,22 +23,31 @@ class ContentElement(object):
         self.span = span
         self.captures = captures
 
-    def to_dict(self, content: bool = False, parse_unparsed: bool = False, **kwargs) -> dict:
+    def to_dict(self, verbosity: int = -1, all_content: bool = False, parse_unparsed: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
         if parse_unparsed:
             self.parse_unparsed()
         out_dict = {"token": self.token}
-        if content or (type(self) is ContentElement and not self.captures):
+        if all_content or  not self.captures:
             out_dict["content"] = self.content
         if self.captures:
-            out_dict["captures"] = self._list_property_to_dict(
-                "captures", content=content, parse_unparsed=parse_unparsed
+            out_dict["captures"] = (
+                self._list_property_to_dict(
+                    "captures", verbosity=verbosity - 1, all_content=all_content, parse_unparsed=parse_unparsed
+                )
+                if verbosity
+                else self.captures
             )
         return out_dict
 
-    def print(self, content: bool = False, **kwargs) -> None:
+    def print(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
         """Prints the current object recursively by converting to dictionary."""
-        pprint(self.to_dict(content=content, **kwargs), sort_dicts=False, width=kwargs.pop("width", 150), **kwargs)
+        pprint(
+            self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs),
+            sort_dicts=False,
+            width=kwargs.pop("width", 150),
+            **kwargs,
+        )
 
     def parse_unparsed(self) -> "ContentElement":
         """Parses the unparsed elements contained in the current element."""
@@ -67,6 +76,7 @@ class ContentElement(object):
                 parsed_elements.append(element.parse_unparsed())
         return parsed_elements
 
+
 class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
 
@@ -75,12 +85,16 @@ class ContentBlockElement(ContentElement):
         self.begin = begin
         self.end = end
 
-    def to_dict(self, *args, **kwargs) -> dict:
-        out_dict = super().to_dict(*args, **kwargs)
+    def to_dict(self, verbosity: int = -1, **kwargs) -> dict:
+        out_dict = super().to_dict(verbosity=verbosity, **kwargs)
         if self.begin:
-            out_dict["begin"] = self._list_property_to_dict("begin", **kwargs)
+            out_dict["begin"] = (
+                self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs) if verbosity else self.begin
+            )
         if self.end:
-            out_dict["end"] = self._list_property_to_dict("end", **kwargs)
+            out_dict["end"] = (
+                self._list_property_to_dict("end", verbosity=verbosity - 1, **kwargs) if verbosity else self.end
+            )
 
         ordered_keys = [key for key in ["token", "begin", "end", "content", "captures"] if key in out_dict]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
@@ -112,5 +126,5 @@ class UnparsedElement(ContentElement):
 
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
-        
+
         return self._parse_unparsed_elements(elements)

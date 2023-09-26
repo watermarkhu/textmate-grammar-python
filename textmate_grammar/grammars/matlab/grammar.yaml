@@ -203,7 +203,6 @@ repository:
         name: meta.while.declaration.matlab
       - include: $self
   braced_validator_list:
-    applyEndPatternLast: true
     begin: \s*({)\s*
     beginCaptures:
       '1':
@@ -985,7 +984,7 @@ repository:
         - match: '"(?=.)'
         - match: '[^"]+'
   validators:
-    begin: \s*[;]?\s*\b(?!end\b)([a-zA-Z][a-zA-Z0-9_\.\?]*)
+    begin: \s*[;]?\s*([a-zA-Z][a-zA-Z0-9_\.\?]*)
     beginCaptures:
       '1':
         name: variable.object.property.matlab
