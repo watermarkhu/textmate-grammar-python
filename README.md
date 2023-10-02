@@ -12,10 +12,10 @@
 ## TODO
 - [x] Use yaml in stead of json
 - [x] Grammar initialization with *repository* at any level
-- [ ] Proper line-by-line parsing
-- [ ] `\G` anchoring
-- [ ] Option to *disable* a grammar
-- [ ] Apply *applyEndPatternLast* option
+- [x] Proper line-by-line parsing
+- [x] `\G` anchoring
+- [x] Option to *disable* a grammar
+- [x] Apply *applyEndPatternLast* option
 - [ ] Something with *injections*
 
 ## Tokenization

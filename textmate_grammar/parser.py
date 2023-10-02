@@ -196,8 +196,10 @@ class PatternsParser(GrammarParser):
 
         parsed, elements = False, []
         current_pos = init_pos
+        patterns = (parser for parser in self.patterns if not parser.disabled)
+
         while current_pos < boundary:
-            for parser in self.patterns:
+            for parser in patterns:
                 parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=ws_only, **kwargs)
                 if parsed:
                     if find_one:
@@ -205,7 +207,7 @@ class PatternsParser(GrammarParser):
                     elements.extend(candidate_elements)
                     break
             else:
-                for parser in self.patterns:
+                for parser in patterns:
                     parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=False, **kwargs)
                     if parsed:
                         if find_one:
@@ -282,7 +284,8 @@ class BeginEndParser(PatternsParser):
             stream.seek(init_pos)
 
         end_elements, mid_elements = [], []
-        patterns, first_run = self.patterns, True
+        patterns = (parser for parser in self.patterns if not parser.disabled)
+        first_run = True
 
         while init_pos <= boundary:
             stream.seek(init_pos)
@@ -376,7 +379,7 @@ class BeginEndParser(PatternsParser):
                     init_pos = stream.tell()
 
             if first_run:
-                patterns = [parser for parser in self.patterns if not parser.anchored]
+                patterns = (parser for parser in patterns if not parser.anchored)
                 first_run = False
         else:
             close_pos = boundary
