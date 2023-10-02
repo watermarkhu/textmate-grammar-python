@@ -3,41 +3,33 @@ from warnings import warn
 from io import TextIOBase
 import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
-from .exceptions import ImpossibleSpan
+
 from .elements import ContentElement, UnparsedElement
+from .read import stream_read_length, stream_read_pos
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
-REGEX_LOOKBEHIND_MAX = 20
-REGEX_LOOKBEHIND_STEP = 4
 regex_nextline = re.compile("\n|$")
 
+class ANCHOR(object):
+    _pos: int = 0
 
-def stream_read_pos(stream: TextIOBase, start_pos: int, close_pos: int) -> str:
-    """Reads the stream between the start and end positions."""
+    @classmethod
+    def set(cls, pos: int):
+        cls._pos = pos
 
-    return stream_read_length(stream, start_pos, close_pos - start_pos)
-
-
-def stream_read_length(stream: TextIOBase, start_pos: int, length: int) -> str:
-    """Reads the stream from start for a length"""
-    if length < 0:
-        raise ImpossibleSpan
-    init_pos = stream.tell()
-    stream.seek(start_pos)
-    content = stream.read(length)
-    stream.seek(init_pos)
-    return content
-
+    @classmethod
+    def get(cls):
+        return cls._pos 
+    
 
 def search_stream(
     stream: TextIOBase,
     regex: Pattern,
     parsers: Dict[int, "GrammarParser"] = {},
     boundary: Optional[int] = None,
-    anchor: Optional[int] = None,
     ws_only: bool = True,
     **kwargs,
 ) -> Tuple[Tuple[int, int], List[ContentElement]]:
@@ -53,12 +45,10 @@ def search_stream(
     if regex._pattern == "\Z":
         line = stream.readline()
         end_pos = stream.tell()
+        ANCHOR.set(end_pos)
         return (end_pos, end_pos), []
     elif regex._pattern[:2] == "\G":
-        if anchor is None:
-            raise SyntaxError
-        if init_pos != anchor:
-            return None, []
+        init_pos = ANCHOR.get()
 
     match_shift = init_pos
 
@@ -104,6 +94,8 @@ def search_stream(
     if boundary and match_span[1] > boundary:
         stream.seek(init_pos)
         return None, []
+    
+    ANCHOR.set(match_span[1])
 
     # No groups, but a parser existed. Use token of parser to create element
     if 0 in parsers:
@@ -130,9 +122,9 @@ def search_stream(
 
             elements.append(
                 UnparsedElement(
-                    stream,
-                    parser,
-                    (match_shift + span[0], match_shift + span[1]),
+                    stream=stream,
+                    parser=parser,
+                    span=(match_shift + span[0], match_shift + span[1]),
                 )
             )
 

@@ -3,9 +3,11 @@ from io import TextIOBase
 from abc import ABC, abstractmethod
 from warnings import warn
 import onigurumacffi as re
+
 from .exceptions import IncludedParserNotFound, CannotCloseEnd
 from .elements import ContentElement, ContentBlockElement
-from .stream import stream_read_pos, stream_read_length, search_stream
+from .search import ANCHOR, search_stream
+from .read import stream_read_length, stream_read_pos
 
 if TYPE_CHECKING:
     from .language import LanguageParser
@@ -32,9 +34,11 @@ class GrammarParser(ABC):
         self.grammar = grammar
         self.language = language
         self.key = key
+        self.token = grammar.get("name", "")
         self.comment = grammar.get("comment", "")
         self.disabled = grammar.get("disabled", False)
         self.initialized = False
+        self.anchored = False
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:<{self.key}>"
@@ -67,7 +71,6 @@ class GrammarParser(ABC):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        anchor: Optional[int] = None,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         pass
@@ -76,7 +79,6 @@ class GrammarParser(ABC):
 class TokenParser(GrammarParser):
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
-        self.token = grammar["name"]
         self.initialized = True
 
     def __repr__(self) -> str:
@@ -102,6 +104,7 @@ class TokenParser(GrammarParser):
                 span=span,
             )
         ]
+        ANCHOR.set(boundary)
         stream.seek(boundary)
         return True, elements, span
 
@@ -111,7 +114,8 @@ class MatchParser(GrammarParser):
         super().__init__(grammar, **kwargs)
         self.exp_match = re.compile(grammar["match"])
         self.captures = self._init_captures(grammar, key="captures")
-        self.token = grammar.get("name", None)
+        if "\G" in grammar["match"]:
+            self.anchored = True
 
     def __repr__(self) -> str:
         if self.token:
@@ -133,21 +137,19 @@ class MatchParser(GrammarParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        anchor: Optional[int] = None,
         ws_only: bool = True,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
-        span, captures = search_stream(stream, self.exp_match, self.captures, boundary, anchor=anchor, ws_only=ws_only)
+        span, captures = search_stream(stream, self.exp_match, self.captures, boundary, ws_only=ws_only)
         if span is None:
             return False, [], (0, 0)
 
         if self.token:
-            content = stream_read_pos(stream, span[0], span[1])
             elements = [
                 ContentElement(
                     token=self.token,
                     grammar=self.grammar,
-                    content=content,
+                    content=stream_read_pos(stream, span[0], span[1]),
                     span=span,
                     captures=captures,
                 )
@@ -194,7 +196,7 @@ class PatternsParser(GrammarParser):
 
         parsed, elements = False, []
         current_pos = init_pos
-        while current_pos <= boundary:
+        while current_pos < boundary:
             for parser in self.patterns:
                 parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=ws_only, **kwargs)
                 if parsed:
@@ -235,6 +237,8 @@ class BeginEndParser(PatternsParser):
         self.exp_end = re.compile(grammar["end"])
         self.captures_begin = self._init_captures(grammar, key="beginCaptures")
         self.captures_end = self._init_captures(grammar, key="endCaptures")
+        if "\G" in grammar["begin"]:
+            self.anchored = True
 
     def __repr__(self) -> str:
         if self.token:
@@ -263,12 +267,11 @@ class BeginEndParser(PatternsParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        anchor: Optional[int] = None,
         ws_only: bool = True,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         begin_span, begin_elements = search_stream(
-            stream, self.exp_begin, self.captures_begin, boundary, anchor=anchor, ws_only=ws_only
+            stream, self.exp_begin, self.captures_begin, boundary, ws_only=ws_only
         )
         if not begin_span:
             return False, [], (0, 0)
@@ -279,13 +282,14 @@ class BeginEndParser(PatternsParser):
             stream.seek(init_pos)
 
         end_elements, mid_elements = [], []
+        patterns, first_run = self.patterns, True
 
-        while stream.tell() <= boundary:
+        while init_pos <= boundary:
             stream.seek(init_pos)
             parsed = False
-            for parser in self.patterns:
+            for parser in patterns:
                 parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
-                    stream, boundary=boundary, anchor=begin_span[1], ws_only=True, **kwargs
+                    stream, boundary=boundary, ws_only=True, **kwargs
                 )
                 if parsed:
                     break
@@ -295,9 +299,9 @@ class BeginEndParser(PatternsParser):
             )
 
             if not parsed and not end_span:
-                for parser in self.patterns:
+                for parser in patterns:
                     parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
-                        stream, boundary=boundary, anchor=begin_span[1], ws_only=False, **kwargs
+                        stream, boundary=boundary, ws_only=False, **kwargs
                     )
                     if parsed:
                         break
@@ -343,13 +347,28 @@ class BeginEndParser(PatternsParser):
             else:
                 if parsed:
                     mid_elements.extend(candidate_mid_elements)
-                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
-                        init_pos = candidate_mid_span[1] - 1
+                    if stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
+                        stream.seek(candidate_mid_span[1])
+                        end_span, candidate_end_elements = search_stream(
+                            stream, self.exp_end, self.captures_end, boundary, ws_only=True
+                        )
+                        if end_span and end_span[1] <= candidate_mid_span[1] + 1:
+                            init_pos = candidate_mid_span[1]
+                        else:
+                            init_pos = candidate_mid_span[1] + 1
                     else:
                         init_pos = candidate_mid_span[1]
                 else:
                     stream.readline()
+                    if stream.tell() == init_pos:
+                        close_pos = init_pos
+                        end_span = (init_pos, init_pos)
+                        break
                     init_pos = stream.tell()
+
+            if first_run:
+                patterns = [parser for parser in self.patterns if not parser.anchored]
+                first_run = False
         else:
             close_pos = boundary
 

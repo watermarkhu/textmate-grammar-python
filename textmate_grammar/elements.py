@@ -2,6 +2,8 @@ from typing import List, Tuple, TYPE_CHECKING
 from pprint import pprint
 from io import TextIOBase
 
+from .read import stream_read_pos
+
 if TYPE_CHECKING:
     from .parser import GrammarParser
 
@@ -23,12 +25,18 @@ class ContentElement(object):
         self.span = span
         self.captures = captures
 
+    def __eq__(self, other):
+        if self.grammar == other.grammar and self.span == other.span:
+            return True
+        else:
+            return False
+
     def to_dict(self, verbosity: int = -1, all_content: bool = False, parse_unparsed: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
         if parse_unparsed:
             self.parse_unparsed()
         out_dict = {"token": self.token}
-        if all_content or  not self.captures:
+        if all_content or not self.captures:
             out_dict["content"] = self.content
         if self.captures:
             out_dict["captures"] = (
@@ -116,7 +124,7 @@ class UnparsedElement(ContentElement):
     """
 
     def __init__(self, stream: TextIOBase, parser: "GrammarParser", span: Tuple[int, int], **kwargs):
-        super().__init__("UNPARSED", parser.grammar, "", span)
+        super().__init__(f"@{parser.token}", parser.grammar, "", span)
         self.stream = stream
         self.parser = parser
         self.parser_kwargs = kwargs
@@ -127,4 +135,15 @@ class UnparsedElement(ContentElement):
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
 
-        return self._parse_unparsed_elements(elements)
+        if len(elements) == 1 and elements[0] == self:
+            element = ContentElement(
+                token=self.parser.token,
+                grammar=self.grammar,
+                content=stream_read_pos(self.stream, self.span[0], self.span[1]),
+                span=self.span
+            )
+            return [element]
+        else:
+            return self._parse_unparsed_elements(elements)
+
+        

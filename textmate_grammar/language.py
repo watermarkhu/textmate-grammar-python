@@ -1,5 +1,6 @@
 from typing import List, Union, Tuple, Optional
 from pathlib import Path
+from io import StringIO
 from .parser import GrammarParser, PatternsParser, init_parser
 from .exceptions import IncompatibleFileType, FileNotFound, FileNotParsed
 from .elements import ContentElement
@@ -57,12 +58,14 @@ class LanguageParser(PatternsParser):
         if not filePath.exists():
             raise FileNotFound(str(filePath))
         
-        stream = open(filePath, "r")
+        with open(filePath, "r") as file:
+            content = file.read()
+        content = content.replace("\r\n", "\n")
+        content = content.replace("\r", "\n")
+        stream = StringIO(content)
 
         parsed, elements, _ = self.parse(stream, find_one=False, **kwargs)
         elements = [element.parse_unparsed() for element in elements]
-
-        stream.close()
 
         return parsed, elements
 
