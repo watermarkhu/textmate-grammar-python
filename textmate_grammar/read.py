@@ -4,7 +4,6 @@ from .exceptions import ImpossibleSpan
 
 def stream_read_pos(stream: TextIOBase, start_pos: int, close_pos: int) -> str:
     """Reads the stream between the start and end positions."""
-
     return stream_read_length(stream, start_pos, close_pos - start_pos)
 
 

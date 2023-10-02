@@ -16,4 +16,4 @@ parser = LanguageParser(matlab.GRAMMAR)
 parser.initialize_repository()
 parsed, elements = parser.parse_file(filePath)
 
-elements[0].print()
+elements[0].print(flatten=True)

@@ -6,7 +6,7 @@ from .read import stream_read_pos
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
-
+    FLAT_TYPE = List[Tuple[str, Tuple[int, int], str]]
 
 class ContentElement(object):
     """The base grammar element object."""
@@ -47,11 +47,25 @@ class ContentElement(object):
                 else self.captures
             )
         return out_dict
+    
+    def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
+        """Converts the object to a flattened array of tokens."""
+        if parse_unparsed:
+            self.parse_unparsed()
+        tokens.append((self.token, self.span, self.content))
+        for element in self.captures:
+            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
+        return tokens
 
-    def print(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
+    def print(self, flatten: bool = False, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
         """Prints the current object recursively by converting to dictionary."""
+        if flatten:
+            output = self.flatten(**kwargs)
+        else:
+            output = self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs)
+
         pprint(
-            self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs),
+            output,
             sort_dicts=False,
             width=kwargs.pop("width", 150),
             **kwargs,
@@ -107,7 +121,20 @@ class ContentBlockElement(ContentElement):
         ordered_keys = [key for key in ["token", "begin", "end", "content", "captures"] if key in out_dict]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
-
+    
+    def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
+        """Converts the object to a flattened array of tokens."""
+        if parse_unparsed:
+            self.parse_unparsed()
+        tokens.append((self.token, self.span, self.content))
+        for element in self.begin:
+            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
+        for element in self.captures:
+            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
+        for element in self.end:
+            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
+        return tokens
+    
     def parse_unparsed(self):
         """Parses the unparsed elements contained in the current element."""
         self.captures = self._parse_unparsed_elements(self.captures)
@@ -130,12 +157,13 @@ class UnparsedElement(ContentElement):
         self.parser_kwargs = kwargs
 
     def parse(self) -> List[ContentElement]:
-        """Parses the stream."""
+        """Parses the stream stored in the UnparsedElement."""
 
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
 
         if len(elements) == 1 and elements[0] == self:
+            # UnparsedElement loop, exit loop by creating a standard ContentElement from span
             element = ContentElement(
                 token=self.parser.token,
                 grammar=self.grammar,
