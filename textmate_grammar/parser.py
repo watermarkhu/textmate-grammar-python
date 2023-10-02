@@ -347,7 +347,16 @@ class BeginEndParser(PatternsParser):
             else:
                 if parsed:
                     mid_elements.extend(candidate_mid_elements)
-                    if stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
+                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
+                        stream.seek(candidate_mid_span[1] - 1)
+                        end_span, candidate_end_elements = search_stream(
+                            stream, self.exp_end, self.captures_end, boundary, ws_only=True
+                        )
+                        if end_span and end_span[1] <= candidate_mid_span[1]:
+                            init_pos = candidate_mid_span[1] - 1
+                        else:
+                            init_pos = candidate_mid_span[1]
+                    elif stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
                         stream.seek(candidate_mid_span[1])
                         end_span, candidate_end_elements = search_stream(
                             stream, self.exp_end, self.captures_end, boundary, ws_only=True
