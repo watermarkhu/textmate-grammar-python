@@ -7,12 +7,6 @@ class IncludedParserNotFound(Exception):
         super().__init__(message, **kwargs)
 
 
-class CannotCloseEnd(Exception):
-    def __init__(self, source: str = "", **kwargs) -> None:
-        message = f"Could not close end in parser for source '{source}'"
-        super().__init__(message, **kwargs)
-
-
 class IncompatibleFileType(Exception):
     def __init__(self, extensions: List[str], **kwargs) -> None:
         message = f"Input file must have extension {' / '.join(extensions)}"

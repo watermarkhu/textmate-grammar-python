@@ -1,11 +1,11 @@
 from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
-from warnings import warn
 from io import TextIOBase
 import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
 
 from .elements import ContentElement, UnparsedElement
 from .read import stream_read_length, stream_read_pos
+from .logging import LOGGER
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
@@ -13,8 +13,10 @@ if TYPE_CHECKING:
 
 regex_nextline = re.compile("\n|$")
 
+
 class ANCHOR(object):
-    """Saves the match end location for the next matching if it contains \\G. """
+    """Saves the match end location for the next matching if it contains \\G."""
+
     _pos: int = 0
 
     @classmethod
@@ -23,8 +25,8 @@ class ANCHOR(object):
 
     @classmethod
     def get(cls):
-        return cls._pos 
-    
+        return cls._pos
+
 
 def search_stream(
     stream: TextIOBase,
@@ -41,10 +43,10 @@ def search_stream(
     must match the number of capture groups of the expression, or there must be a single parser
     and no capture groups.
 
-    In a grammar that contains a pattern, first a round of search is performed while ws_only is 
+    In a grammar that contains a pattern, first a round of search is performed while ws_only is
     set to True, trying to find a match directy from the initial position. If no matches are found,
-    a second round is initiated with ws_only set to False, allowing for non-tokenized whitespace 
-    charaters to be skipped in the matching. 
+    a second round is initiated with ws_only set to False, allowing for non-tokenized whitespace
+    charaters to be skipped in the matching.
     """
 
     init_pos = stream.tell()
@@ -65,15 +67,13 @@ def search_stream(
         line = stream.readline()
         matching = regex.search(line)
         if not matching or (
-            ws_only
-            and matching.start()
-            and not stream_read_length(stream, init_pos, matching.start()).isspace()
+            ws_only and matching.start() and not stream_read_length(stream, init_pos, matching.start()).isspace()
         ):
             stream.seek(init_pos)
             return None, []
     else:
-        # Keep performing the search on the current line while looking back one additional 
-        # charater per iteration. 
+        # Keep performing the search on the current line while looking back one additional
+        # charater per iteration.
         stream.readline()
         line_end_pos = stream.tell()
         look_behind_shift = 0
@@ -107,7 +107,7 @@ def search_stream(
     if boundary and match_span[1] > boundary:
         stream.seek(init_pos)
         return None, []
-    
+
     # Set anchor for next matching
     ANCHOR.set(match_span[1])
 
@@ -128,7 +128,7 @@ def search_stream(
             try:
                 group = matching.group(group_id)
             except IndexError:
-                warn(f"The capture group {group_id} does not exist in regex {regex._pattern}")
+                LOGGER.warning(f"The capture group {group_id} does not exist in regex {regex._pattern}")
                 continue
             if not group:
                 continue
@@ -136,10 +136,10 @@ def search_stream(
 
             # Create UnparsedElements for each of the capture groups. This will save time in the
             # initial round of pattern matching. Unparsed elements are parsed only when the ancestor
-            # element is confirmed in the matching. 
+            # element is confirmed in the matching.
             #
             # It is not needed to worry about the ANCHOR. Since the matching end of will always be after
-            # the starting positions of its capture groups. 
+            # the starting positions of its capture groups.
             elements.append(
                 UnparsedElement(
                     stream=stream,

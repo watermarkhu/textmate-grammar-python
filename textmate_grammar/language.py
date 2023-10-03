@@ -1,15 +1,18 @@
-from typing import List, Union, Tuple, Optional
+from typing import Union, Optional
 from pathlib import Path
 from io import StringIO
-from .parser import GrammarParser, PatternsParser, init_parser
-from .exceptions import IncompatibleFileType, FileNotFound, FileNotParsed
-from .elements import ContentElement
 
+from .parser import GrammarParser, PatternsParser, init_parser
+from .exceptions import IncompatibleFileType, FileNotFound
+from .elements import ContentElement
+from .logging import LOGGER
 
 LANGUAGE_PARSERS = {}
 
 
 class DummyParser(GrammarParser):
+    """A dummy parser object"""
+
     def __init__(self):
         self.key = "DummyLanguage"
         self.initialized = True
@@ -25,18 +28,20 @@ class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
     def __init__(self, grammar: dict, **kwargs):
+        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
+
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
-
         self.repository = {}
+
+        # Initalize grammars in repository
         for repo in gen_repositories(grammar):
             for key, rules in repo.items():
                 self.repository[key] = init_parser(rules, key=key, language=self)
 
-        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
-
+        # Update language parser store
         LANGUAGE_PARSERS[grammar.get("scopeName", "myScope")] = self
 
     def __repr__(self) -> str:
@@ -47,28 +52,41 @@ class LanguageParser(PatternsParser):
         return LANGUAGE_PARSERS.get(key, DummyParser())
 
     def parse_file(
-        self, filePath: Union[str, Path], **kwargs
+        self, filePath: Union[str, Path], log_level: Optional[int] = 0, **kwargs
     ) -> Optional[ContentElement]:
+        """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
 
-        if filePath.suffix.split('.')[-1] not in self.file_types:
+        if filePath.suffix.split(".")[-1] not in self.file_types:
             raise IncompatibleFileType(extensions=self.file_types)
 
         if not filePath.exists():
             raise FileNotFound(str(filePath))
-        
+
+        # Open file and replace Windows/Mac line endings
         with open(filePath, "r") as file:
             content = file.read()
         content = content.replace("\r\n", "\n")
         content = content.replace("\r", "\n")
+
+        # Configure logger
+        LOGGER.configure(self, length=len(content), level=log_level)
+
+        # Parse the content as a stream
         stream = StringIO(content)
-
         parsed, elements, _ = self.parse(stream, find_one=False, **kwargs)
-        elements = [element.parse_unparsed() for element in elements]
 
-        return parsed, elements
+        if parsed:
+            # Parse all unparsed elements
+            elements = [element.parse_unparsed() for element in elements]
+            element = ContentElement(
+                token=self.token, grammar=self.grammar, content=content, span=(0, len(content)), captures=elements
+            )
+        else:
+            element = None
 
+        return element
 
 
 def gen_repositories(grammar, key="repository"):

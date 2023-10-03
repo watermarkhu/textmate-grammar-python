@@ -3,10 +3,14 @@ from pprint import pprint
 from io import TextIOBase
 
 from .read import stream_read_pos
+from .logging import LOGGER
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
-    FLAT_TYPE = List[Tuple[str, Tuple[int, int], str]]
+
+
+FLAT_TYPE = List[Tuple[str, Tuple[int, int], str]]
+
 
 class ContentElement(object):
     """The base grammar element object."""
@@ -47,7 +51,7 @@ class ContentElement(object):
                 else self.captures
             )
         return out_dict
-    
+
     def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
         """Converts the object to a flattened array of tokens."""
         if parse_unparsed:
@@ -121,7 +125,7 @@ class ContentBlockElement(ContentElement):
         ordered_keys = [key for key in ["token", "begin", "end", "content", "captures"] if key in out_dict]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
-    
+
     def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
         """Converts the object to a flattened array of tokens."""
         if parse_unparsed:
@@ -134,7 +138,7 @@ class ContentBlockElement(ContentElement):
         for element in self.end:
             element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
         return tokens
-    
+
     def parse_unparsed(self):
         """Parses the unparsed elements contained in the current element."""
         self.captures = self._parse_unparsed_elements(self.captures)
@@ -160,18 +164,19 @@ class UnparsedElement(ContentElement):
         """Parses the stream stored in the UnparsedElement."""
 
         self.stream.seek(self.span[0])
-        _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False)
+        _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False, **self.parser_kwargs)
 
         if len(elements) == 1 and elements[0] == self:
             # UnparsedElement loop, exit loop by creating a standard ContentElement from span
+            LOGGER.warning(
+                "UnparsedElement loop detected, ContentElement is created.", parser=self.parser, position=self.span[0]
+            )
             element = ContentElement(
                 token=self.parser.token,
                 grammar=self.grammar,
                 content=stream_read_pos(self.stream, self.span[0], self.span[1]),
-                span=self.span
+                span=self.span,
             )
             return [element]
         else:
             return self._parse_unparsed_elements(elements)
-
-        
