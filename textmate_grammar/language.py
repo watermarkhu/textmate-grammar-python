@@ -1,11 +1,11 @@
 from typing import Union, Optional
 from pathlib import Path
-from io import StringIO
+from io import StringIO, TextIOBase
 import logging
 
 from .parser import GrammarParser, PatternsParser, init_parser
 from .exceptions import IncompatibleFileType, FileNotFound
-from .elements import ContentElement
+from .elements import ContentElement, UnparsedElement
 from .logging import LOGGER
 
 LANGUAGE_PARSERS = {}
@@ -36,11 +36,17 @@ class LanguageParser(PatternsParser):
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
+        self.injections = {}
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
-            for key, rules in repo.items():
-                self.repository[key] = init_parser(rules, key=key, language=self)
+            for key, parser_grammar in repo.items():
+                self.repository[key] = init_parser(parser_grammar, key=key, language=self)
+
+        # Initialize injections
+        injections = grammar.get("injections", {})
+        for key, injected_grammar in injections.items():
+            self.injections[key] = init_parser(injected_grammar, key=key, language=self)
 
         # Update language parser store
         LANGUAGE_PARSERS[grammar.get("scopeName", "myScope")] = self
@@ -51,6 +57,15 @@ class LanguageParser(PatternsParser):
     @staticmethod
     def _find_include_scopes(key: str):
         return LANGUAGE_PARSERS.get(key, DummyParser())
+
+    def initialize_repository(self):
+        """When the grammar has patterns, this method should called to initialize its inclusions."""
+        super().initialize_repository()
+
+        for key, injected_parser in self.injections.items():
+            injected_parser.initialize_repository()
+            parser_to_inject = self._find_include(key.split(" ")[0])  # TODO this is a hack
+            parser_to_inject.injected_patterns.append(injected_parser)
 
     def parse_file(
         self, filePath: Union[str, Path], log_level: int = logging.CRITICAL, **kwargs
@@ -76,18 +91,29 @@ class LanguageParser(PatternsParser):
 
         # Parse the content as a stream
         stream = StringIO(content)
-        parsed, elements, _ = self.parse(stream, find_one=False, **kwargs)
+
+        parsed, elements, span = self.parse(stream, **kwargs)
 
         if parsed:
-            # Parse all unparsed elements
-            elements = [element.parse_unparsed() for element in elements]
             element = ContentElement(
-                token=self.token, grammar=self.grammar, content=content, span=(0, len(content)), captures=elements
+                token=self.token, grammar=self.grammar, content=content, span=span, captures=elements
             )
         else:
             element = None
-
         return element
+
+    def parse(self, *args, **kwargs):
+        """The parse method for grammars for a languange pattern"""
+        parsed, elements, span = super().parse(*args, find_one=False, injections=True, **kwargs)
+
+        parsed_elements = []
+        for element in elements:
+            if isinstance(element, UnparsedElement):
+                parsed_elements.extend(element.parse())
+            else:
+                parsed_elements.append(element.parse_unparsed())
+
+        return parsed, parsed_elements, span
 
 
 def gen_repositories(grammar, key="repository"):

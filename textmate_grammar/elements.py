@@ -163,14 +163,14 @@ class UnparsedElement(ContentElement):
     def parse(self) -> List[ContentElement]:
         """Parses the stream stored in the UnparsedElement."""
 
+        LOGGER.debug("UnparsedElement parsing", self.parser, self.span[0])
+
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False, **self.parser_kwargs)
 
         if len(elements) == 1 and elements[0] == self:
             # UnparsedElement loop, exit loop by creating a standard ContentElement from span
-            LOGGER.debug(
-                "UnparsedElement loop detected, ContentElement is created.", parser=self.parser, position=self.span[0]
-            )
+            LOGGER.debug("UnparsedElement loop detected, ContentElement is created.", self.parser, self.span[0])
             element = ContentElement(
                 token=self.parser.token,
                 grammar=self.grammar,

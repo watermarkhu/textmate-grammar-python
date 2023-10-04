@@ -112,12 +112,11 @@ def search_stream(
     ANCHOR.set(match_span[1])
 
     if 0 in parsers:
-        # No groups, but a parser existed. Use token of parser to create element
+        # No groups, but a parser existed. Create UnparsedElement for the single capture group
         elements = [
-            ContentElement(
-                token=parsers[0].token if parsers[0].token else parsers[0].comment,
-                grammar=parsers[0].grammar,
-                content=stream_read_pos(stream, match_span[0], match_span[1]),
+            UnparsedElement(
+                stream=stream,
+                parser=parsers[0],
                 span=match_span,
             )
         ]

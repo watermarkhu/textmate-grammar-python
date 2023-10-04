@@ -11,7 +11,7 @@ class Logger(object):
 
     def __init__(self, **kwargs):
         self.id = None
-        self.max_token_length = 30
+        self.max_token_length = 50
         self.content_decimals = 4
         self.scope = "UNKNOWN"
         self.logger = logging.getLogger("textmate_grammar")
@@ -28,7 +28,9 @@ class Logger(object):
             self.scope = parser.token
         self.logger.setLevel(level)
 
-    def format_message(self, message: str, parser: Optional["GrammarParser"] = None, position: Optional[int] = None):
+    def format_message(
+        self, message: str, parser: Optional["GrammarParser"] = None, position: Optional[int] = None, verbosity: int = 0
+    ):
         "Formats a logging message to the defined format"
         if position:
             msg_pos = "{:{decimals}d}".format(position, decimals=self.content_decimals).replace(" ", ".")
@@ -40,25 +42,35 @@ class Logger(object):
         else:
             msg_id = "." * self.max_token_length
 
-        return f"{self.scope}:{msg_pos}:{msg_id}: {message}"
+        return f"{self.scope}:{msg_pos}:{msg_id}: {'.'*verbosity}{message}"
 
     def debug(self, *args, **kwargs):
+        if self.logger.getEffectiveLevel() > logging.DEBUG:
+            return
         message = self.format_message(*args, **kwargs)
         self.logger.debug(message)
 
     def info(self, *args, **kwargs):
+        if self.logger.getEffectiveLevel() > logging.INFO:
+            return
         message = self.format_message(*args, **kwargs)
         self.logger.info(message)
 
     def warning(self, *args, **kwargs):
+        if self.logger.getEffectiveLevel() > logging.WARNING:
+            return
         message = self.format_message(*args, **kwargs)
         self.logger.warning(message)
 
     def error(self, *args, **kwargs):
+        if self.logger.getEffectiveLevel() > logging.ERROR:
+            return
         message = self.format_message(*args, **kwargs)
         self.logger.error(message)
 
     def critical(self, *args, **kwargs):
+        if self.logger.getEffectiveLevel() > logging.CRITICAL:
+            return
         message = self.format_message(*args, **kwargs)
         self.logger.critical(message)
 

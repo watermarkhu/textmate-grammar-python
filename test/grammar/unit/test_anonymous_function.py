@@ -1,4 +1,5 @@
 import sys
+import logging
 from pathlib import Path
 from io import StringIO
 
@@ -6,13 +7,16 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import LanguageParser
-from sphinx_matlab.tmlanguage import TMLIST
+from textmate_grammar.language import LanguageParser
+from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-matlabParser = LanguageParser(TMLIST)
-parser = matlabParser.get_parser("anonymous_function")
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
+parser = LanguageParser(matlab.GRAMMAR)
+parser.initialize_repository()
+
 
 test_vector = {}
 
@@ -20,13 +24,11 @@ test_vector = {}
 test_vector["@(x,  y) x.^2+y;"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
-    "content": "@(x,  y) x.^2+y",
     "captures": [
         {
             "token": "meta.parameters.matlab",
             "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
             "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
-            "content": "(x,  y)",
             "captures": [
                 {"token": "variable.parameter.input.matlab", "content": "x"},
                 {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
@@ -35,17 +37,12 @@ test_vector["@(x,  y) x.^2+y;"] = {
         },
         {
             "token": "meta.parameters.matlab",
-            "content": " x.^2+y",
             "captures": [
-                {
-                    "token": "MATLAB",
-                    "content": "x.^2+y",
-                    "captures": [
-                        {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
-                        {"token": "constant.numeric.decimal.matlab", "content": "2"},
-                        {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
-                    ],
-                }
+                {"token": "variable.other.readwrite.matlab", "content": "x"},
+                {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
+                {"token": "constant.numeric.decimal.matlab", "content": "2"},
+                {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
+                {"token": "variable.other.readwrite.matlab", "content": "y"},
             ],
         },
     ],
@@ -55,46 +52,27 @@ test_vector["@(x,  y) x.^2+y;"] = {
 test_vector["@(x,...\n  y) x...\n   .^2+y;"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
-    "content": "@(x,...\n  y) x...\n   .^2+y",
     "captures": [
         {
             "token": "meta.parameters.matlab",
             "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
             "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
-            "content": "(x,...\n  y)",
             "captures": [
                 {"token": "variable.parameter.input.matlab", "content": "x"},
                 {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
                 {
                     "token": "meta.continuation.line.matlab",
-                    "content": "...",
-                    "captures": [
-                        {"token": "punctuation.separator.continuation.line.matlab", "content": "..."}
-                    ],
+                    "captures": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
                 },
                 {"token": "variable.parameter.input.matlab", "content": "y"},
             ],
         },
         {
             "token": "meta.parameters.matlab",
-            "content": " x...\n   .^2+y",
             "captures": [
                 {
-                    "token": "MATLAB",
-                    "content": "x...\n   .^2+y",
-                    "captures": [
-                        {
-                            "token": "meta.continuation.line.matlab",
-                            "content": "...",
-                            "captures": [
-                                {"token": "punctuation.separator.continuation.line.matlab", "content": "..."}
-                            ],
-                        },
-                        {"token": "punctuation.accessor.dot.matlab", "content": " "},
-                        {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
-                        {"token": "constant.numeric.decimal.matlab", "content": "2"},
-                        {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
-                    ],
+                    "token": "meta.continuation.line.matlab",
+                    "captures": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
                 }
             ],
         },
@@ -164,6 +142,6 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y;
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_anonymous_function(check, expected):
     """Test anonymous function"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
+    parsed, elements, _ = parser.parse(StringIO(check))
+    assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

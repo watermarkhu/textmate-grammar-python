@@ -1,4 +1,5 @@
 import sys
+import logging
 from pathlib import Path
 from io import StringIO
 
@@ -6,12 +7,15 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
-from sphinx_matlab.tmlanguage import TMLIST
+from textmate_grammar.language import LanguageParser
+from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-parser = GrammarParser(TMLIST["repository"]["constants"], key="constants")
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
+parser = LanguageParser(matlab.GRAMMAR)
+parser.initialize_repository()
 
 
 @pytest.mark.parametrize(
@@ -19,22 +23,24 @@ parser = GrammarParser(TMLIST["repository"]["constants"], key="constants")
 )
 def test_numeric(check):
     """Test constant numeric"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
-    assert elements[0].token == "constant.numeric.matlab", MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check))
+    element = elements[0].parse_unparsed()
+    assert parsed, MSG_NO_MATCH
+    assert element.token == "constant.numeric.matlab", MSG_NOT_PARSED
 
 
 @pytest.mark.parametrize("check", ["NaN", "nan", "NaT", "nat"])
 def test_value_representations(check):
     """Test constant value representations"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
-    assert elements[0].token == "constant.language.nan.matlab", MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check))
+    element = elements[0].parse_unparsed()
+    assert parsed, MSG_NO_MATCH
+    assert element.token == "constant.language.nan.matlab", MSG_NOT_PARSED
 
 
 @pytest.mark.parametrize("check", ["on", "off", "false", "true"])
 def test_binary(check):
     """Test constant binary"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
+    parsed, elements, _ = parser.parse(StringIO(check))
+    assert parsed, MSG_NO_MATCH
     assert elements[0].token == "constant.language.boolean.matlab", MSG_NOT_PARSED
