@@ -1,6 +1,7 @@
 from typing import Union, Optional
 from pathlib import Path
 from io import StringIO
+import logging
 
 from .parser import GrammarParser, PatternsParser, init_parser
 from .exceptions import IncompatibleFileType, FileNotFound
@@ -52,7 +53,7 @@ class LanguageParser(PatternsParser):
         return LANGUAGE_PARSERS.get(key, DummyParser())
 
     def parse_file(
-        self, filePath: Union[str, Path], log_level: Optional[int] = 0, **kwargs
+        self, filePath: Union[str, Path], log_level: int = logging.CRITICAL, **kwargs
     ) -> Optional[ContentElement]:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:

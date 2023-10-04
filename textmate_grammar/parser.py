@@ -115,6 +115,7 @@ class TokenParser(GrammarParser):
         ]
         ANCHOR.set(boundary)
         stream.seek(boundary)
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, init_pos)
         return True, elements, span
 
 
@@ -154,8 +155,10 @@ class MatchParser(GrammarParser):
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         """The parse method for grammars for which a match pattern is provided."""
         init_pos = stream.tell()
+
         span, captures = search_stream(stream, self.exp_match, self.captures, boundary, ws_only=ws_only)
         if span is None:
+            LOGGER.debug(f"{self.__class__.__name__} no match", self, init_pos)
             return False, [], (0, 0)
 
         if self.token:
@@ -169,6 +172,7 @@ class MatchParser(GrammarParser):
                     captures=captures,
                 )
             ]
+            LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, init_pos)
         else:
             elements = captures
 
@@ -209,6 +213,7 @@ class PatternsParser(GrammarParser):
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         """The parse method for grammars for which a match pattern is provided."""
         init_pos = stream.tell()
+
         if boundary is None:
             boundary = stream.seek(0, 2)
             stream.seek(init_pos)
@@ -223,6 +228,7 @@ class PatternsParser(GrammarParser):
                 parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=ws_only, **kwargs)
                 if parsed:
                     if find_one:
+                        LOGGER.info(f"{self.__class__.__name__} found single element", self, current_pos)
                         return True, candidate_elements, span
                     elements.extend(candidate_elements)
                     break
@@ -233,13 +239,14 @@ class PatternsParser(GrammarParser):
                     parsed, candidate_elements, span = parser.parse(stream, boundary=boundary, ws_only=False, **kwargs)
                     if parsed:
                         if find_one:
+                            LOGGER.info(f"{self.__class__.__name__} found single element", self, current_pos)
                             return True, candidate_elements, span
                         elements.extend(candidate_elements)
                         break
                 else:
                     break
             if stream.tell() == current_pos:
-                LOGGER.warning(self, current_pos, "Recursing detected, exiting...")
+                LOGGER.warning(f"{self.__class__.__name__} stream did not move after a search round", self, current_pos)
                 break
             current_pos = stream.tell()
 
@@ -298,11 +305,14 @@ class BeginEndParser(PatternsParser):
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         """The parse method for grammars for which a begin/end pattern is provided."""
+
         begin_span, begin_elements = search_stream(
             stream, self.exp_begin, self.captures_begin, boundary, ws_only=ws_only
         )
         if not begin_span:
+            LOGGER.debug(f"{self.__class__.__name__} no begin match", self, stream.tell())
             return False, [], (0, 0)
+        LOGGER.info(f"{self.__class__.__name__} found begin", self, stream.tell())
 
         # Get initial and boundary positions
         init_pos = stream.tell()
@@ -325,6 +335,7 @@ class BeginEndParser(PatternsParser):
                     stream, boundary=boundary, ws_only=True, **kwargs
                 )
                 if parsed:
+                    LOGGER.debug(f"{self.__class__.__name__} found pattern (no ws)", self, stream.tell())
                     break
 
             # Try to find the end pattern with no leading whitespace charaters allowed
@@ -340,6 +351,7 @@ class BeginEndParser(PatternsParser):
                         stream, boundary=boundary, ws_only=False, **kwargs
                     )
                     if parsed:
+                        LOGGER.debug(f"{self.__class__.__name__} found pattern (ws)", self, stream.tell())
                         break
 
                 stream.seek(init_pos)
@@ -363,30 +375,60 @@ class BeginEndParser(PatternsParser):
                             mid_elements.extend(candidate_mid_elements)
                             close_pos = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
+                            LOGGER.debug(
+                                f"{self.__class__.__name__} capture+end: both accepted, break",
+                                self,
+                                stream.tell(),
+                            )
                             break
                         elif not self.apply_end_pattern_last:
                             # End pattern prioritized over capture pattern, break pattern search
                             close_pos = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
+                            LOGGER.debug(
+                                f"{self.__class__.__name__} capture+end: end prioritized, break",
+                                self,
+                                stream.tell(),
+                            )
                             break
                         else:
                             # Capture pattern prioritized over end pattern, continue pattern search
                             mid_elements.extend(candidate_mid_elements)
                             init_pos = candidate_mid_span[1]
+                            LOGGER.debug(
+                                f"{self.__class__.__name__} capture+end: capture prioritized, continue",
+                                self,
+                                stream.tell(),
+                            )
 
                     elif candidate_mid_span[0] < end_span[1]:
                         # Capture pattern found before end pattern, continue pattern search
                         mid_elements.extend(candidate_mid_elements)
                         init_pos = candidate_mid_span[1]
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} capture<end: leading capture, continue",
+                            self,
+                            stream.tell(),
+                        )
                     else:
                         # End pattern found before capture pattern, break pattern search
                         close_pos = end_span[0] if self.between_content else end_span[1]
                         end_elements = candidate_end_elements
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} end<capture: leading end, break",
+                            self,
+                            stream.tell(),
+                        )
                         break
                 else:
                     # No capture pattern found, accept end pattern and break pattern search
                     close_pos = end_span[0] if self.between_content else end_span[1]
                     end_elements = candidate_end_elements
+                    LOGGER.debug(
+                        f"{self.__class__.__name__} end: break",
+                        self,
+                        stream.tell(),
+                    )
                     break
             else:  # No end pattern found
                 if parsed:
@@ -407,6 +449,12 @@ class BeginEndParser(PatternsParser):
                             # Start next pattern search round from the end of the found capture pattenr
                             init_pos = candidate_mid_span[1]
 
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} capture: ends with newline, continue",
+                            self,
+                            stream.tell(),
+                        )
+
                     elif stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
                         # Next character after capture pattern is newline
                         stream.seek(candidate_mid_span[1])
@@ -419,8 +467,19 @@ class BeginEndParser(PatternsParser):
                         else:
                             # Skip the newline character in the next pattern search round
                             init_pos = candidate_mid_span[1] + 1
+
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} capture: next is newline, continue",
+                            self,
+                            stream.tell(),
+                        )
                     else:
                         init_pos = candidate_mid_span[1]
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} capture: continue",
+                            self,
+                            stream.tell(),
+                        )
                 else:
                     # No capture patterns nor end patterns found. Skip the current line.
                     line = stream.readline()
@@ -428,7 +487,9 @@ class BeginEndParser(PatternsParser):
                     if stream.tell() == init_pos:
                         close_pos = init_pos
                         end_span = (init_pos, init_pos)
-                        LOGGER.warning(f"Recursing occuring while skipping < {repr(line)} >", parser=self, position=init_pos)
+                        LOGGER.warning(
+                            f"Recursing occuring while skipping < {repr(line)} >", parser=self, position=init_pos
+                        )
                         break
 
                     if not line.isspace():
@@ -449,22 +510,24 @@ class BeginEndParser(PatternsParser):
 
         # Construct output elements
         if self.token:
+            content = stream_read_pos(stream, start, close_pos)
             elements = [
                 ContentBlockElement(
                     token=self.token,
                     grammar=self.grammar,
-                    content=stream_read_pos(stream, start, close_pos),
+                    content=content,
                     span=(start, close_pos),
                     captures=mid_elements,
                     begin=begin_elements,
                     end=end_elements,
                 )
             ]
+            LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start)
         else:
             elements = begin_elements + mid_elements + end_elements
 
         stream.seek(end_span[1])
-
+        
         return True, elements, (begin_span[0], end_span[1])
 
 

@@ -14,11 +14,10 @@ class Logger(object):
         self.max_token_length = 30
         self.content_decimals = 4
         self.scope = "UNKNOWN"
-        self.logger = logging.getLogger('textmate_grammar')
-        self.stream = logging.StreamHandler()
-        self.logger.addHandler(logging.NullHandler())
+        self.logger = logging.getLogger("textmate_grammar")
+        self.logger.addHandler(logging.StreamHandler())
 
-    def configure(self, parser: "GrammarParser", length: int, level: Optional[int] = None):
+    def configure(self, parser: "GrammarParser", length: int, level: int = logging.CRITICAL):
         """Configures the logger to a specific grammar and content length"""
         self.content_decimals = len(str(length))
         id = parser.token if parser.token else parser.key
@@ -27,14 +26,9 @@ class Logger(object):
             tokens = gen_all_tokens(parser.grammar)
             self.max_token_length = max((len(token) for token in tokens))
             self.scope = parser.token
+        self.logger.setLevel(level)
 
-        if level is None:
-            self.logger.removeHandler(self.stream)
-        else:
-            self.logger.setLevel(level)
-            self.logger.addHandler(self.stream)
-
-    def format_message(self, message:str, parser: Optional["GrammarParser"] = None, position: Optional[int] = None):
+    def format_message(self, message: str, parser: Optional["GrammarParser"] = None, position: Optional[int] = None):
         "Formats a logging message to the defined format"
         if position:
             msg_pos = "{:{decimals}d}".format(position, decimals=self.content_decimals).replace(" ", ".")
@@ -45,13 +39,13 @@ class Logger(object):
             msg_id = "." * (self.max_token_length - len(parser_id)) + parser_id
         else:
             msg_id = "." * self.max_token_length
-        
+
         return f"{self.scope}:{msg_pos}:{msg_id}: {message}"
-    
+
     def debug(self, *args, **kwargs):
         message = self.format_message(*args, **kwargs)
         self.logger.debug(message)
-    
+
     def info(self, *args, **kwargs):
         message = self.format_message(*args, **kwargs)
         self.logger.info(message)
@@ -68,7 +62,7 @@ class Logger(object):
         message = self.format_message(*args, **kwargs)
         self.logger.critical(message)
 
-        
+
 def gen_all_tokens(grammar: dict, items: list = []):
     for key, value in grammar.items():
         if key in ["name", "contentName"]:
@@ -81,5 +75,4 @@ def gen_all_tokens(grammar: dict, items: list = []):
     return items
 
 
-# logging.basicConfig(format='%(levelname)s:%(message)s')
 LOGGER = Logger()

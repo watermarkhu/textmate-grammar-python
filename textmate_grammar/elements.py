@@ -168,7 +168,7 @@ class UnparsedElement(ContentElement):
 
         if len(elements) == 1 and elements[0] == self:
             # UnparsedElement loop, exit loop by creating a standard ContentElement from span
-            LOGGER.warning(
+            LOGGER.debug(
                 "UnparsedElement loop detected, ContentElement is created.", parser=self.parser, position=self.span[0]
             )
             element = ContentElement(
