@@ -92,7 +92,7 @@ class LanguageParser(PatternsParser):
         # Parse the content as a stream
         stream = StringIO(content)
 
-        parsed, elements, span = self.parse(stream, **kwargs)
+        parsed, elements, span = self.parse(stream, find_one=False, **kwargs)
 
         if parsed:
             element = ContentElement(
@@ -102,9 +102,9 @@ class LanguageParser(PatternsParser):
             element = None
         return element
 
-    def parse(self, *args, **kwargs):
-        """The parse method for grammars for a languange pattern"""
-        parsed, elements, span = super().parse(*args, find_one=False, injections=True, **kwargs)
+    def parse(self, stream, *args, **kwargs):
+        """The parse method for grammars for a language pattern"""
+        parsed, elements, span = super().parse(stream, *args, injections=True, **kwargs)
 
         parsed_elements = []
         for element in elements:
@@ -112,6 +112,9 @@ class LanguageParser(PatternsParser):
                 parsed_elements.extend(element.parse())
             else:
                 parsed_elements.append(element.parse_unparsed())
+
+        if parsed:
+            stream.seek(span[1])
 
         return parsed, parsed_elements, span
 

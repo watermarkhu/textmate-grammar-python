@@ -1,4 +1,5 @@
 import sys
+import logging
 from pathlib import Path
 from io import StringIO
 
@@ -6,12 +7,15 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
-from sphinx_matlab.tmlanguage import TMLIST
+from textmate_grammar.language import LanguageParser
+from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-parser = GrammarParser(TMLIST["repository"]["numbers"], key="numbers")
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
+parser = LanguageParser(matlab.GRAMMAR)
+parser.initialize_repository()
 
 
 @pytest.mark.parametrize("check", ["1", ".1", "1.1", ".1e1", "1.1e1", "1e1", "1i", "1j", "1e2j"])

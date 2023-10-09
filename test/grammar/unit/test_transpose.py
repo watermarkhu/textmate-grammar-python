@@ -1,4 +1,5 @@
 import sys
+import logging
 from pathlib import Path
 from io import StringIO
 
@@ -6,14 +7,15 @@ sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 import pytest
-from sphinx_matlab.grammar import GrammarParser
-from sphinx_matlab.tmlanguage import TMLIST
+from textmate_grammar.language import LanguageParser
+from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
-parser_transpose = GrammarParser(TMLIST["repository"]["transpose"], key="transpose")
-parser_conjugate = GrammarParser(TMLIST["repository"]["conjugate_transpose"], key="conjugate_transpose")
-
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
+parser = LanguageParser(matlab.GRAMMAR)
+parser.initialize_repository()
 
 conjugate_transpose_test_vector = {
     "A'": {},  # variable
@@ -30,7 +32,7 @@ transpose_test_vector = {
 @pytest.mark.parametrize("check,expected", conjugate_transpose_test_vector.items())
 def test_conjugate_transpose(check, expected):
     """Test conjugate transpose"""
-    elements = parser_conjugate.parse(StringIO(check))
+    elements = parser.parse(StringIO(check))
     assert elements, MSG_NO_MATCH
     assert elements[0].token == "keyword.operator.transpose.matlab", MSG_NO_MATCH
 
@@ -38,6 +40,6 @@ def test_conjugate_transpose(check, expected):
 @pytest.mark.parametrize("check,expected", transpose_test_vector.items())
 def test_transpose(check, expected):
     """Test transpose"""
-    elements = parser_transpose.parse(StringIO(check))
+    elements = parser.parse(StringIO(check))
     assert elements, MSG_NO_MATCH
     assert elements[0].token == "keyword.operator.transpose.matlab", MSG_NO_MATCH

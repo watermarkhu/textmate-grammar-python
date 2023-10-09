@@ -14,5 +14,5 @@ def stream_read_length(stream: TextIOBase, start_pos: int, length: int) -> str:
     init_pos = stream.tell()
     stream.seek(start_pos)
     content = stream.read(length)
-    stream.seek(init_pos)
+    stream.seek(init_pos)  
     return content

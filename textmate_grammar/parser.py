@@ -345,6 +345,7 @@ class BeginEndParser(PatternsParser):
         while init_pos <= boundary:
             stream.seek(init_pos)
             parsed = False
+            apply_end_pattern_last = False
 
             # Try to find patterns first with no leading whitespace charaters allowed
             for parser in patterns:
@@ -352,6 +353,8 @@ class BeginEndParser(PatternsParser):
                     stream, boundary=boundary, ws_only=True, verbosity=verbosity + 1, **kwargs
                 )
                 if parsed:
+                    if parser == self:
+                        apply_end_pattern_last = True
                     LOGGER.debug(f"{self.__class__.__name__} found pattern (no ws)", self, stream.tell(), verbosity)
                     break
 
@@ -368,6 +371,8 @@ class BeginEndParser(PatternsParser):
                         stream, boundary=boundary, ws_only=False, verbosity=verbosity + 1, **kwargs
                     )
                     if parsed:
+                        if parser == self:
+                            apply_end_pattern_last = True
                         LOGGER.debug(f"{self.__class__.__name__} found pattern (ws)", self, stream.tell(), verbosity)
                         break
 
@@ -399,7 +404,7 @@ class BeginEndParser(PatternsParser):
                                 verbosity,
                             )
                             break
-                        elif not self.apply_end_pattern_last:
+                        elif not self.apply_end_pattern_last and not apply_end_pattern_last:
                             # End pattern prioritized over capture pattern, break pattern search
                             close_pos = end_span[0] if self.between_content else end_span[1]
                             end_elements = candidate_end_elements
@@ -450,28 +455,28 @@ class BeginEndParser(PatternsParser):
                     # Append found capture pattern and find next starting position
                     mid_elements.extend(candidate_mid_elements)
 
-                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
-                        # Capture pattern ends with newline
-                        stream.seek(candidate_mid_span[1] - 1)
-                        end_span, candidate_end_elements = search_stream(
-                            stream, self.exp_end, self.captures_end, boundary, ws_only=True
-                        )
-                        if end_span and end_span[1] <= candidate_mid_span[1]:
-                            # Potential end pattern can be found one character before the end of the
-                            # found capture pattern, start next pattern search round here.
-                            init_pos = candidate_mid_span[1] - 1
-                        else:
-                            # Start next pattern search round from the end of the found capture pattenr
-                            init_pos = candidate_mid_span[1]
+                    # if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
+                    #     # Capture pattern ends with newline
+                    #     stream.seek(candidate_mid_span[1] - 1)
+                    #     end_span, candidate_end_elements = search_stream(
+                    #         stream, self.exp_end, self.captures_end, boundary, ws_only=True
+                    #     )
+                    #     if end_span and end_span[1] <= candidate_mid_span[1]:
+                    #         # Potential end pattern can be found one character before the end of the
+                    #         # found capture pattern, start next pattern search round here.
+                    #         init_pos = candidate_mid_span[1] - 1
+                    #     else:
+                    #         # Start next pattern search round from the end of the found capture pattenr
+                    #         init_pos = candidate_mid_span[1]
 
-                        LOGGER.debug(
-                            f"{self.__class__.__name__} capture: ends with newline, continue",
-                            self,
-                            stream.tell(),
-                            verbosity,
-                        )
+                    #     LOGGER.debug(
+                    #         f"{self.__class__.__name__} capture: ends with newline, continue",
+                    #         self,
+                    #         stream.tell(),
+                    #         verbosity,
+                    #     )
 
-                    elif stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
+                    if stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
                         # Next character after capture pattern is newline
                         stream.seek(candidate_mid_span[1])
                         end_span, candidate_end_elements = search_stream(
@@ -509,6 +514,9 @@ class BeginEndParser(PatternsParser):
                         )
                     init_pos = stream.tell()
 
+            if apply_end_pattern_last:
+                init_pos += 1
+                
             if first_run:
                 # Skip all parsers that were anchored to the begin pattern after the first round
                 patterns = [parser for parser in patterns if not parser.anchored]
@@ -516,6 +524,7 @@ class BeginEndParser(PatternsParser):
         else:
             # Did not break out of while loop, set close_pos to boundary
             close_pos = boundary
+            end_span = (0,boundary)
 
         start = begin_span[1] if self.between_content else begin_span[0]
 

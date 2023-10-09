@@ -56,7 +56,7 @@ def search_stream(
         end_pos = stream.tell()
         ANCHOR.set(end_pos)
         return (end_pos, end_pos), []
-    elif regex._pattern[:2] == "\G":
+    elif "\G" in regex._pattern:
         # Gets the previous matching end position from ANCHOR.
         init_pos = ANCHOR.get()
 
@@ -99,7 +99,7 @@ def search_stream(
         else:
             stream.seek(init_pos)
             return None, []
-
+        
     # Get span of current matching, taking into account the lookback operation
     match_span = (match_shift + matching.start(), match_shift + matching.end())
 
@@ -107,6 +107,12 @@ def search_stream(
     if boundary and match_span[1] > boundary:
         stream.seek(init_pos)
         return None, []
+    
+    # Include \n in match span if regex matches on end of line $
+    if "$" in regex._pattern and matching.end() + 1 == len(line):
+        newline_matching = regex.search(line[:-1])
+        if newline_matching and newline_matching.span() == matching.span():
+            match_span = (match_shift + matching.start(), match_shift + matching.end() + 1)
 
     # Set anchor for next matching
     ANCHOR.set(match_span[1])
