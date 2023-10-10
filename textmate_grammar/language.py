@@ -98,7 +98,7 @@ class LanguageParser(PatternsParser):
         """Parses the current stream with the language scope."""
 
         stream.seek(0)
-        parsed, elements, span = self.parse(stream, find_one=False, **kwargs)
+        parsed, elements, span = self.parse(stream, find_one=False, top_level=True, **kwargs)
 
         if parsed:
             stream.seek(0)
@@ -110,26 +110,30 @@ class LanguageParser(PatternsParser):
             element = None
         return element
 
-    def parse(self, stream, *args, **kwargs):
+    def parse(self, stream, *args, top_level:bool=True, **kwargs):
         """The parse method for grammars for a language pattern"""
         parsed, elements, span = super().parse(stream, *args, injections=True, **kwargs)
 
-        LOGGER.info("-------------------------------", parser=self)
-        LOGGER.info("Start parsing unparsed elements", parser=self)
-        LOGGER.info("-------------------------------", parser=self)
+        if top_level:
 
-        parsed_elements = []
-        for element in elements:
-            if isinstance(element, UnparsedElement):
-                parsed_elements.extend(element.parse())
-            else:
-                parsed_elements.append(element.parse_unparsed())
+            LOGGER.info("-------------------------------", parser=self)
+            LOGGER.info("Start parsing unparsed elements", parser=self)
+            LOGGER.info("-------------------------------", parser=self)
 
-        if parsed:
-            stream.seek(span[1])
+            parsed_elements = []
+            for element in elements:
+                if isinstance(element, UnparsedElement):
+                    parsed_elements.extend(element.parse())
+                else:
+                    parsed_elements.append(element.parse_unparsed())
 
-        return parsed, parsed_elements, span
+            if parsed:
+                stream.seek(span[1])
 
+            return parsed, parsed_elements, span
+        
+        else:
+            return parsed, elements, span
 
 def gen_repositories(grammar, key="repository"):
     """Recursively gets all repositories from a grammar dictionary"""

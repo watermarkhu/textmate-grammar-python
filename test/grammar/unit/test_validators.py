@@ -14,7 +14,7 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
 logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
+logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 matlabParser = LanguageParser(matlab.GRAMMAR)
 matlabParser.initialize_repository()
 parser = matlabParser.repository["validators"]
