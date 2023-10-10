@@ -21,6 +21,6 @@ parser.initialize_repository()
 @pytest.mark.parametrize("check", ["nargin", "nargout", "varargin", "varargout"])
 def test_variables(check):
     """Test variables"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    assert parsed, MSG_NO_MATCH
     assert elements[0].token == "variable.language.function.matlab", MSG_NO_MATCH

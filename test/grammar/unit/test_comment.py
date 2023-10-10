@@ -24,7 +24,7 @@ test_vector = {}
 test_vector["% Test this is a comment. \n"] = {
     "token": "comment.line.percentage.matlab",
     "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%"}],
-    "content": "% Test this is a comment. \n",
+    "content": "% Test this is a comment. ",
 }
 
 
@@ -56,6 +56,6 @@ test_vector["%{\nThis is a comment\nmultiple\n %}"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_comment(check, expected):
     """Test comment"""
-    parsed, elements, _ = parser.parse(StringIO(check))
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

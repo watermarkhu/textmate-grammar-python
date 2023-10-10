@@ -21,8 +21,8 @@ parser.initialize_repository()
 @pytest.mark.parametrize("check", ["1", ".1", "1.1", ".1e1", "1.1e1", "1e1", "1i", "1j", "1e2j"])
 def test_decimal(check):
     """Test numbers decimal"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    assert parsed, MSG_NO_MATCH
     assert elements[0].token == "constant.numeric.decimal.matlab", MSG_NO_MATCH
     if "i" in check or "j" in check:
         assert elements[0].captures[0].token == "storage.type.number.imaginary.matlab", MSG_NO_MATCH
@@ -33,8 +33,8 @@ def test_decimal(check):
 )
 def test_hex(check):
     """Test numbers hex"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    assert parsed, MSG_NO_MATCH
     assert elements[0].token == "constant.numeric.hex.matlab", MSG_NO_MATCH
     if "s" in check or "u" in check:
         assert elements[0].captures[0].token == "storage.type.number.hex.matlab", MSG_NO_MATCH
@@ -45,8 +45,8 @@ def test_hex(check):
 )
 def test_binary(check):
     """Test numbers binary"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NOT_PARSED
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    assert parsed, MSG_NO_MATCH
     assert elements[0].token == "constant.numeric.binary.matlab", MSG_NO_MATCH
     if "s" in check or "u" in check:
         assert elements[0].captures[0].token == "storage.type.number.binary.matlab", MSG_NO_MATCH

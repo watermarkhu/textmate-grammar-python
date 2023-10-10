@@ -164,9 +164,11 @@ class MatchParser(GrammarParser):
         if span is None:
             LOGGER.debug(f"{self.__class__.__name__} no match", self, init_pos, verbosity)
             return False, [], (0, 0)
+        
+        content = stream_read_pos(stream, span[0], span[1])
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, init_pos, verbosity)
 
         if self.token:
-            content = stream_read_pos(stream, span[0], span[1])
             elements = [
                 ContentElement(
                     token=self.token,
@@ -176,7 +178,6 @@ class MatchParser(GrammarParser):
                     captures=captures,
                 )
             ]
-            LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, init_pos, verbosity)
         else:
             elements = captures
 
@@ -384,13 +385,15 @@ class BeginEndParser(PatternsParser):
             if end_span:
                 if parsed:
                     # Check whether the capture pattern has the same closing positions as the end pattern
-                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
+                    if stream_read_length(stream, candidate_mid_span[1] - 1, 1, skip_newline=False) == "\n":
                         # If capture pattern ends with \n, both left and right of \n is considered end
                         pattern_at_end = end_span[1] in [candidate_mid_span[1] - 1, candidate_mid_span[1]]
                     else:
                         pattern_at_end = end_span[1] == candidate_mid_span[1]
 
-                    if pattern_at_end:
+                    end_before_pattern = end_span[0] <= candidate_mid_span[0]
+
+                    if pattern_at_end and end_before_pattern:
                         empty_span_end = end_span[1] == end_span[0]
                         if empty_span_end:
                             # Both found capture pattern and end pattern are accepted, break pattern search
@@ -476,7 +479,7 @@ class BeginEndParser(PatternsParser):
                     #         verbosity,
                     #     )
 
-                    if stream_read_length(stream, candidate_mid_span[1], 1) == "\n":
+                    if stream_read_length(stream, candidate_mid_span[1], 1, skip_newline=False) == "\n":
                         # Next character after capture pattern is newline
                         stream.seek(candidate_mid_span[1])
                         end_span, candidate_end_elements = search_stream(
@@ -528,9 +531,11 @@ class BeginEndParser(PatternsParser):
 
         start = begin_span[1] if self.between_content else begin_span[0]
 
+        content = stream_read_pos(stream, start, close_pos)
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start, verbosity)
+        
         # Construct output elements
         if self.token:
-            content = stream_read_pos(stream, start, close_pos)
             elements = [
                 ContentBlockElement(
                     token=self.token,
@@ -542,7 +547,6 @@ class BeginEndParser(PatternsParser):
                     end=end_elements,
                 )
             ]
-            LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start, verbosity)
         else:
             elements = begin_elements + mid_elements + end_elements
 

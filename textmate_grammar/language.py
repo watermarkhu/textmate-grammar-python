@@ -92,9 +92,17 @@ class LanguageParser(PatternsParser):
         # Parse the content as a stream
         stream = StringIO(content)
 
+        return self.parse_language(stream, **kwargs)
+    
+    def parse_language(self, stream: TextIOBase, **kwargs):
+        """Parses the current stream with the language scope."""
+
+        stream.seek(0)
         parsed, elements, span = self.parse(stream, find_one=False, **kwargs)
 
         if parsed:
+            stream.seek(0)
+            content = stream.read()
             element = ContentElement(
                 token=self.token, grammar=self.grammar, content=content, span=span, captures=elements
             )
@@ -105,6 +113,10 @@ class LanguageParser(PatternsParser):
     def parse(self, stream, *args, **kwargs):
         """The parse method for grammars for a language pattern"""
         parsed, elements, span = super().parse(stream, *args, injections=True, **kwargs)
+
+        LOGGER.info("-------------------------------", parser=self)
+        LOGGER.info("Start parsing unparsed elements", parser=self)
+        LOGGER.info("-------------------------------", parser=self)
 
         parsed_elements = []
         for element in elements:

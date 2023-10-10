@@ -20,17 +20,35 @@ parser.initialize_repository()
 
 test_vector = {}
 
-#dot index
-test_vector["var.field"] = {'token': 'punctuation.accessor.dot.matlab', 'content': '.'}
-#statement separator
-test_vector[","] = {'token': 'punctuation.separator.comma.matlab', 'content': ','}
-#output termination
-test_vector["end;"] = {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}
+# dot index
+test_vector["var.field"] = {
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "var"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {"token": "variable.other.property.matlab", "content": "field"},
+    ],
+}
+
+# statement separator
+test_vector[","] = {
+    "token": "source.matlab",
+    "captures": [{"token": "punctuation.separator.comma.matlab", "content": ","}],
+}
+
+# output termination
+test_vector["var;"] = {
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "var"},
+        {"token": "punctuation.terminator.semicolon.matlab", "content": ";"},
+    ],
+}
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_punctuation(check, expected):
     """Test punctuation"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
-    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    element = parser.parse_language(StringIO(check))
+    assert element, MSG_NO_MATCH
+    assert element.to_dict() == expected, MSG_NOT_PARSED

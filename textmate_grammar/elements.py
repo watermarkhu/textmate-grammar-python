@@ -164,7 +164,6 @@ class UnparsedElement(ContentElement):
         """Parses the stream stored in the UnparsedElement."""
 
         LOGGER.debug("UnparsedElement parsing", self.parser, self.span[0])
-
         self.stream.seek(self.span[0])
         _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False, **self.parser_kwargs)
 
@@ -179,4 +178,17 @@ class UnparsedElement(ContentElement):
             )
             return [element]
         else:
-            return self._parse_unparsed_elements(elements)
+            captures = self._parse_unparsed_elements(elements)
+            if self.parser.token:
+                # Put captures into standard element.
+                element = ContentElement(
+                    token=self.parser.token,
+                    grammar=self.grammar,
+                    content=stream_read_pos(self.stream, self.span[0], self.span[1]),
+                    span=self.span,
+                    captures=captures,
+                )
+                return [element]
+            else:
+                # Return captures directly since no token exists for current parser
+                return captures

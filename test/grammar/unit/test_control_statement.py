@@ -37,6 +37,6 @@ test_vector["return"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_control_statement(check, expected):
     """Test control statement"""
-    parsed, elements, _ = parser.parse(StringIO(check))
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

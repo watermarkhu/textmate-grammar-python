@@ -4,7 +4,7 @@ import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern
 
 from .elements import ContentElement, UnparsedElement
-from .read import stream_read_length, stream_read_pos
+from .read import stream_read_pos
 from .logging import LOGGER
 
 if TYPE_CHECKING:
@@ -60,45 +60,43 @@ def search_stream(
         # Gets the previous matching end position from ANCHOR.
         init_pos = ANCHOR.get()
 
-    match_shift = init_pos
-
     if "(?<" not in regex._pattern:
         # Simple matching without lookback
         line = stream.readline()
         matching = regex.search(line)
-        if not matching or (
-            ws_only and matching.start() and not stream_read_length(stream, init_pos, matching.start()).isspace()
-        ):
+        match_shift = init_pos
+
+    else:
+        # Find begin of line and search starting from the initial position
+        stream.readline()
+        line_end_pos = stream.tell()
+        pos_on_line = 0
+
+        while stream.tell() == line_end_pos:
+            pos_on_line += 1
+            if init_pos < pos_on_line:
+                pos_on_line -= 1
+                break
+            stream.seek(init_pos - pos_on_line)
+            stream.readline()
+        else:
+            if pos_on_line:
+                pos_on_line -= 1
+
+        stream.seek(init_pos - pos_on_line)
+        line = stream.readline()
+        matching = regex.search(line, start=pos_on_line)
+        match_shift = init_pos - pos_on_line
+
+    # Check that no charaters are skipped in case ws-only is enabled
+    if matching:
+        leading_string = stream_read_pos(stream, init_pos, match_shift + matching.start())
+        if ws_only and leading_string and not leading_string.isspace():
             stream.seek(init_pos)
             return None, []
     else:
-        # Keep performing the search on the current line while looking back one additional
-        # charater per iteration.
-        stream.readline()
-        line_end_pos = stream.tell()
-        look_behind_shift = 0
-
-        while stream.tell() == line_end_pos and match_shift >= 0:
-            stream.seek(match_shift)
-            line = stream.readline()
-            matching = regex.search(line)
-
-            if (
-                not matching
-                or matching.start() < look_behind_shift
-                or (
-                    ws_only
-                    and matching.start() > look_behind_shift
-                    and not stream_read_length(stream, init_pos, matching.start() - look_behind_shift).isspace()
-                )
-            ):
-                look_behind_shift += 1
-                match_shift = init_pos - look_behind_shift
-            else:
-                break
-        else:
-            stream.seek(init_pos)
-            return None, []
+        stream.seek(init_pos)
+        return None, []
         
     # Get span of current matching, taking into account the lookback operation
     match_span = (match_shift + matching.start(), match_shift + matching.end())

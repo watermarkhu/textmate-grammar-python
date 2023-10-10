@@ -21,43 +21,72 @@ test_vector = {}
 
 # simple
 test_vector["variable"] = {
-    "token": "readwrite_operations",
-    "content": "variable",
-    "captures": [{"token": "", "content": "variable"}],
+    "token": "source.matlab",
+    "captures": [{"token": "variable.other.readwrite.matlab", "content": "variable"}],
 }
 
 # property
 test_vector["variable.property"] = {
-    "token": "readwrite_operations",
-    "content": "variable.property",
-    "captures": [{"token": "", "content": "variable.property"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {"token": "variable.other.property.matlab", "content": "property"},
+    ],
 }
 
 # subproperty
 test_vector["variable.class.property"] = {
-    "token": "readwrite_operations",
-    "content": "variable.class.property",
-    "captures": [{"token": "", "content": "variable.class.property"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {"token": "variable.other.property.matlab", "content": "class"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {"token": "variable.other.property.matlab", "content": "property"},
+    ],
 }
 
 # property access
 test_vector["variable.property(0)"] = {
-    "token": "readwrite_operations",
-    "content": "variable",
-    "captures": [{"token": "", "content": "variable"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {
+            "token": "meta.function-call.parens.matlab",
+            "begin": [
+                {"token": "entity.name.function.matlab", "content": "property"},
+                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
+            ],
+            "end": [{"token": "punctuation.section.parens.end.matlab", "content": ")"}],
+            "captures": [{"token": "constant.numeric.decimal.matlab", "content": "0"}],
+        },
+    ],
 }
 
 # class method
 test_vector["variable.function(argument)"] = {
-    "token": "readwrite_operations",
-    "content": "variable",
-    "captures": [{"token": "", "content": "variable"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+        {"token": "punctuation.accessor.dot.matlab", "content": "."},
+        {
+            "token": "meta.function-call.parens.matlab",
+            "begin": [
+                {"token": "entity.name.function.matlab", "content": "function"},
+                {"token": "punctuation.section.parens.begin.matlab", "content": "("},
+            ],
+            "end": [{"token": "punctuation.section.parens.end.matlab", "content": ")"}],
+            "content": "function(argument)",
+        },
+    ],
 }
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_readwrite_operation(check, expected):
     """Test read/write operations"""
-    elements = parser.parse(StringIO(check))
-    assert elements, MSG_NO_MATCH
-    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    element = parser.parse_language(StringIO(check))
+    assert element, MSG_NO_MATCH
+    assert element.to_dict() == expected, MSG_NOT_PARSED

@@ -21,21 +21,25 @@ parser.initialize_repository()
 test_vector = {}
 
 test_vector["   global variable"] = {
-    "token": "global_persistent",
-    "content": "   global",
-    "captures": [{"token": "storage.modifier.matlab", "content": "global"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "storage.modifier.matlab", "content": "global"},
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+    ],
 }
 
 test_vector["   persistent variable"] = {
-    "token": "global_persistent",
-    "content": "   persistent",
-    "captures": [{"token": "storage.modifier.matlab", "content": "persistent"}],
+    "token": "source.matlab",
+    "captures": [
+        {"token": "storage.modifier.matlab", "content": "persistent"},
+        {"token": "variable.other.readwrite.matlab", "content": "variable"},
+    ],
 }
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_global_persistent(check, expected):
     """Test global persistent"""
-    parsed, elements, _ = parser.parse(StringIO(check))
-    assert parsed, MSG_NO_MATCH
-    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    element = parser.parse_language(StringIO(check))
+    assert element is not None, MSG_NO_MATCH
+    assert element.to_dict() == expected, MSG_NOT_PARSED

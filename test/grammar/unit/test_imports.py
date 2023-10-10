@@ -21,12 +21,10 @@ test_vector = {}
 
 test_vector["import module.submodule.class"] = { # import module
     "token": "meta.import.matlab",
-    "content": "import module.submodule.class",
     "captures": [
         {"token": "keyword.other.import.matlab", "content": "import"},
         {
             "token": "entity.name.namespace.matlab",
-            "content": "module.submodule.class",
             "captures": [
                 {"token": "entity.name.module.matlab", "content": "module"},
                 {"token": "punctuation.separator.matlab", "content": "."},
@@ -40,12 +38,10 @@ test_vector["import module.submodule.class"] = { # import module
 
 test_vector["import module.submodule.*"] = { #import with wildcard
     "token": "meta.import.matlab",
-    "content": "import module.submodule.*",
     "captures": [
         {"token": "keyword.other.import.matlab", "content": "import"},
         {
             "token": "entity.name.namespace.matlab",
-            "content": "module.submodule.*",
             "captures": [
                 {"token": "entity.name.module.matlab", "content": "module"},
                 {"token": "punctuation.separator.matlab", "content": "."},
@@ -60,9 +56,6 @@ test_vector["import module.submodule.*"] = { #import with wildcard
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_imports(check, expected):
     """Test imports"""
-    elements = parser.parse(StringIO(check))
-    if expected:
-        assert elements, MSG_NO_MATCH
-        assert elements[0].to_dict() == expected, MSG_NOT_PARSED
-    else:
-        assert not elements
+    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    assert parsed, MSG_NO_MATCH
+    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
