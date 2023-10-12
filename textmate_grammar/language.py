@@ -109,7 +109,8 @@ class LanguageParser(PatternsParser):
         else:
             element = None
         return element
-
+    
+    # TODO top_level should be default False, but currently unexpected bahavior
     def parse(self, stream, *args, top_level:bool=True, **kwargs):
         """The parse method for grammars for a language pattern"""
         parsed, elements, span = super().parse(stream, *args, injections=True, **kwargs)

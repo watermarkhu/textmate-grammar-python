@@ -414,7 +414,7 @@ repository:
         - include: '#string_quoted_single'
     comment: "\t\t\t\t\t  1 \t\t\t\t   2\t\t3 \t\t\t\t   4\t\t\t\t\t\t\t\t\t\t\t\t\
       \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   "
-    match: (?<=^|[^.]\n|;|,|=)([^\S\n]*)(?# A> )(\b\w+\b)([^\S\n]+)(?# B> )((?!(\+|-|\*|\.\*|\/|\.\/|\\|\.\\|\^|\.\^|==|~=|&|&&|\||\|\||=|:|>|>=|<|<=|\.\.\.)[^\S\n])[^\s({=;%][^\n;%]*)
+    match: (?<=^|[^.]\n|;|,|=)([^\S\n]*)(?# A> )(\b\w+\b)([^\S\n]+)(?# B> )((?!(\+|-|\*|\.\*|\/|\.\/|\\|\.\\|\^|\.\^|==|~=|&|&&|\||\|\||=|:|>|>=|<|<=|\.\.\.)[^\S\n]?)[^\s({=;%][^\n;%]*)
     name: meta.function-call.command.matlab
   comment_block:
     begin: (^[\s]*)(%\{)[^\S\n]*+\n
@@ -737,7 +737,7 @@ repository:
   operators:
     patterns:
     - comment: Function handle accessor
-      match: (?<!\w)@(?=[\t ]*\w)
+      match: (?<!\w)@(?=\s{,4}\w)
       name: keyword.operator.storage.at.matlab
     - comment: Metadata query for class properties
       match: (?<!\w)\?(?=\w)
@@ -775,7 +775,7 @@ repository:
     - include: '#rules_after_command_dual'
   property:
     comment: Class property or enumeration member access
-    match: (?<=\.)[a-zA-Z][a-zA-Z0-9_]*(?!\(|\{|\.\()
+    match: (?<=\.)[a-zA-Z][a-zA-Z0-9_]*(?![a-zA-Z0-9_]|(?:\(|\{|\.\())
     name: variable.other.property.matlab
   property_access:
     comment: Struct/class property dot index
@@ -802,7 +802,7 @@ repository:
     match: (?<![a-zA-Z0-9_]|\.)[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)*(?![a-zA-Z0-9_]|(?:\(|\{|\.\())
   readwrite_variable:
     comment: Top-level workspace variable highlighting
-    match: (?<![a-zA-Z0-9_]|\.)[a-zA-Z][a-zA-Z0-9_]*(?!\(|\{|\.\()
+    match: (?<![a-zA-Z0-9_]|\.)[a-zA-Z][a-zA-Z0-9_]*(?![a-zA-Z0-9_]|(?:\(|\{|\.\())
     name: variable.other.readwrite.matlab
   rules_after_command_dual:
     patterns:

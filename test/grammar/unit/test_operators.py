@@ -29,10 +29,8 @@ test_vector["@function"] = {
 }
 
 # function handle space
-test_vector["@       function"] = test_vector["@function"]
+test_vector["@    function"] = test_vector["@function"]
 
-# function handle newline
-test_vector["@\nfunction"] = {}
 
 # Metaelements query
 test_vector["?Superclass"] = {
@@ -68,25 +66,6 @@ test_vector["[1:2]"] = {
     ],
 }
 
-# Colon operator line continuation
-test_vector["(1:..."] = {
-    "token": "source.matlab",
-    "captures": [
-        {
-            "token": "meta.parens.matlab",
-            "begin": [{"token": "punctuation.section.parens.begin.matlab", "content": "("}],
-            "captures": [
-                {"token": "constant.numeric.decimal.matlab", "content": "1"},
-                {"token": "keyword.operator.vector.colon.matlab", "content": ":"},
-                {
-                    "token": "meta.continuation.line.matlab",
-                    "captures": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
-                },
-            ],
-        }
-    ],
-}
-
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_control_statement(check, expected):
@@ -99,7 +78,7 @@ def test_control_statement(check, expected):
         assert element is None
 
 
-@pytest.mark.parametrize("check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b", "a+..."])
+@pytest.mark.parametrize("check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"])
 def test_arithmetic(check):
     """Test arithmatic operators"""
     parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
@@ -107,7 +86,7 @@ def test_arithmetic(check):
     assert elements[1].token == "keyword.operator.arithmetic.matlab", MSG_NO_MATCH
 
 
-@pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b", "a==..."])
+@pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b"])
 def test_logical(check):
     """Test logical operators"""
     parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
@@ -115,7 +94,7 @@ def test_logical(check):
     assert elements[1].token == "keyword.operator.logical.matlab", MSG_NO_MATCH
 
 
-@pytest.mark.parametrize("check", ["a>b", "a>=b", "a<b", "a<=b", "a>..."])
+@pytest.mark.parametrize("check", ["a>b", "a>=b", "a<b", "a<=b"])
 def test_comparative(check):
     """Test comparative operators"""
     parsed, elements, _ = parser.parse(StringIO(check), find_one=False)

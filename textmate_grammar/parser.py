@@ -392,9 +392,9 @@ class BeginEndParser(PatternsParser):
                         pattern_at_end = end_span[1] == candidate_mid_span[1]
 
                     end_before_pattern = end_span[0] <= candidate_mid_span[0]
+                    empty_span_end = end_span[1] == end_span[0]
 
-                    if pattern_at_end and end_before_pattern:
-                        empty_span_end = end_span[1] == end_span[0]
+                    if pattern_at_end and (empty_span_end or end_before_pattern):
                         if empty_span_end:
                             # Both found capture pattern and end pattern are accepted, break pattern search
                             mid_elements.extend(candidate_mid_elements)
