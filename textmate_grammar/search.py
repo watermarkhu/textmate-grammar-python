@@ -53,7 +53,7 @@ def search_stream(
     if regex._pattern == "\Z":
         # Directly finds and returns the end of line position.
         line = stream.readline()
-        end_pos = stream.tell()
+        end_pos = stream.tell() - 1
         ANCHOR.set(end_pos)
         return (end_pos, end_pos), []
     elif "\G" in regex._pattern:

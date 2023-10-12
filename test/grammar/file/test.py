@@ -15,9 +15,9 @@ parser.initialize_repository()
 
 
 # filePath =  Path(__file__).parents[2] / "test_data" / "ValidateProps.m"
-# filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "Account.m"
+filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "Account.m"
 # filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "CircleArea.m"
-filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "argumentValidation.m"
+# filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "argumentValidation.m"
 
 element = parser.parse_file(filePath, log_level=logging.INFO)
 
