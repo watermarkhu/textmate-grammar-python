@@ -75,9 +75,9 @@ class ContentElement(object):
             **kwargs,
         )
 
-    def parse_unparsed(self) -> "ContentElement":
+    def parse_unparsed(self, **kwargs) -> "ContentElement":
         """Parses the unparsed elements contained in the current element."""
-        self.captures = self._parse_unparsed_elements(self.captures)
+        self.captures = self._parse_unparsed_elements(self.captures, **kwargs)
         return self
 
     def _list_property_to_dict(self, prop: str, **kwargs):
@@ -91,15 +91,15 @@ class ContentElement(object):
         return repr(f"{self.token}<<{content}>>({len(self.captures)})")
 
     @staticmethod
-    def _parse_unparsed_elements(elements: List["ContentElement"]):
+    def _parse_unparsed_elements(elements: List["ContentElement"], **kwargs):
         """Parses the unparsed elements of the UnparsedElement type of a property."""
         parsed_elements = []
         for element in elements:
             if type(element) is UnparsedElement:
-                for unparsed_parsed in element.parse():
-                    parsed_elements.append(unparsed_parsed.parse_unparsed())
+                for unparsed_parsed in element.parse(**kwargs):
+                    parsed_elements.append(unparsed_parsed.parse_unparsed(**kwargs))
             else:
-                parsed_elements.append(element.parse_unparsed())
+                parsed_elements.append(element.parse_unparsed(**kwargs))
         return parsed_elements
 
 
@@ -139,11 +139,11 @@ class ContentBlockElement(ContentElement):
             element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
         return tokens
 
-    def parse_unparsed(self):
+    def parse_unparsed(self, **kwargs):
         """Parses the unparsed elements contained in the current element."""
-        self.captures = self._parse_unparsed_elements(self.captures)
-        self.begin = self._parse_unparsed_elements(self.begin)
-        self.end = self._parse_unparsed_elements(self.end)
+        self.captures = self._parse_unparsed_elements(self.captures, **kwargs)
+        self.begin = self._parse_unparsed_elements(self.begin, **kwargs)
+        self.end = self._parse_unparsed_elements(self.end, **kwargs)
         return self
 
 
@@ -160,12 +160,14 @@ class UnparsedElement(ContentElement):
         self.parser = parser
         self.parser_kwargs = kwargs
 
-    def parse(self) -> List[ContentElement]:
+    def parse(self, verbosity: int = 0) -> List[ContentElement]:
         """Parses the stream stored in the UnparsedElement."""
 
         LOGGER.debug("UnparsedElement parsing", self.parser, self.span[0])
         self.stream.seek(self.span[0])
-        _, elements, _ = self.parser.parse(self.stream, boundary=self.span[1], find_one=False, **self.parser_kwargs)
+        _, elements, _ = self.parser.parse(
+            self.stream, boundary=self.span[1], find_one=False, verbosity=verbosity, **self.parser_kwargs
+        )
 
         if len(elements) == 1 and elements[0] == self:
             # UnparsedElement loop, exit loop by creating a standard ContentElement from span

@@ -129,7 +129,7 @@ class MatchParser(GrammarParser):
         super().__init__(grammar, **kwargs)
         self.exp_match = re.compile(grammar["match"])
         self.captures = self._init_captures(grammar, key="captures")
-        if "\G" in grammar["match"]:
+        if "\\G" in grammar["match"]:
             self.anchored = True
 
     def __repr__(self) -> str:
@@ -153,18 +153,20 @@ class MatchParser(GrammarParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        ws_only: bool = True,
+        allow_leading_all: bool = False,
         verbosity: int = 0,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         """The parse method for grammars for which a match pattern is provided."""
         init_pos = stream.tell()
 
-        span, captures = search_stream(stream, self.exp_match, self.captures, boundary, ws_only=ws_only)
+        span, captures = search_stream(
+            stream, self.exp_match, self.captures, boundary, allow_leading_all=allow_leading_all
+        )
         if span is None:
             LOGGER.debug(f"{self.__class__.__name__} no match", self, init_pos, verbosity)
             return False, [], (0, 0)
-        
+
         content = stream_read_pos(stream, span[0], span[1])
         LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, init_pos, verbosity)
 
@@ -212,7 +214,7 @@ class PatternsParser(GrammarParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        ws_only: bool = True,
+        allow_leading_all: bool = False,
         find_one: bool = True,
         injections: bool = False,
         verbosity: int = 0,
@@ -235,7 +237,11 @@ class PatternsParser(GrammarParser):
             for parser in patterns:
                 # Try to find patterns
                 parsed, candidate_elements, span = parser.parse(
-                    stream, boundary=boundary, ws_only=ws_only, verbosity=verbosity + 1, **kwargs
+                    stream,
+                    boundary=boundary,
+                    allow_leading_all=allow_leading_all,
+                    verbosity=verbosity + 1,
+                    **kwargs,
                 )
                 if parsed:
                     if find_one:
@@ -247,10 +253,10 @@ class PatternsParser(GrammarParser):
                 if find_one:
                     break
                 # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
-                second_try_patterns = patterns if ws_only else []
+                second_try_patterns = patterns if not allow_leading_all else []
                 for parser in second_try_patterns:
                     parsed, candidate_elements, span = parser.parse(
-                        stream, boundary=boundary, ws_only=False, verbosity=verbosity + 1, **kwargs
+                        stream, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
                     )
                     if parsed:
                         if find_one:
@@ -287,7 +293,7 @@ class BeginEndParser(PatternsParser):
         self.exp_end = re.compile(grammar["end"])
         self.captures_begin = self._init_captures(grammar, key="beginCaptures")
         self.captures_end = self._init_captures(grammar, key="endCaptures")
-        if "\G" in grammar["begin"]:
+        if "\\G" in grammar["begin"]:
             self.anchored = True
 
     def __repr__(self) -> str:
@@ -318,14 +324,14 @@ class BeginEndParser(PatternsParser):
         self,
         stream: TextIOBase,
         boundary: Optional[int] = None,
-        ws_only: bool = True,
+        allow_leading_all: bool = False,
         verbosity: int = 0,
         **kwargs,
     ) -> Tuple[bool, List[ContentElement], Tuple[int, int]]:
         """The parse method for grammars for which a begin/end pattern is provided."""
 
         begin_span, begin_elements = search_stream(
-            stream, self.exp_begin, self.captures_begin, boundary, ws_only=ws_only
+            stream, self.exp_begin, self.captures_begin, boundary, allow_leading_all=allow_leading_all
         )
         if not begin_span:
             LOGGER.debug(f"{self.__class__.__name__} no begin match", self, stream.tell(), verbosity)
@@ -346,12 +352,15 @@ class BeginEndParser(PatternsParser):
         while init_pos <= boundary:
             stream.seek(init_pos)
             parsed = False
+
+            # Create boolean that is enabled when a parser is recursively called. In this its end pattern should
+            # be applied last, otherwise the same span will be recognzed as the end pattern by the upper level parser
             apply_end_pattern_last = False
 
             # Try to find patterns first with no leading whitespace charaters allowed
             for parser in patterns:
                 parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
-                    stream, boundary=boundary, ws_only=True, verbosity=verbosity + 1, **kwargs
+                    stream, boundary=boundary, allow_leading_all=False, verbosity=verbosity + 1, **kwargs
                 )
                 if parsed:
                     if parser == self:
@@ -362,14 +371,14 @@ class BeginEndParser(PatternsParser):
             # Try to find the end pattern with no leading whitespace charaters allowed
             stream.seek(init_pos)
             end_span, candidate_end_elements = search_stream(
-                stream, self.exp_end, self.captures_end, boundary, ws_only=True
+                stream, self.exp_end, self.captures_end, boundary, allow_leading_all=False
             )
 
             if not parsed and not end_span:
                 # Try to find the patterns and end pattern allowing for leading whitespace charaters
                 for parser in patterns:
                     parsed, candidate_mid_elements, candidate_mid_span = parser.parse(
-                        stream, boundary=boundary, ws_only=False, verbosity=verbosity + 1, **kwargs
+                        stream, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
                     )
                     if parsed:
                         if parser == self:
@@ -379,7 +388,7 @@ class BeginEndParser(PatternsParser):
 
                 stream.seek(init_pos)
                 end_span, candidate_end_elements = search_stream(
-                    stream, self.exp_end, self.captures_end, boundary, ws_only=False
+                    stream, self.exp_end, self.captures_end, boundary, allow_leading_all=True
                 )
 
             if end_span:
@@ -429,7 +438,7 @@ class BeginEndParser(PatternsParser):
                                 verbosity,
                             )
 
-                    elif candidate_mid_span[0] < end_span[1]:
+                    elif candidate_mid_span[0] < end_span[0]:
                         # Capture pattern found before end pattern, continue pattern search
                         mid_elements.extend(candidate_mid_elements)
                         init_pos = candidate_mid_span[1]
@@ -458,32 +467,11 @@ class BeginEndParser(PatternsParser):
                     # Append found capture pattern and find next starting position
                     mid_elements.extend(candidate_mid_elements)
 
-                    # if stream_read_length(stream, candidate_mid_span[1] - 1, 1) == "\n":
-                    #     # Capture pattern ends with newline
-                    #     stream.seek(candidate_mid_span[1] - 1)
-                    #     end_span, candidate_end_elements = search_stream(
-                    #         stream, self.exp_end, self.captures_end, boundary, ws_only=True
-                    #     )
-                    #     if end_span and end_span[1] <= candidate_mid_span[1]:
-                    #         # Potential end pattern can be found one character before the end of the
-                    #         # found capture pattern, start next pattern search round here.
-                    #         init_pos = candidate_mid_span[1] - 1
-                    #     else:
-                    #         # Start next pattern search round from the end of the found capture pattenr
-                    #         init_pos = candidate_mid_span[1]
-
-                    #     LOGGER.debug(
-                    #         f"{self.__class__.__name__} capture: ends with newline, continue",
-                    #         self,
-                    #         stream.tell(),
-                    #         verbosity,
-                    #     )
-
                     if stream_read_length(stream, candidate_mid_span[1], 1, skip_newline=False) == "\n":
                         # Next character after capture pattern is newline
                         stream.seek(candidate_mid_span[1])
                         end_span, candidate_end_elements = search_stream(
-                            stream, self.exp_end, self.captures_end, boundary, ws_only=True
+                            stream, self.exp_end, self.captures_end, boundary, allow_leading_all=False
                         )
                         if end_span and end_span[1] <= candidate_mid_span[1] + 1:
                             # Potential end pattern can be found directly after the found capture pattern
@@ -519,7 +507,7 @@ class BeginEndParser(PatternsParser):
 
             if apply_end_pattern_last:
                 init_pos += 1
-                
+
             if first_run:
                 # Skip all parsers that were anchored to the begin pattern after the first round
                 patterns = [parser for parser in patterns if not parser.anchored]
@@ -527,13 +515,13 @@ class BeginEndParser(PatternsParser):
         else:
             # Did not break out of while loop, set close_pos to boundary
             close_pos = boundary
-            end_span = (0,boundary)
+            end_span = (0, boundary)
 
         start = begin_span[1] if self.between_content else begin_span[0]
 
         content = stream_read_pos(stream, start, close_pos)
         LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start, verbosity)
-        
+
         # Construct output elements
         if self.token:
             elements = [

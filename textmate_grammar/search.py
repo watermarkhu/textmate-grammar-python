@@ -33,7 +33,8 @@ def search_stream(
     regex: Pattern,
     parsers: Dict[int, "GrammarParser"] = {},
     boundary: Optional[int] = None,
-    ws_only: bool = True,
+    allow_leading_ws: bool = True,
+    allow_leading_all: bool = False,
     **kwargs,
 ) -> Tuple[Tuple[int, int], List[ContentElement]]:
     """Matches the stream against a capture group.
@@ -43,9 +44,9 @@ def search_stream(
     must match the number of capture groups of the expression, or there must be a single parser
     and no capture groups.
 
-    In a grammar that contains a pattern, first a round of search is performed while ws_only is
-    set to True, trying to find a match directy from the initial position. If no matches are found,
-    a second round is initiated with ws_only set to False, allowing for non-tokenized whitespace
+    In a grammar that contains a pattern, first a round of search is performed while allow_leading_all
+    is set to False, trying to find a match directy from the initial position. If no matches are found,
+    a second round is initiated with allow_leading_all set to True, allowing for non-tokenized
     charaters to be skipped in the matching.
     """
 
@@ -91,9 +92,10 @@ def search_stream(
     # Check that no charaters are skipped in case ws-only is enabled
     if matching:
         leading_string = stream_read_pos(stream, init_pos, match_shift + matching.start())
-        if ws_only and leading_string and not leading_string.isspace():
+        if leading_string and not allow_leading_all and not (allow_leading_ws and leading_string.isspace()):
             stream.seek(init_pos)
             return None, []
+            
     else:
         stream.seek(init_pos)
         return None, []
@@ -105,6 +107,9 @@ def search_stream(
     if boundary and match_span[1] > boundary:
         stream.seek(init_pos)
         return None, []
+    
+    if leading_string and not allow_leading_all and not leading_string.isspace():
+        LOGGER.warning(f"skipping < {leading_string} >", position=init_pos)
     
     # Include \n in match span if regex matches on end of line $
     if "$" in regex._pattern and matching.end() + 1 == len(line):

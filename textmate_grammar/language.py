@@ -111,22 +111,20 @@ class LanguageParser(PatternsParser):
         return element
     
     # TODO top_level should be default False, but currently unexpected bahavior
-    def parse(self, stream, *args, top_level:bool=True, **kwargs):
+    def parse(self, stream, *args, top_level:bool=True, verbosity: int = 0, **kwargs):
         """The parse method for grammars for a language pattern"""
-        parsed, elements, span = super().parse(stream, *args, injections=True, **kwargs)
+        parsed, elements, span = super().parse(stream, *args, injections=True, verbosity=verbosity, **kwargs)
 
         if top_level:
 
-            LOGGER.info("-------------------------------", parser=self)
-            LOGGER.info("Start parsing unparsed elements", parser=self)
-            LOGGER.info("-------------------------------", parser=self)
+            LOGGER.info("@ parsing unparsed", parser=self, verbosity=verbosity)
 
             parsed_elements = []
             for element in elements:
                 if isinstance(element, UnparsedElement):
-                    parsed_elements.extend(element.parse())
+                    parsed_elements.extend(element.parse(verbosity=verbosity))
                 else:
-                    parsed_elements.append(element.parse_unparsed())
+                    parsed_elements.append(element.parse_unparsed(verbosity=verbosity))
 
             if parsed:
                 stream.seek(span[1])

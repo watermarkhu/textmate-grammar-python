@@ -6,8 +6,35 @@ if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
+MAX_LENGTH = 79
+
+class LogFormatter(logging.Formatter):
+
+    green = "\x1b[1;32m"
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(name)s:%(message)s"
+
+    FORMATS = {
+        logging.DEBUG: green + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+    
 class Logger(object):
     """The logger object for the grammar parsers."""
+
+    long_msg_div = "\x1b[1;32m ... \x1b[0m"
 
     def __init__(self, **kwargs):
         self.id = None
@@ -15,7 +42,9 @@ class Logger(object):
         self.content_decimals = 4
         self.scope = "UNKNOWN"
         self.logger = logging.getLogger("textmate_grammar")
-        self.logger.addHandler(logging.StreamHandler())
+        channel = logging.StreamHandler()
+        channel.setFormatter(LogFormatter())
+        self.logger.addHandler(channel)
 
     def configure(self, parser: "GrammarParser", length: int, level: int = logging.CRITICAL):
         """Configures the logger to a specific grammar and content length"""
@@ -38,11 +67,17 @@ class Logger(object):
             msg_pos = "." * self.content_decimals
         if parser:
             parser_id = parser.token if parser.token else parser.key
-            msg_id = "." * (self.max_token_length - len(parser_id)) + parser_id
+            msg_id = "." * (self.max_token_length - len(parser_id)) + parser_id[:self.max_token_length]
         else:
             msg_id = "." * self.max_token_length
 
-        return f"{self.scope}:{msg_pos}:{msg_id}: {'.'*verbosity}{message}"
+        vb_message = f"{'.'*verbosity}{message}"
+
+        if len(vb_message) > MAX_LENGTH:
+            half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])
+            vb_message = vb_message[:half_length] + self.long_msg_div + vb_message[-half_length:]
+
+        return f"{self.scope}:{msg_pos}:{msg_id}: {vb_message}"
 
     def debug(self, *args, **kwargs):
         if self.logger.getEffectiveLevel() > logging.DEBUG:
