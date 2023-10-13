@@ -1,5 +1,7 @@
 from typing import List, Tuple, TYPE_CHECKING
 from pprint import pprint
+from collections import defaultdict
+from itertools import groupby
 from io import TextIOBase
 
 from .read import stream_read_pos
@@ -7,9 +9,6 @@ from .logging import LOGGER
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
-
-
-FLAT_TYPE = List[Tuple[str, Tuple[int, int], str]]
 
 
 class ContentElement(object):
@@ -51,14 +50,19 @@ class ContentElement(object):
                 else self.captures
             )
         return out_dict
-
-    def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
-        """Converts the object to a flattened array of tokens."""
-        if parse_unparsed:
-            self.parse_unparsed()
-        tokens.append((self.token, self.span, self.content))
-        for element in self.captures:
-            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
+    
+    def flatten(self) -> List[Tuple[Tuple[int, int], str, List[str]]]:
+        """Converts the object to a flattened array of tokens per index."""
+        items_dict = self._token_by_index()
+        tokens = []
+        for key, group in groupby(sorted(items_dict.items()), lambda x: x[1]):
+            group_tokens = list(group)
+            start_index = group_tokens[0][0]
+            group_length = len(group_tokens)
+            span = (start_index, start_index + group_length)
+            content_start = start_index - self.span[0]
+            content = self.content[content_start:content_start+group_length]
+            tokens.append([span, content, key])
         return tokens
 
     def print(self, flatten: bool = False, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
@@ -79,6 +83,15 @@ class ContentElement(object):
         """Parses the unparsed elements contained in the current element."""
         self.captures = self._parse_unparsed_elements(self.captures, **kwargs)
         return self
+    
+    def _token_by_index(self, items_dict: dict = defaultdict(list)) -> dict:
+        self.parse_unparsed()
+        for ind in range(self.span[0], self.span[1]):
+            items_dict[ind].append(self.token)
+        for element in self.captures:
+            element._token_by_index(items_dict=items_dict)
+        return items_dict
+    
 
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
@@ -126,19 +139,6 @@ class ContentBlockElement(ContentElement):
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
 
-    def flatten(self, tokens: FLAT_TYPE = [], parse_unparsed: bool = False, **kwargs) -> FLAT_TYPE:
-        """Converts the object to a flattened array of tokens."""
-        if parse_unparsed:
-            self.parse_unparsed()
-        tokens.append((self.token, self.span, self.content))
-        for element in self.begin:
-            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
-        for element in self.captures:
-            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
-        for element in self.end:
-            element.flatten(tokens=tokens, parse_unparsed=parse_unparsed, **kwargs)
-        return tokens
-
     def parse_unparsed(self, **kwargs):
         """Parses the unparsed elements contained in the current element."""
         self.captures = self._parse_unparsed_elements(self.captures, **kwargs)
@@ -146,6 +146,18 @@ class ContentBlockElement(ContentElement):
         self.end = self._parse_unparsed_elements(self.end, **kwargs)
         return self
 
+    def _token_by_index(self, items_dict: dict = defaultdict(list)) -> dict:
+        """Converts the object to a flattened array of tokens."""
+        self.parse_unparsed()
+        for ind in range(self.span[0], self.span[1]):
+            items_dict[ind].append(self.token)
+        for element in self.begin:
+            element._token_by_index(items_dict=items_dict)
+        for element in self.captures:
+            element._token_by_index(items_dict=items_dict)
+        for element in self.end:
+            element._token_by_index(items_dict=items_dict)
+        return items_dict
 
 class UnparsedElement(ContentElement):
     """The to-be-parsed Element type.
