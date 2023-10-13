@@ -1,3 +1,6 @@
 [submodule "syntaxes"]
-	path = syntaxes
+	path = syntaxes/matlab
 	url = https://github.com/mathworks/MATLAB-Language-grammar
+[submodule "vscode-markdown-tm-grammar"]
+	path = syntaxes/markdown
+	url = https://github.com/microsoft/vscode-markdown-tm-grammar

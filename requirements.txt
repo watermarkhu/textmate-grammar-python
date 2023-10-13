@@ -1,2 +1,3 @@
-regex
 onigurumacffi
+charset-normalizer
+pyyaml

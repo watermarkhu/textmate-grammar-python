@@ -1,54 +1,23 @@
 # sphinx-matlab
 
+## Sources
+- [Textmate guide](https://www.apeth.com/nonblog/stories/textmatebundle.html)
+- [VSCode Syntax Highlighting guide](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide)
+- [vscode-textmate](https://github.com/microsoft/vscode-textmate)
+
+## TextMate 2 features that are not used
+- begin/while match pattern
+- [Format strings](https://macromates.com/blog/2011/format-strings/)
+
+## TODO
+- [x] Use yaml in stead of json
+- [x] Grammar initialization with *repository* at any level
+- [x] Proper line-by-line parsing
+- [x] `\G` anchoring
+- [x] Option to *disable* a grammar
+- [x] Apply *applyEndPatternLast* option
+- [ ] Something with *injections*
+
 ## Tokenization
 
-The tokenization engine is based on the [syntax](https://github.com/mathworks/MATLAB-Language-grammar) created by Mathworks for its integration in IDE's such as VSCode. The syntax is a recursive list of regular expressions, normally read by the [TypeScript engine](https://github.com/microsoft/TypeScript-TmLanguage). The work here hopes also to improve the syntax such to improve the MATLAB [extension](https://github.com/mathworks/matlab-extension-for-vscode) for VSCode. The overview of all the scopes in the syntax is listed below. 
-
-- 🔲 No work done
-- ⚠️ Issue found
-- ⚒️ PR submitted
-- ✅ Done
-
-| Scope                     | No issues with regex  | Implemented   | Test  | Comment                                       |
-|---------------------------|-----------------------|---------------|-------|-----------------------------------------------|
-| rules_before_command_dual | 🔲                     | 🔲             | 🔲     |                                               |
-| rules_after_command_dual  | 🔲                     | 🔲             | 🔲     |                                               |
-| anonymous_function        | ⚒️                     | ✅             | ✅     |                                               |
-| blocks                    | 🔲                     | 🔲             | 🔲     |                                               |
-| classdef                  | 🔲                     | 🔲             | 🔲     |                                               |
-| command_dual              | 🔲                     | 🔲             | 🔲     |                                               |
-| comment_block             | ✅                     | ✅             | ✅     |                                               |
-| comments                  | ✅                     | ✅             | ✅     |                                               |
-| control_statements        | 🔲                     | 🔲             | 🔲     |                                               |
-| function                  | 🔲                     | 🔲             | 🔲     |                                               |
-| function_call             | 🔲                     | 🔲             | 🔲     |                                               |
-| global_persistent         | 🔲                     | 🔲             | 🔲     |                                               |
-| import                    | ✅                     | ✅             | ✅     |                                               |
-| indexing_by_expression    | 🔲                     | 🔲             | 🔲     |                                               |
-| multiple_assignment       | 🔲                     | 🔲             | 🔲     |                                               |
-| parentheses               | 🔲                     | 🔲             | 🔲     |                                               |
-| single_assignment         | 🔲                     | 🔲             | 🔲     |                                               |
-| square_brackets           | 🔲                     | 🔲             | 🔲     |                                               |
-| curly_brackets            | 🔲                     | 🔲             | 🔲     |                                               |
-| indexing_curly_brackets   | 🔲                     | 🔲             | 🔲     |                                               |
-| line_continuation         | ✅                     | ✅             | ✅     |                                               |
-| shell_string              | 🔲                     | 🔲             | 🔲     |                                               |
-| string_quoted_double      | 🔲                     | 🔲             | 🔲     |                                               |
-| string_quoted_single      | 🔲                     | 🔲             | 🔲     |                                               |
-| string                    | ✅                     | ✅             | ✅     |                                               |
-| superclass_method_call    | 🔲                     | 🔲             | 🔲     |                                               |
-| conjugate_transpos        | 🔲                     | 🔲             | 🔲     |                                               |
-| transpose                 | 🔲                     | 🔲             | 🔲     |                                               |
-| constants                 | 🔲                     | 🔲             | 🔲     |                                               |
-| variables                 | 🔲                     | 🔲             | 🔲     |                                               |
-| end_in_parentheses        | 🔲                     | 🔲             | 🔲     |                                               |
-| numbers                   | ✅                     | ✅             | ✅     |                                               |
-| operators                 | 🔲                     | 🔲             | 🔲     |                                               |
-| punctuation               | 🔲                     | 🔲             | 🔲     |                                               |
-| validators                | 🔲                     | 🔲             | 🔲     |                                               |
-| braced_validator_list     | 🔲                     | 🔲             | 🔲     |                                               |
-| validator_strings         | 🔲                     | 🔲             | 🔲     |                                               |
-| readwrite_operations      | 🔲                     | 🔲             | 🔲     |                                               |
-| property                  | 🔲                     | 🔲             | 🔲     |                                               |
-| readwrite_variable        | 🔲                     | 🔲             | 🔲     |                                               |
-| property_access           | 🔲                     | 🔲             | 🔲     |                                               |
+The tokenization engine is based on the [syntax](https://github.com/mathworks/MATLAB-Language-grammar) created by Mathworks for its integration in IDE's such as VSCode. The syntax is a recursive list of regular expressions, normally read by the [TypeScript engine](https://github.com/microsoft/TypeScript-TmLanguage). The work here hopes also to improve the syntax such to improve the MATLAB [extension](https://github.com/mathworks/matlab-extension-for-vscode) for VSCode.
