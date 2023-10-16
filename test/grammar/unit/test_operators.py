@@ -1,12 +1,12 @@
 import sys
+import pytest
 import logging
 from pathlib import Path
-from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
-import pytest
+from textmate_grammar.handler import ContentHandler
 from textmate_grammar.language import LanguageParser
 from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
@@ -70,7 +70,7 @@ test_vector["[1:2]"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_control_statement(check, expected):
     """Test operator control statements"""
-    element = parser.parse_language(StringIO(check))
+    element = parser.parse_language(ContentHandler(check))
     if expected:
         assert element, MSG_NO_MATCH
         assert element.to_dict() == expected, MSG_NOT_PARSED
@@ -81,7 +81,7 @@ def test_control_statement(check, expected):
 @pytest.mark.parametrize("check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"])
 def test_arithmetic(check):
     """Test arithmatic operators"""
-    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
     assert parsed, MSG_NO_MATCH
     assert elements[1].token == "keyword.operator.arithmetic.matlab", MSG_NO_MATCH
 
@@ -89,7 +89,7 @@ def test_arithmetic(check):
 @pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b"])
 def test_logical(check):
     """Test logical operators"""
-    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
     assert parsed, MSG_NO_MATCH
     assert elements[1].token == "keyword.operator.logical.matlab", MSG_NO_MATCH
 
@@ -97,6 +97,6 @@ def test_logical(check):
 @pytest.mark.parametrize("check", ["a>b", "a>=b", "a<b", "a<=b"])
 def test_comparative(check):
     """Test comparative operators"""
-    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
     assert parsed, MSG_NO_MATCH
     assert elements[1].token == "keyword.operator.relational.matlab", MSG_NO_MATCH

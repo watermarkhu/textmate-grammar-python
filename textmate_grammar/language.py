@@ -1,12 +1,13 @@
 from typing import Union, Optional
 from pathlib import Path
-from io import StringIO, TextIOBase
 import logging
 
-from .parser import GrammarParser, PatternsParser, init_parser
-from .exceptions import IncompatibleFileType, FileNotFound
-from .elements import ContentElement, UnparsedElement
+from .parser import GrammarParser, PatternsParser
+from .exceptions import IncompatibleFileType
+from .elements import ContentElement
 from .logging import LOGGER
+from .handler import ContentHandler, POS
+
 
 LANGUAGE_PARSERS = {}
 
@@ -41,12 +42,12 @@ class LanguageParser(PatternsParser):
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
             for key, parser_grammar in repo.items():
-                self.repository[key] = init_parser(parser_grammar, key=key, language=self)
+                self.repository[key] = GrammarParser.initialize(parser_grammar, key=key, language=self)
 
         # Initialize injections
         injections = grammar.get("injections", {})
         for key, injected_grammar in injections.items():
-            self.injections[key] = init_parser(injected_grammar, key=key, language=self)
+            self.injections[key] = GrammarParser.initialize(injected_grammar, key=key, language=self)
 
         # Update language parser store
         LANGUAGE_PARSERS[grammar.get("scopeName", "myScope")] = self
@@ -67,9 +68,7 @@ class LanguageParser(PatternsParser):
             parser_to_inject = self._find_include(key.split(" ")[0])  # TODO this is a hack
             parser_to_inject.injected_patterns.append(injected_parser)
 
-    def parse_file(
-        self, filePath: Union[str, Path], log_level: int = logging.CRITICAL, **kwargs
-    ) -> Optional[ContentElement]:
+    def parse_file(self, filePath: str | Path, log_level: int = logging.CRITICAL, **kwargs) -> ContentElement | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -77,62 +76,31 @@ class LanguageParser(PatternsParser):
         if filePath.suffix.split(".")[-1] not in self.file_types:
             raise IncompatibleFileType(extensions=self.file_types)
 
-        if not filePath.exists():
-            raise FileNotFound(str(filePath))
-
-        # Open file and replace Windows/Mac line endings
-        with open(filePath, "r") as file:
-            content = file.read()
-        content = content.replace("\r\n", "\n")
-        content = content.replace("\r", "\n")
+        handler = ContentHandler.from_path(filePath)
 
         # Configure logger
-        LOGGER.configure(self, length=len(content), level=log_level)
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths), level=log_level)
 
-        # Parse the content as a stream
-        stream = StringIO(content)
+        return self.parse_language(handler, **kwargs)
 
-        return self.parse_language(stream, **kwargs)
-    
-    def parse_language(self, stream: TextIOBase, **kwargs):
+    def parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
         """Parses the current stream with the language scope."""
 
-        stream.seek(0)
-        parsed, elements, span = self.parse(stream, find_one=False, top_level=True, **kwargs)
+        parsed, elements, span = self.parse(handler, (0, 0), **kwargs)
 
         if parsed:
-            stream.seek(0)
-            content = stream.read()
             element = ContentElement(
-                token=self.token, grammar=self.grammar, content=content, span=span, captures=elements
+                token=self.token, grammar=self.grammar, content=handler.source, indices=handler.range(*span), captures=elements
             )
         else:
             element = None
         return element
-    
-    # TODO top_level should be default False, but currently unexpected bahavior
-    def parse(self, stream, *args, top_level:bool=True, verbosity: int = 0, **kwargs):
-        """The parse method for grammars for a language pattern"""
-        parsed, elements, span = super().parse(stream, *args, injections=True, verbosity=verbosity, **kwargs)
 
-        if top_level:
+    def parse(
+        self, handler: ContentHandler, starting: POS = (0, 0), find_one: bool = False, **kwargs
+    ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
+        return super().parse(handler, starting, find_one=find_one, injections=True, **kwargs)
 
-            LOGGER.info("@ parsing unparsed", parser=self, verbosity=verbosity)
-
-            parsed_elements = []
-            for element in elements:
-                if isinstance(element, UnparsedElement):
-                    parsed_elements.extend(element.parse(verbosity=verbosity))
-                else:
-                    parsed_elements.append(element.parse_unparsed(verbosity=verbosity))
-
-            if parsed:
-                stream.seek(span[1])
-
-            return parsed, parsed_elements, span
-        
-        else:
-            return parsed, elements, span
 
 def gen_repositories(grammar, key="repository"):
     """Recursively gets all repositories from a grammar dictionary"""

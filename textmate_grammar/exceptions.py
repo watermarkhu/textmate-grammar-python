@@ -1,6 +1,3 @@
-from typing import List
-
-
 class IncludedParserNotFound(Exception):
     def __init__(self, key: str = "UNKNOWN", **kwargs) -> None:
         message = f"Included parser <{key}> not found in store."
@@ -8,7 +5,7 @@ class IncludedParserNotFound(Exception):
 
 
 class IncompatibleFileType(Exception):
-    def __init__(self, extensions: List[str], **kwargs) -> None:
+    def __init__(self, extensions: list[str], **kwargs) -> None:
         message = f"Input file must have extension {' / '.join(extensions)}"
         super().__init__(message, **kwargs)
 

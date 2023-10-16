@@ -1,12 +1,12 @@
 import sys
+import pytest
 import logging
 from pathlib import Path
-from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
-import pytest
+from textmate_grammar.handler import ContentHandler
 from textmate_grammar.language import LanguageParser
 from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
@@ -87,6 +87,6 @@ test_vector["variable.function(argument)"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_readwrite_operation(check, expected):
     """Test read/write operations"""
-    element = parser.parse_language(StringIO(check))
+    element = parser.parse_language(ContentHandler(check))
     assert element, MSG_NO_MATCH
     assert element.to_dict() == expected, MSG_NOT_PARSED

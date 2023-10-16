@@ -1,12 +1,12 @@
 import sys
+import pytest
 import logging
 from pathlib import Path
-from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
-import pytest
+from textmate_grammar.handler import ContentHandler
 from textmate_grammar.language import LanguageParser
 from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
@@ -88,7 +88,7 @@ transpose_test_vector = {
 @pytest.mark.parametrize("check,expected", conjugate_transpose_test_vector.items())
 def test_conjugate_transpose(check, expected):
     """Test conjugate transpose"""
-    element = parser.parse_language(StringIO(check))
+    element = parser.parse_language(ContentHandler(check))
     assert element, MSG_NO_MATCH
     assert element.to_dict() == expected, MSG_NOT_PARSED
 
@@ -96,6 +96,6 @@ def test_conjugate_transpose(check, expected):
 @pytest.mark.parametrize("check,expected", transpose_test_vector.items())
 def test_transpose(check, expected):
     """Test transpose"""
-    element = parser.parse_language(StringIO(check))
+    element = parser.parse_language(ContentHandler(check))
     assert element, MSG_NO_MATCH
     assert element.to_dict() == expected, MSG_NOT_PARSED
