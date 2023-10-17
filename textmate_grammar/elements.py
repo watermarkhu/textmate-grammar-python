@@ -6,7 +6,7 @@ from itertools import groupby
 from .handler import POS
 
 if TYPE_CHECKING:
-    from .parser import Captures
+    from .parser import Capture
 
 
 TOKEN_DICT = dict[POS, list[str]]
@@ -21,7 +21,7 @@ class ContentElement(object):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        captures: "list[ContentElement | Captures]" = [],
+        captures: "list[ContentElement | Capture]" = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
@@ -101,7 +101,7 @@ class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
 
     def __init__(
-        self, begin: "list[ContentElement | Captures]" = [], end: "list[ContentElement | Captures]" = [], **kwargs
+        self, begin: "list[ContentElement | Capture]" = [], end: "list[ContentElement | Capture]" = [], **kwargs
     ) -> None:
         super().__init__(**kwargs)
         self.begin = begin

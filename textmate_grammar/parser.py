@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 import onigurumacffi as re
 
+from .logging import LOGGER
 from .exceptions import IncludedParserNotFound
 from .elements import ContentElement, ContentBlockElement
 from .handler import ContentHandler, Pattern, POS
 from .captures import Capture, parse_captures
-from .logging import LOGGER
 
 if TYPE_CHECKING:
     from .language import LanguageParser

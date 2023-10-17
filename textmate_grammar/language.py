@@ -2,10 +2,10 @@ from typing import Union, Optional
 from pathlib import Path
 import logging
 
-from .parser import GrammarParser, PatternsParser
-from .exceptions import IncompatibleFileType
-from .elements import ContentElement
 from .logging import LOGGER
+from .exceptions import IncompatibleFileType
+from .parser import GrammarParser, PatternsParser
+from .elements import ContentElement
 from .handler import ContentHandler, POS
 
 

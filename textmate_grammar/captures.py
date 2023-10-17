@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from .handler import ContentHandler, Pattern, Match
 from .logging import LOGGER
+from .handler import ContentHandler, Pattern, Match
 from .elements import ContentElement, ContentBlockElement
 
 if TYPE_CHECKING:

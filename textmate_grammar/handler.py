@@ -1,8 +1,7 @@
-import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern, _Match as Match
 
-from .exceptions import FileNotFound, ImpossibleSpan
 from .logging import LOGGER
+from .exceptions import FileNotFound, ImpossibleSpan
 
 
 POS = tuple[int, int]
@@ -10,7 +9,13 @@ POS = tuple[int, int]
 
 class ContentHandler(object):
 
-    end_of_string = re.compile("[^\\n]*\n")
+    """The handler object targetted for parsing.
+    
+    To parse a string or file, it needs to be loaded into the ContentHandler object. 
+    The handler will take care of all read actions on the input stream, where the contents
+    are index by a tuple (line_number, line_position). Additionally, the handler contains the
+    search method to match a search span against a input oniguruma regex pattern.
+    """
 
     def __init__(self, source: str) -> None:
         self.source = source
