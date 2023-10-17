@@ -90,7 +90,11 @@ class LanguageParser(PatternsParser):
 
         if parsed:
             element = ContentElement(
-                token=self.token, grammar=self.grammar, content=handler.source, indices=handler.chars(*span), captures=elements
+                token=self.token,
+                grammar=self.grammar,
+                content=handler.source,
+                characters=handler.chars(*span),
+                captures=elements,
             )
         else:
             element = None

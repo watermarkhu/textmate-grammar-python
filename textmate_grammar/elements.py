@@ -20,17 +20,17 @@ class ContentElement(object):
         token: str,
         grammar: dict,
         content: str,
-        indices: dict[POS, str],
+        characters: dict[POS, str],
         captures: "list[ContentElement | Captures]" = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
         self.content = content
-        self.indices = indices
+        self.characters = characters
         self.captures = captures
 
     def __eq__(self, other):
-        if self.grammar == other.grammar and self.indices == other.indices:
+        if self.grammar == other.grammar and self.characters == other.characters:
             return True
         else:
             return False
@@ -57,7 +57,7 @@ class ContentElement(object):
             starting = group_tokens[0][0]
             content = ""
             for pos, _ in group_tokens:
-                content += self.indices[pos]
+                content += self.characters[pos]
             if content:
                 tokens.append([starting, content, key])
         return tokens
@@ -78,7 +78,7 @@ class ContentElement(object):
 
     def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
         """Recursively tokenize every index between start and close."""
-        for pos in self.indices.keys():
+        for pos in self.characters.keys():
             token_dict[pos].append(self.token)
 
         # Tokenize child elements

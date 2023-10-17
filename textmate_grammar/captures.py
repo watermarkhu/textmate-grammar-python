@@ -8,10 +8,12 @@ if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
-def dispatch_list(captures: "list[ContentElement | Captures]"):
+def dispatch_list(captures: "list[ContentElement | Capture]"):
+    """Dispatches all captured parsers in the list.
+    """
     elements = []
     for capture in captures:
-        if isinstance(capture, Captures):
+        if isinstance(capture, Capture):
             captured_elements = dispatch_list(capture.dispatch())
             elements.extend(captured_elements)
         else:
@@ -20,8 +22,9 @@ def dispatch_list(captures: "list[ContentElement | Captures]"):
 
 
 def parse_captures(
-    captures: "list[ContentElement | Captures]", parent: ContentElement | None = None
+    captures: "list[ContentElement | Capture]", parent: ContentElement | None = None
 ) -> list[ContentElement]:
+    """Dispatches all nested captured parsers in list of elements."""
     elements = dispatch_list(captures)
 
     if parent:
@@ -36,7 +39,12 @@ def parse_captures(
     return elements
 
 
-class Captures(object):
+class Capture(object):
+    """A captured matching group.
+    
+    After mathing, any pattern can have a number of capture groups for which subsequent parsers can be defined. 
+    The Capture object stores this subsequent parse to be dispatched at a later moment.
+    """
     def __init__(
         self,
         handler: ContentHandler,
@@ -60,6 +68,7 @@ class Captures(object):
         return f"@captures<<{content}>>"
 
     def dispatch(self):
+        """Dispatches the remaining parse of the capture group."""
         elements = []
         for group_id, parser in self.parsers.items():
             if group_id > self.pattern.number_of_captures():
@@ -68,6 +77,7 @@ class Captures(object):
 
             group_span = self.matching.span(group_id)
 
+            # Empty group
             if group_span[0] == group_span[1]:
                 continue
 
@@ -78,7 +88,8 @@ class Captures(object):
                 LOGGER.warning("Parser loop detected, continuing...", self, self.starting)
                 continue
 
-            parsed, captures, capture_span = parser._parse(
+            # Call the parse
+            parsed, captured_elements, span = parser._parse(
                 self.handler,
                 starting=group_starting,
                 boundary=group_boundary,
@@ -86,24 +97,26 @@ class Captures(object):
                 **self.kwargs,
             )
 
+            # Create ContentElement of token is defined
             if parser.token:
                 if parsed and not type(parser) == "TokenParser":
                     element = ContentElement(
                         token=parser.token,
                         grammar=parser.grammar,
-                        content=self.handler.read_pos(*capture_span),
-                        indices=self.handler.chars(*capture_span),
-                        captures=captures,
+                        content=self.handler.read_pos(*span),
+                        characters=self.handler.chars(*span),
+                        captures=captured_elements,
                     )
                 else:
                     element = ContentElement(
                         token=parser.token,
                         grammar=parser.grammar,
                         content=self.handler.read_pos(group_starting, group_boundary),
-                        indices=self.handler.chars(group_starting, group_boundary),
+                        characters=self.handler.chars(group_starting, group_boundary),
                     )
                 elements.append(element)
+            # Return captures 
             else:
-                elements.extend(captures)
+                elements.extend(captured_elements)
 
         return elements

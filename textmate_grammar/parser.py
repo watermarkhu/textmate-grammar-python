@@ -5,7 +5,7 @@ import onigurumacffi as re
 from .exceptions import IncludedParserNotFound
 from .elements import ContentElement, ContentBlockElement
 from .handler import ContentHandler, Pattern, POS
-from .captures import Captures, parse_captures
+from .captures import Capture, parse_captures
 from .logging import LOGGER
 
 if TYPE_CHECKING:
@@ -65,8 +65,28 @@ class GrammarParser(ABC):
         else:
             return self.language._find_include_scopes(key)
 
+    @abstractmethod
+    def _parse(
+        self,
+        handler: ContentHandler,
+        starting: POS,
+        boundary: POS | None = None,
+        verbosity: int = 0,
+        **kwargs,
+    ) -> (bool, list[ContentElement], tuple[int, int] | None):
+        """The abstract method which all parsers much implement
+
+        The _parse method is called by parse, which will additionally parse any nested Capture elements.
+        The _parse method should contain all the rules for the extended parser.
+        """
+        pass
+
     def initialize_repository(self, **kwargs) -> None:
-        """When the grammar has patterns, this method should called to initialize its inclusions."""
+        """Initializes the repository's inclusions.
+
+        When the grammar has patterns, this method should called to initialize its inclusions.
+        This should occur after all sub patterns have been initialized.
+        """
         pass
 
     def parse(
@@ -90,25 +110,20 @@ class GrammarParser(ABC):
         boundary: POS | None = None,
         parsers: dict[int, "GrammarParser"] = {},
         **kwargs,
-    ) -> (tuple[POS, POS] | None, str, "list[Captures]"):
+    ) -> (tuple[POS, POS] | None, str, "list[Capture]"):
+        """Matches a pattern and its capture groups.
+
+        Matches the pattern on the handler between the starting and boundary positions. If a pattern is matched,
+        its capture groups are initalized as Capture objects. These are only parsed after the full handler has been
+        parsed. This occurs in GrammarParser.parse when calling parse_captures.
+        """
         matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
-            captures = Captures(handler, pattern, matching, parsers, starting, boundary, **kwargs)
+            captures = Capture(handler, pattern, matching, parsers, starting, boundary, **kwargs)
             return span, matching.group(), [captures]
         else:
             return span, "", []
-
-    @abstractmethod
-    def _parse(
-        self,
-        handler: ContentHandler,
-        starting: POS,
-        boundary: POS | None = None,
-        verbosity: int = 0,
-        **kwargs,
-    ) -> (bool, list[ContentElement], tuple[int, int] | None):
-        pass
 
 
 class TokenParser(GrammarParser):
@@ -136,7 +151,7 @@ class TokenParser(GrammarParser):
         content = handler.read_pos(starting, boundary)
         elements = [
             ContentElement(
-                token=self.token, grammar=self.grammar, content=content, indices=handler.chars(starting, boundary)
+                token=self.token, grammar=self.grammar, content=content, characters=handler.chars(starting, boundary)
             )
         ]
         handler.anchor = boundary[1]
@@ -203,7 +218,7 @@ class MatchParser(GrammarParser):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    indices=handler.chars(*span),
+                    characters=handler.chars(*span),
                     captures=captures,
                 )
             ]
@@ -541,7 +556,7 @@ class BeginEndParser(PatternsParser):
                     # No capture patterns nor end patterns found. Skip the current line.
                     line = handler.read_line(current)
 
-                    if line and not line.isspace() :
+                    if line and not line.isspace():
                         LOGGER.warning(
                             f"No patterns found in line, skipping < {repr(line)} >", self, current, verbosity
                         )
@@ -571,7 +586,7 @@ class BeginEndParser(PatternsParser):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    indices=handler.chars(start, closing),
+                    characters=handler.chars(start, closing),
                     captures=mid_elements,
                     begin=begin_elements,
                     end=end_elements,
