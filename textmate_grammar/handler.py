@@ -1,3 +1,4 @@
+import onigurumacffi as re
 from onigurumacffi import _Pattern as Pattern, _Match as Match
 
 from .exceptions import FileNotFound, ImpossibleSpan
@@ -8,6 +9,9 @@ POS = tuple[int, int]
 
 
 class ContentHandler(object):
+
+    end_of_string = re.compile("[^\\n]*\n")
+
     def __init__(self, source: str) -> None:
         self.source = source
         self.lines = [line + "\n" for line in source.split("\n")]
@@ -116,6 +120,9 @@ class ContentHandler(object):
             readout = self.lines[start_pos[0]][start_pos[1] :]
             unread_length = length - remainder
             ln = start_pos[0] + 1
+            if ln >= len(self.lines):
+                return ""
+            
             while unread_length > self.line_lengths[ln]:
                 readout += self.lines[ln]
                 unread_length -= self.line_lengths[ln]
@@ -153,14 +160,7 @@ class ContentHandler(object):
         line = self.lines[starting[0]]
 
         if pattern._pattern == "\\Z":
-            # Directly finds and returns the end of line position.
-            readout = line[starting[1] :]
-            start_pos = (starting[0], starting[1])
-            close_pos = (starting[0], self.line_lengths[starting[0]])
-            starting[0] += 1
-            starting[1] = 0
-            self.anchor = 0
-            return (start_pos, close_pos), readout
+            allow_leading_all = True
 
         # Gets the previous matching end position from anchor in case of \G.
         init_pos = self.anchor if "\\G" in pattern._pattern else starting[1]

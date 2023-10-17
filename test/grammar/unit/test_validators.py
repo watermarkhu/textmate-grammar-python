@@ -2,11 +2,11 @@ import sys
 import pytest
 import logging
 from pathlib import Path
-from io import StringIO
 
 sys.path.append(str(Path(__file__).parents[1]))
 sys.path.append(str(Path(__file__).parents[3]))
 
+from textmate_grammar.handler import ContentHandler
 from textmate_grammar.language import LanguageParser
 from textmate_grammar.grammars import matlab
 from unit import MSG_NO_MATCH, MSG_NOT_PARSED
@@ -119,7 +119,7 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_validators(check, expected):
     """Test validators"""
-    parsed, elements, _ = parser.parse(StringIO(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
 
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

@@ -19,7 +19,9 @@ filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "Account.m"
 # filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "CircleArea.m"
 # filePath =  Path(__file__).parents[3] / "syntaxes" / "matlab" / "argumentValidation.m"
 
-
 element = parser.parse_file(filePath, log_level=logging.INFO)
 
-element.print(flatten=False)
+
+tokens = element.flatten()
+
+element.print(flatten=True)

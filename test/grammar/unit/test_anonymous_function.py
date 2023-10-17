@@ -43,6 +43,7 @@ test_vector["@(x,  y) x.^2+y;"] = {
                 {"token": "constant.numeric.decimal.matlab", "content": "2"},
                 {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
                 {"token": "variable.other.readwrite.matlab", "content": "y"},
+                {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}
             ],
         },
     ],

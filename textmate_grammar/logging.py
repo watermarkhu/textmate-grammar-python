@@ -9,7 +9,7 @@ MAX_LENGTH = 79
 
 
 class LogFormatter(logging.Formatter):
-    green = "\x1b[1;32m"
+    green = "\x1b[32;32m"
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
@@ -72,7 +72,8 @@ class Logger(object):
                 " ", "0"
             )
         else:
-            msg_pos = "." * self.content_decimals
+            msg_pos = "." * (self.line_decimals + self.position_decimials + 1)
+
         if parser:
             parser_id = parser.token if parser.token else parser.key
             msg_id = "." * (self.max_token_length - len(parser_id)) + parser_id[: self.max_token_length]

@@ -13,7 +13,7 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 
 
 logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger("textmate_grammar").setLevel(logging.INFO)
+logging.getLogger("textmate_grammar").setLevel(logging.DEBUG)
 parser = LanguageParser(matlab.GRAMMAR)
 parser.initialize_repository()
 

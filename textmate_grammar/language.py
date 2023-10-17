@@ -22,7 +22,7 @@ class DummyParser(GrammarParser):
     def initialize_repository(self):
         pass
 
-    def parse(self, *args, **kwargs):
+    def _parse(self, *args, **kwargs):
         pass
 
 
@@ -96,10 +96,10 @@ class LanguageParser(PatternsParser):
             element = None
         return element
 
-    def parse(
-        self, handler: ContentHandler, starting: POS = (0, 0), find_one: bool = False, **kwargs
+    def _parse(
+        self, handler: ContentHandler, starting: POS, find_one: bool = False, **kwargs
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
-        return super().parse(handler, starting, find_one=find_one, injections=True, **kwargs)
+        return super()._parse(handler, starting, find_one=find_one, injections=True, **kwargs)
 
 
 def gen_repositories(grammar, key="repository"):

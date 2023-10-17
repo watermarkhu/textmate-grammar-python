@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
 from pprint import pprint
 from collections import defaultdict
 from itertools import groupby
 
 from .handler import POS
+
+if TYPE_CHECKING:
+    from .parser import Captures
 
 
 class ContentElement(object):
@@ -14,7 +18,7 @@ class ContentElement(object):
         grammar: dict,
         content: str,
         indices: list[POS],
-        captures: list["ContentElement"] = [],
+        captures: "list[ContentElement | Captures]" = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
@@ -48,12 +52,10 @@ class ContentElement(object):
         for key, group in groupby(sorted(items_dict.items()), lambda x: x[1]):
             group_tokens = list(group)
             starting = group_tokens[0][0]
-            closing = group_tokens[-1][0]
-            if starting != closing:
-                group_length = len(group_tokens)
-                content = self.content[index:(index + group_length)]
-                index += group_length
-                tokens.append([starting, closing, content, key])
+            group_length = len(group_tokens)
+            content = self.content[index : (index + group_length)]
+            index += group_length
+            tokens.append([starting, content, key])
         return tokens
 
     def print(self, flatten: bool = False, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
@@ -94,7 +96,9 @@ class ContentElement(object):
 class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
 
-    def __init__(self, begin: list[ContentElement] = [], end: list[ContentElement] = [], **kwargs) -> None:
+    def __init__(
+        self, begin: "list[ContentElement | Captures]" = [], end: "list[ContentElement | Captures]" = [], **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.begin = begin
         self.end = end
