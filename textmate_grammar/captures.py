@@ -92,7 +92,7 @@ class Captures(object):
                         token=parser.token,
                         grammar=parser.grammar,
                         content=self.handler.read_pos(*capture_span),
-                        indices=self.handler.range(*capture_span),
+                        indices=self.handler.chars(*capture_span),
                         captures=captures,
                     )
                 else:
@@ -100,7 +100,7 @@ class Captures(object):
                         token=parser.token,
                         grammar=parser.grammar,
                         content=self.handler.read_pos(group_starting, group_boundary),
-                        indices=self.handler.range(group_starting, group_boundary),
+                        indices=self.handler.chars(group_starting, group_boundary),
                     )
                 elements.append(element)
             else:

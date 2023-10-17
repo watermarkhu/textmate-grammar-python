@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from .parser import Captures
 
 
+TOKEN_DICT = dict[POS, list[str]]
+
+
 class ContentElement(object):
     """The base grammar element object."""
 
@@ -17,7 +20,7 @@ class ContentElement(object):
         token: str,
         grammar: dict,
         content: str,
-        indices: list[POS],
+        indices: dict[POS, str],
         captures: "list[ContentElement | Captures]" = [],
     ) -> None:
         self.token = token
@@ -47,15 +50,16 @@ class ContentElement(object):
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""
-        items_dict = self._token_by_index()
-        tokens, index = [], 0
-        for key, group in groupby(sorted(items_dict.items()), lambda x: x[1]):
+        token_dict = self._token_by_index(defaultdict(list))
+        tokens = []
+        for key, group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
             group_tokens = list(group)
             starting = group_tokens[0][0]
-            group_length = len(group_tokens)
-            content = self.content[index : (index + group_length)]
-            index += group_length
-            tokens.append([starting, content, key])
+            content = ""
+            for pos, _ in group_tokens:
+                content += self.indices[pos]
+            if content:
+                tokens.append([starting, content, key])
         return tokens
 
     def print(self, flatten: bool = False, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
@@ -72,15 +76,15 @@ class ContentElement(object):
             **kwargs,
         )
 
-    def _token_by_index(self, items_dict: dict = defaultdict(list)) -> dict:
+    def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
         """Recursively tokenize every index between start and close."""
-        for pos in set(self.indices):
-            items_dict[pos].append(self.token)
+        for pos in self.indices.keys():
+            token_dict[pos].append(self.token)
 
         # Tokenize child elements
         for element in self.captures:
-            element._token_by_index(items_dict=items_dict)
-        return items_dict
+            element._token_by_index(token_dict)
+        return token_dict
 
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
@@ -118,11 +122,11 @@ class ContentBlockElement(ContentElement):
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
 
-    def _token_by_index(self, items_dict: dict = defaultdict(list)) -> dict:
+    def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
         """Converts the object to a flattened array of tokens."""
-        super()._token_by_index(items_dict=items_dict)
+        super()._token_by_index(token_dict)
         for element in self.begin:
-            element._token_by_index(items_dict=items_dict)
+            element._token_by_index(token_dict)
         for element in self.end:
-            element._token_by_index(items_dict=items_dict)
-        return items_dict
+            element._token_by_index(token_dict)
+        return token_dict

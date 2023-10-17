@@ -136,7 +136,7 @@ class TokenParser(GrammarParser):
         content = handler.read_pos(starting, boundary)
         elements = [
             ContentElement(
-                token=self.token, grammar=self.grammar, content=content, indices=handler.range(starting, boundary)
+                token=self.token, grammar=self.grammar, content=content, indices=handler.chars(starting, boundary)
             )
         ]
         handler.anchor = boundary[1]
@@ -203,7 +203,7 @@ class MatchParser(GrammarParser):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    indices=handler.range(*span),
+                    indices=handler.chars(*span),
                     captures=captures,
                 )
             ]
@@ -437,7 +437,7 @@ class BeginEndParser(PatternsParser):
                 if parsed:
                     # Check whether the capture pattern has the same closing positions as the end pattern
                     capture_before_end = handler.prev(capture_span[1])
-                    if handler.read_length(capture_before_end, 1, skip_newline=False) == "\n":
+                    if handler.read(capture_before_end, skip_newline=False) == "\n":
                         # If capture pattern ends with \n, both left and right of \n is considered end
                         pattern_at_end = end_span[1] in [capture_before_end, capture_span[1]]
                     else:
@@ -509,7 +509,7 @@ class BeginEndParser(PatternsParser):
                     # Append found capture pattern and find next starting position
                     mid_elements.extend(capture_elements)
 
-                    if handler.read_length(capture_span[1], 1, skip_newline=False) == "\n":
+                    if handler.read(capture_span[1], skip_newline=False) == "\n":
                         # Next character after capture pattern is newline
 
                         LOGGER.debug(
@@ -571,7 +571,7 @@ class BeginEndParser(PatternsParser):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    indices=handler.range(start, closing),
+                    indices=handler.chars(start, closing),
                     captures=mid_elements,
                     begin=begin_elements,
                     end=end_elements,

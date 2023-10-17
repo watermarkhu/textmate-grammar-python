@@ -76,6 +76,11 @@ class ContentHandler(object):
             for lp in range(close[1]):
                 indices.append((close[0], lp))
         return indices
+    
+    def chars(self, start: POS, close: POS) -> dict[POS: str]:
+        """Returns the source per position"""
+        indices = self.range(start, close)
+        return {pos: self.read(pos) for pos in indices}
 
     def read_pos(self, start_pos: POS, close_pos: POS, skip_newline: bool = True) -> str:
         """Reads the content between the start and end positions."""
@@ -106,7 +111,7 @@ class ContentHandler(object):
         line = self.lines[pos[0]]
         return line[pos[1]:]
 
-    def read_length(self, start_pos: POS, length: int, skip_newline: bool = True) -> str:
+    def read(self, start_pos: POS, length: int = 1, skip_newline: bool = True) -> str:
         """Reads the content from start for a length"""
         self._check_pos(start_pos)
         if length < 0:
