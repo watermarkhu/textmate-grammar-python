@@ -52,7 +52,7 @@ class ContentElement(object):
         """Converts the object to a flattened array of tokens per index."""
         token_dict = self._token_by_index(defaultdict(list))
         tokens = []
-        for key, group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
+        for (_, key), group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
             group_tokens = list(group)
             starting = group_tokens[0][0]
             content = ""
