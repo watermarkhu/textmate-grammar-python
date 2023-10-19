@@ -17,13 +17,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Setup node
         uses: actions/setup-node@v3
-        width:
+        with:
           node-version: 18
       
-      - run: |
+      - name: Install node dependencies
+        run: |
           mkdir test/nodejs/node_root
           cp test/nodejs/src/index.js test/nodejs/node_root
           cd test/nodejs/node_root
