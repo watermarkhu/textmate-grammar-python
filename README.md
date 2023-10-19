@@ -1,13 +1,12 @@
-# sphinx-matlab
+# textmate-grammar-python
+
+An interpreter for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format. 
 
 ## Sources
 - [Textmate guide](https://www.apeth.com/nonblog/stories/textmatebundle.html)
 - [VSCode Syntax Highlighting guide](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide)
 - [vscode-textmate](https://github.com/microsoft/vscode-textmate)
-
-## TextMate 2 features that are not used
-- begin/while match pattern
-- [Format strings](https://macromates.com/blog/2011/format-strings/)
+- [Macromates texmate](https://macromates.com/textmate/manual/)
 
 ## TODO
 - [x] Use yaml in stead of json
@@ -15,9 +14,12 @@
 - [x] Proper line-by-line parsing
 - [x] `\G` anchoring
 - [x] Option to *disable* a grammar
-- [x] Apply *applyEndPatternLast* option
-- [ ] Something with *injections*
+- [x] Option to *applyEndPatternLast*
+- [ ] Implement *injections*
+- [ ] Implement Begin/While pattern
 
-## Tokenization
+## Supported Languages
+- [MATLAB](https://github.com/mathworks/MATLAB-Language-grammar)
 
-The tokenization engine is based on the [syntax](https://github.com/mathworks/MATLAB-Language-grammar) created by Mathworks for its integration in IDE's such as VSCode. The syntax is a recursive list of regular expressions, normally read by the [TypeScript engine](https://github.com/microsoft/TypeScript-TmLanguage). The work here hopes also to improve the syntax such to improve the MATLAB [extension](https://github.com/mathworks/matlab-extension-for-vscode) for VSCode.
+## TextMate 2 features that are not used
+- [Format strings](https://macromates.com/blog/2011/format-strings/)
