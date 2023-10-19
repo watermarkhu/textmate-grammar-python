@@ -16,9 +16,3 @@ cd /node_root
 nvm install --lts
 npm init -y
 npm install oniguruma typescript vscode-oniguruma vscode-textmate
-
-# get the grammar
-git clone https://github.com/mathworks/MATLAB-Language-grammar.git
-mkdir syntax
-cp MATLAB-Language-grammar/Matlab.tmbundle/Syntaxes/MATLAB.tmLanguage syntax/MATLAB.tmLanguage
-

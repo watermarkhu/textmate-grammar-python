@@ -20,14 +20,13 @@ const vscodeOnigurumaLib = oniguruma.loadWASM(wasmBin).then(() => {
     };
 });
 
-
 // Create a registry that can create a grammar from a scope name.
 const registry = new vsctm.Registry({
     onigLib: vscodeOnigurumaLib,
     loadGrammar: (scopeName) => {
         if (scopeName === 'source.matlab') {
-            // https://github.com/textmate/javascript.tmbundle/blob/master/Syntaxes/syntax/MATLAB.tmLanguage
-            return readFile('../../../syntaxes/matlab/Matlab.tmbundle/Syntaxes/MATLAB.tmLanguage').then(data => vsctm.parseRawGrammar(data.toString()))
+            const file = path.join(__dirname, '../../../syntaxes/matlab/Matlab.tmbundle/Syntaxes/MATLAB.tmLanguage')
+            return readFile(file).then(data => vsctm.parseRawGrammar(data.toString()))
         }
         console.log(`Unknown scope name: ${scopeName}`);
         return null;
@@ -47,7 +46,7 @@ registry.loadGrammar(scope).then(grammar => {
         // console.log(`\nTokenizing line: ${line}`);
         for (let j = 0; j < lineTokens.tokens.length; j++) {
             const token = lineTokens.tokens[j];
-            console.log(`${i}:${token.startIndex}-${token.endIndex}` +
+            console.log(`${i}-${token.startIndex}` +
                 `:${token.scopes.join('|')}` +
                 `:${line.substring(token.startIndex, token.endIndex)}`
             );
