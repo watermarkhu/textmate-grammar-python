@@ -3,7 +3,7 @@ import pytest
 import logging
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parents[1]))
+sys.path.append(str(Path(__file__).parents[2]))
 sys.path.append(str(Path(__file__).parents[3]))
 
 from textmate_grammar.handler import ContentHandler
@@ -15,7 +15,7 @@ from unit import MSG_NO_MATCH, MSG_NOT_PARSED
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 parser = LanguageParser(matlab.GRAMMAR)
-parser.initialize_repository()
+parser._initialize_repository()
 
 
 @pytest.mark.parametrize("check", ["nargin", "nargout", "varargin", "varargout"])

@@ -81,7 +81,7 @@ class GrammarParser(ABC):
         """
         pass
 
-    def initialize_repository(self, **kwargs) -> None:
+    def _initialize_repository(self, **kwargs) -> None:
         """Initializes the repository's inclusions.
 
         When the grammar has patterns, this method should called to initialize its inclusions.
@@ -98,6 +98,8 @@ class GrammarParser(ABC):
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[int, int] | None):
         """The method to parse a handler using the current grammar."""
+        if not self.initialized:
+            self.language._initialize_repository()
         parsed, captures, span = self._parse(handler, starting, boundary=boundary, verbosity=verbosity, **kwargs)
         elements = parse_captures(captures)
         return parsed, elements, span
@@ -176,7 +178,7 @@ class MatchParser(GrammarParser):
             identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
-    def initialize_repository(self) -> None:
+    def _initialize_repository(self) -> None:
         """When the grammar has patterns, this method should called to initialize its inclusions."""
         self.initialized = True
         for key, value in self.parsers.items():
@@ -184,7 +186,7 @@ class MatchParser(GrammarParser):
                 self.parsers[key] = self._find_include(value)
         for parser in self.parsers.values():
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
 
     def _parse(
         self,
@@ -235,7 +237,7 @@ class PatternsParser(GrammarParser):
         super().__init__(grammar, **kwargs)
         self.patterns = [self.initialize(pattern, language=self.language) for pattern in grammar.get("patterns", [])]
 
-    def initialize_repository(self):
+    def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
         self.initialized = True
         self.patterns = [
@@ -243,7 +245,7 @@ class PatternsParser(GrammarParser):
         ]
         for parser in self.patterns:
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
 
         pattern_parsers = [parser for parser in self.patterns if type(parser) == PatternsParser]
         for parser in pattern_parsers:
@@ -347,10 +349,10 @@ class BeginEndParser(PatternsParser):
             identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
-    def initialize_repository(self) -> None:
+    def _initialize_repository(self) -> None:
         """When the grammar has patterns, this method should called to initialize its inclusions."""
         self.initialized = True
-        super().initialize_repository()
+        super()._initialize_repository()
         for key, value in self.parsers_end.items():
             if not isinstance(value, GrammarParser):
                 self.parsers_end[key] = self._find_include(value)
@@ -359,10 +361,10 @@ class BeginEndParser(PatternsParser):
                 self.parsers_begin[key] = self._find_include(value)
         for parser in self.parsers_begin.values():
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
         for parser in self.parsers_end.values():
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
 
     def _parse(
         self,
@@ -621,10 +623,10 @@ class BeginWhileParser(PatternsParser):
             identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
-    def initialize_repository(self):
+    def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
         self.initialized = True
-        super().initialize_repository()
+        super()._initialize_repository()
         for key, value in self.parsers_end.items():
             if not isinstance(value, GrammarParser):
                 self.parsers_end[key] = self._find_include(value)
@@ -633,10 +635,10 @@ class BeginWhileParser(PatternsParser):
                 self.parsers_while[key] = self._find_include(value)
         for parser in self.parsers_begin.values():
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
         for parser in self.parsers_while.values():
             if not parser.initialized:
-                parser.initialize_repository()
+                parser._initialize_repository()
 
     def _parse(
         self,

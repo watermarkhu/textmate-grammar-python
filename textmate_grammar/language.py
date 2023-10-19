@@ -19,7 +19,7 @@ class DummyParser(GrammarParser):
         self.key = "DummyLanguage"
         self.initialized = True
 
-    def initialize_repository(self):
+    def _initialize_repository(self):
         pass
 
     def _parse(self, *args, **kwargs):
@@ -59,12 +59,12 @@ class LanguageParser(PatternsParser):
     def _find_include_scopes(key: str):
         return LANGUAGE_PARSERS.get(key, DummyParser())
 
-    def initialize_repository(self):
+    def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
-        super().initialize_repository()
+        super()._initialize_repository()
 
         for key, injected_parser in self.injections.items():
-            injected_parser.initialize_repository()
+            injected_parser._initialize_repository()
             parser_to_inject = self._find_include(key.split(" ")[0])  # TODO this is a hack
             parser_to_inject.injected_patterns.append(injected_parser)
 
