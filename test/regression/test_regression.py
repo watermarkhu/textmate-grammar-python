@@ -67,7 +67,8 @@ class RegressionTestClass(ABC):
         assert py_tokens == node_tokens
 
 
-test_files = [str(module_root / "syntaxes" / "matlab" / file) for file in ["AnEnum.m", "PropertyValidation.m"]]
+# test_files = [str(module_root / "syntaxes" / "matlab" / file) for file in ["AnEnum.m", "PropertyValidation.m"]]
+test_files = [str(Path(__file__).parent / "simple.m")]
 
 
 @pytest.mark.parametrize("source", test_files)

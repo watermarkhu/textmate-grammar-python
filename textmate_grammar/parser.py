@@ -252,6 +252,11 @@ class PatternsParser(GrammarParser):
             parser_index = self.patterns.index(parser)
             self.patterns[parser_index : parser_index + 1] = parser.patterns
 
+
+        for exception_scopes, injection_pattern in self.language.injections:
+            if self.token and not any(s in self.token for s in exception_scopes):
+                self.patterns.append(injection_pattern)
+
     def _parse(
         self,
         handler: ContentHandler,
@@ -259,7 +264,6 @@ class PatternsParser(GrammarParser):
         boundary: POS | None = None,
         allow_leading_all: bool = False,
         find_one: bool = True,
-        injections: bool = False,
         verbosity: int = 0,
         **kwargs,
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
@@ -270,9 +274,6 @@ class PatternsParser(GrammarParser):
 
         parsed, elements = False, []
         patterns = [parser for parser in self.patterns if not parser.disabled]
-
-        if find_one or injections:
-            patterns = patterns + self.injected_patterns
 
         current = (starting[0], starting[1])
 

@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from collections import defaultdict
 from pathlib import Path
 import logging
 
@@ -37,20 +37,17 @@ class LanguageParser(PatternsParser):
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
-        self.injections = {}
+        self.injections = []
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
             for key, parser_grammar in repo.items():
                 self.repository[key] = GrammarParser.initialize(parser_grammar, key=key, language=self)
 
-        # Initialize injections
-        injections = grammar.get("injections", {})
-        for key, injected_grammar in injections.items():
-            self.injections[key] = GrammarParser.initialize(injected_grammar, key=key, language=self)
-
         # Update language parser store
-        LANGUAGE_PARSERS[grammar.get("scopeName", "myScope")] = self
+        language_name = grammar.get("scopeName", "myLanguage")
+        LANGUAGE_PARSERS[language_name] = self
+
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.key}"
@@ -61,12 +58,24 @@ class LanguageParser(PatternsParser):
 
     def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
-        super()._initialize_repository()
 
-        for key, injected_parser in self.injections.items():
+        # Initialize injections
+        injections = self.grammar.get("injections", {})
+        for key, injected_grammar in injections.items():
+
+            target_string = key[:key.index('-')].strip()
+            if not target_string:
+                target_string = self.grammar.get("scopeName", "myLanguage")
+            target_language = LANGUAGE_PARSERS[target_string]
+
+            injected_parser = GrammarParser.initialize(injected_grammar, language=target_language)
             injected_parser._initialize_repository()
-            parser_to_inject = self._find_include(key.split(" ")[0])  # TODO this is a hack
-            parser_to_inject.injected_patterns.append(injected_parser)
+            
+            scope_string = key[key.index('-'):]
+            exception_scopes = [s.strip() for s in scope_string.split('-') if s.strip()]
+            target_language.injections.append([exception_scopes, injected_parser])
+
+        super()._initialize_repository()
 
     def parse_file(self, filePath: str | Path, log_level: int = logging.CRITICAL, **kwargs) -> ContentElement | None:
         """Parses an entire file with the current grammar"""
@@ -103,7 +112,7 @@ class LanguageParser(PatternsParser):
     def _parse(
         self, handler: ContentHandler, starting: POS, find_one: bool = False, **kwargs
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
-        return super()._parse(handler, starting, find_one=find_one, injections=True, **kwargs)
+        return super()._parse(handler, starting, find_one=find_one, **kwargs)
 
 
 def gen_repositories(grammar, key="repository"):
