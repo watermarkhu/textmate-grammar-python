@@ -10,6 +10,7 @@ source "$NVM_DIR/nvm.sh"
 
 # create the environment
 mkdir /node_root
+cp ./index.js node_root/
 cd /node_root
 
 # install the necessary packages 
