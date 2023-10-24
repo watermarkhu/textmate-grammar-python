@@ -1,21 +1,7 @@
-import sys
 import pytest
-import logging
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).parents[2]))
-sys.path.append(str(Path(__file__).parents[3]))
-
 from textmate_grammar.handler import ContentHandler
-from textmate_grammar.language import LanguageParser
-from textmate_grammar.grammars import matlab
-from unit import MSG_NO_MATCH, MSG_NOT_PARSED
-
-
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger("textmate_grammar").setLevel(logging.INFO)
-parser = LanguageParser(matlab.GRAMMAR)
-parser._initialize_repository()
+from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
+from . import parser
 
 
 @pytest.mark.parametrize(

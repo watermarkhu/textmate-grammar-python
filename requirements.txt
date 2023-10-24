@@ -1,2 +1,2 @@
-onigurumacffi
-pyyaml
+onigurumacffi >= 1.3.0
+pyyaml >= 6.0.1
