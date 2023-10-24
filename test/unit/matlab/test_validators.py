@@ -4,7 +4,6 @@ from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
 from . import parser as matlabParser
 
 
-matlabParser._initialize_repository()
 parser = matlabParser.repository["validators"]
 
 test_vector = {}
@@ -64,7 +63,10 @@ test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
             "token": "meta.block.validation.matlab",
             "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-            "content": "mustBeNumeric,mustBeReal",
+            "captures": [
+                {"token": "variable.other.readwrite.matlab", "content": "mustBeNumeric"},
+                {"token": "variable.other.readwrite.matlab", "content": "mustBeReal"},
+            ],
         },
     ],
 }
@@ -86,13 +88,17 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
                     "captures": [
                         {
                             "token": "string.quoted.single.matlab",
-                            "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": "'"}],
+                            "begin": [
+                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                            ],
                             "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
                             "content": "'linear'",
                         },
                         {
                             "token": "string.quoted.single.matlab",
-                            "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": "'"}],
+                            "begin": [
+                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                            ],
                             "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
                             "content": "'spline'",
                         },
@@ -107,7 +113,7 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_validators(check, expected):
     """Test validators"""
-    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check))
 
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

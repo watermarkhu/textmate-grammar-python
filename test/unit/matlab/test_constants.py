@@ -25,6 +25,6 @@ def test_value_representations(check):
 @pytest.mark.parametrize("check", ["on", "off", "false", "true"])
 def test_binary(check):
     """Test constant binary"""
-    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check))
     assert parsed, MSG_NO_MATCH
     assert elements[0].token == "constant.language.boolean.matlab", MSG_NOT_PARSED

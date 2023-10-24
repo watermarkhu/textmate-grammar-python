@@ -1,4 +1,3 @@
-from collections import defaultdict
 from pathlib import Path
 import logging
 
@@ -48,7 +47,6 @@ class LanguageParser(PatternsParser):
         language_name = grammar.get("scopeName", "myLanguage")
         LANGUAGE_PARSERS[language_name] = self
 
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.key}"
 
@@ -62,22 +60,25 @@ class LanguageParser(PatternsParser):
         # Initialize injections
         injections = self.grammar.get("injections", {})
         for key, injected_grammar in injections.items():
-
-            target_string = key[:key.index('-')].strip()
+            target_string = key[: key.index("-")].strip()
             if not target_string:
                 target_string = self.grammar.get("scopeName", "myLanguage")
             target_language = LANGUAGE_PARSERS[target_string]
 
-            injected_parser = GrammarParser.initialize(injected_grammar, language=target_language)
+            injected_parser = GrammarParser.initialize(
+                injected_grammar, key=f"{target_string}.injection", language=target_language
+            )
             injected_parser._initialize_repository()
-            
-            scope_string = key[key.index('-'):]
-            exception_scopes = [s.strip() for s in scope_string.split('-') if s.strip()]
+
+            scope_string = key[key.index("-") :]
+            exception_scopes = [s.strip() for s in scope_string.split("-") if s.strip()]
             target_language.injections.append([exception_scopes, injected_parser])
 
         super()._initialize_repository()
 
-    def parse_file(self, filePath: str | Path, log_level: int = logging.CRITICAL, **kwargs) -> ContentElement | None:
+    def parse_file(
+        self, filePath: str | Path, **kwargs
+    ) -> ContentElement | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -88,7 +89,7 @@ class LanguageParser(PatternsParser):
         handler = ContentHandler.from_path(filePath)
 
         # Configure logger
-        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths), level=log_level)
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
         return self.parse_language(handler, **kwargs)
 

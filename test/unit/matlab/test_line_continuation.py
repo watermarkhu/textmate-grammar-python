@@ -18,7 +18,7 @@ test_vector["... Some comment"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_line_continuation(check, expected):
     """Test line continuation"""
-    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check))
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED
 

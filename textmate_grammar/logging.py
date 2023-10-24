@@ -47,7 +47,7 @@ class Logger(object):
         channel.setFormatter(LogFormatter())
         self.logger.addHandler(channel)
 
-    def configure(self, parser: "GrammarParser", height: int, width: int, level: int = logging.CRITICAL) -> None:
+    def configure(self, parser: "GrammarParser", height: int, width: int, **kwargs) -> None:
         """Configures the logger to a specific grammar and content length"""
         self.line_decimals = len(str(height))
         self.position_decimials = len(str(width))
@@ -57,7 +57,6 @@ class Logger(object):
             tokens = gen_all_tokens(parser.grammar)
             self.max_token_length = max((len(token) for token in tokens))
             self.scope = parser.token
-        self.logger.setLevel(level)
 
     def format_message(
         self,

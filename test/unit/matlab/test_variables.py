@@ -10,6 +10,6 @@ from . import parser
 @pytest.mark.parametrize("check", ["nargin", "nargout", "varargin", "varargout"])
 def test_variables(check):
     """Test variables"""
-    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check))
     assert parsed, MSG_NO_MATCH
     assert elements[0].token == "variable.language.function.matlab", MSG_NO_MATCH

@@ -42,6 +42,6 @@ test_vector["%{\nThis is a comment\nmultiple\n %}"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_comment(check, expected):
     """Test comment"""
-    parsed, elements, _ = parser.parse(ContentHandler(check), find_one=False)
+    parsed, elements, _ = parser.parse(ContentHandler(check))
     assert parsed, MSG_NO_MATCH
     assert elements[0].to_dict() == expected, MSG_NOT_PARSED

@@ -252,9 +252,8 @@ class PatternsParser(GrammarParser):
             parser_index = self.patterns.index(parser)
             self.patterns[parser_index : parser_index + 1] = parser.patterns
 
-
         for exception_scopes, injection_pattern in self.language.injections:
-            if self.token and not any(s in self.token for s in exception_scopes):
+            if self.token and ("meta" in self.token or not any(s in self.token for s in exception_scopes)):
                 self.patterns.append(injection_pattern)
 
     def _parse(
