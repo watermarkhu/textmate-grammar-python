@@ -261,7 +261,7 @@ class PatternsParser(GrammarParser):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        allow_leading_all: bool = False,
+        leading_chars: int = 1,
         find_one: bool = True,
         verbosity: int = 0,
         **kwargs,
@@ -283,7 +283,7 @@ class PatternsParser(GrammarParser):
                     handler,
                     current,
                     boundary=boundary,
-                    allow_leading_all=allow_leading_all,
+                    leading_chars=leading_chars,
                     verbosity=verbosity + 1,
                     **kwargs,
                 )
@@ -297,20 +297,24 @@ class PatternsParser(GrammarParser):
             else:
                 if find_one:
                     break
-                # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
-                second_try_patterns = patterns if not allow_leading_all else []
 
-                for parser in second_try_patterns:
+            if not parsed and leading_chars != 2:
+                # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
+                options_span, options_elements = {}, {}
+                for parser in patterns:
                     parsed, captures, span = parser._parse(
-                        handler, current, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
+                        handler, current, boundary=boundary, leading_chars=2, verbosity=verbosity + 1, **kwargs
                     )
                     if parsed:
-                        if find_one:
-                            LOGGER.info(f"{self.__class__.__name__} found single element", self, current, verbosity)
-                            return True, captures, span
-                        elements.extend(captures)
-                        current = span[1]
-                        break
+                        options_span[parser] = span
+                        options_elements[parser] = captures
+                        LOGGER.debug(f"{self.__class__.__name__} found pattern choice", self, current, verbosity)
+
+                if options_span:
+                    parser = sorted(options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser)))[0]
+                    current = options_span[parser][1]
+                    elements.extend(options_elements[parser])
+                    LOGGER.info(f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity)
                 else:
                     break
 
@@ -371,7 +375,7 @@ class BeginEndParser(PatternsParser):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        allow_leading_all: bool = False,
+        leading_chars: int = 1,
         verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
@@ -383,7 +387,7 @@ class BeginEndParser(PatternsParser):
             starting,
             boundary=boundary,
             parsers=self.parsers_begin,
-            allow_leading_all=allow_leading_all,
+            leading_chars=leading_chars
         )
 
         if not begin_span:
@@ -411,7 +415,7 @@ class BeginEndParser(PatternsParser):
             # Try to find patterns first with no leading whitespace charaters allowed
             for parser in patterns:
                 parsed, capture_elements, capture_span = parser._parse(
-                    handler, current, boundary=boundary, allow_leading_all=False, verbosity=verbosity + 1, **kwargs
+                    handler, current, boundary=boundary, leading_chars=1, verbosity=verbosity + 1, **kwargs
                 )
                 if parsed:
                     if parser == self:
@@ -426,20 +430,34 @@ class BeginEndParser(PatternsParser):
                 current,
                 boundary=boundary,
                 parsers=self.parsers_end,
-                allow_leading_all=False,
+                leading_chars=1,
             )
 
             if not parsed and not end_span:
                 # Try to find the patterns and end pattern allowing for leading whitespace charaters
+
+                LOGGER.info(f"{self.__class__.__name__} getting all pattern options", self, current, verbosity)
+
+                options_span, options_elements = {}, {}
                 for parser in patterns:
                     parsed, capture_elements, capture_span = parser._parse(
-                        handler, current, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
+                        handler, current, boundary=boundary, leading_chars=2, verbosity=verbosity + 1, **kwargs
                     )
                     if parsed:
-                        if parser == self:
-                            apply_end_pattern_last = True
-                        LOGGER.debug(f"{self.__class__.__name__} found pattern (ws)", self, current, verbosity)
-                        break
+                        options_span[parser] = capture_span
+                        options_elements[parser] = capture_elements
+                        LOGGER.debug(f"{self.__class__.__name__} found pattern choice", self, current, verbosity)
+
+                if options_span:
+                    parsed = True
+                    parser = sorted(options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser)))[0]
+                    capture_span = options_span[parser]
+                    capture_elements = options_elements[parser]
+
+                    if parser == self:
+                        apply_end_pattern_last = True
+
+                    LOGGER.info(f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity)
 
                 end_span, end_content, end_elements = self.match_and_capture(
                     handler,
@@ -447,7 +465,7 @@ class BeginEndParser(PatternsParser):
                     current,
                     boundary=boundary,
                     parsers=self.parsers_end,
-                    allow_leading_all=True,
+                    leading_chars=2,
                 )
 
             if end_span:

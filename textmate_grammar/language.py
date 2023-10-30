@@ -97,7 +97,6 @@ class LanguageParser(PatternsParser):
         """Parses the current stream with the language scope."""
 
         parsed, elements, span = self.parse(handler, (0, 0), **kwargs)
-
         if parsed:
             element = ContentElement(
                 token=self.token,
@@ -111,9 +110,10 @@ class LanguageParser(PatternsParser):
         return element
 
     def _parse(
-        self, handler: ContentHandler, starting: POS, find_one: bool = False, **kwargs
+        self, handler: ContentHandler, starting: POS, **kwargs
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
-        return super()._parse(handler, starting, find_one=find_one, **kwargs)
+        kwargs.pop('find_one', None)
+        return super()._parse(handler, starting, find_one=False, **kwargs)
 
 
 def gen_repositories(grammar, key="repository"):

@@ -27,10 +27,7 @@ class TestMatlabRegression(RegressionTestClass):
     """The regression test class for MATLAB."""
 
     scope = "source.matlab"
-
-    @classmethod
-    def setup_class(cls) -> None:
-        cls._parser = LanguageParser(matlab.GRAMMAR, log_level=logging.DEBUG)
+    _parser = LanguageParser(matlab.GRAMMAR, log_level=logging.DEBUG)
 
     @property
     def parser(self):

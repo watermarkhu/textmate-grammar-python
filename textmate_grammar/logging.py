@@ -79,7 +79,7 @@ class Logger(object):
         else:
             msg_id = "." * self.max_token_length
 
-        vb_message = f"{'.'*verbosity}{message}"
+        vb_message = f"{'|'*(verbosity-1)}{'-'*bool(verbosity)}{message}"
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])

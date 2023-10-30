@@ -81,6 +81,7 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
             "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
             "captures": [
+                {"token": "variable.other.readwrite.matlab", "content": "method"},
                 {
                     "token": "meta.block.validation.matlab",
                     "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
@@ -103,7 +104,7 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
                             "content": "'spline'",
                         },
                     ],
-                }
+                },
             ],
         }
     ],
