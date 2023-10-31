@@ -7,7 +7,7 @@ from . import parser
 test_vector = {}
 
 # single line
-test_vector["@(x,  y) x.^2+y;"] = {
+test_vector["@(x,  y) x.^2+y"] = {
     "token": "meta.function.anonymous.matlab",
     "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
     "captures": [
@@ -29,7 +29,6 @@ test_vector["@(x,  y) x.^2+y;"] = {
                 {"token": "constant.numeric.decimal.matlab", "content": "2"},
                 {"token": "keyword.operator.arithmetic.matlab", "content": "+"},
                 {"token": "variable.other.readwrite.matlab", "content": "y"},
-                {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}
             ],
         },
     ],

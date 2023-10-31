@@ -230,8 +230,7 @@ class MatchParser(GrammarParser):
         return True, elements, span
 
 
-class PatternsParser(GrammarParser):
-    """The parser for grammars for which several patterns are provided."""
+class ParserHasPatterns(GrammarParser, ABC):
 
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
@@ -247,14 +246,20 @@ class PatternsParser(GrammarParser):
             if not parser.initialized:
                 parser._initialize_repository()
 
-        pattern_parsers = [parser for parser in self.patterns if type(parser) == PatternsParser]
+        # Copy patterns from included pattern parsers
+        pattern_parsers = [parser for parser in self.patterns if isinstance(parser, PatternsParser)]
         for parser in pattern_parsers:
             parser_index = self.patterns.index(parser)
             self.patterns[parser_index : parser_index + 1] = parser.patterns
 
+        # Injection grammars
         for exception_scopes, injection_pattern in self.language.injections:
             if self.token and ("meta" in self.token or not any(s in self.token for s in exception_scopes)):
                 self.patterns.append(injection_pattern)
+
+
+class PatternsParser(ParserHasPatterns):
+    """The parser for grammars for which several patterns are provided."""
 
     def _parse(
         self,
@@ -327,7 +332,7 @@ class PatternsParser(GrammarParser):
         return bool(elements), elements, (starting, current)
 
 
-class BeginEndParser(PatternsParser):
+class BeginEndParser(ParserHasPatterns):
     """The parser for grammars for which a begin/end pattern is provided."""
 
     def __init__(self, grammar: dict, **kwargs) -> None:
