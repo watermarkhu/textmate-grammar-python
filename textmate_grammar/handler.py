@@ -166,7 +166,11 @@ class ContentHandler(object):
         - 2: any character allowed
         """
 
-        line = self.lines[starting[0]]
+        # Get line from starting (and boundary) positions
+        if boundary and starting[0] == boundary[0]:
+            line = self.lines[starting[0]][:boundary[1]]
+        else:
+            line = self.lines[starting[0]]
 
         if pattern._pattern == "\\Z":
             leading_chars = 2

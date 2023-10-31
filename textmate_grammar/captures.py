@@ -51,8 +51,9 @@ class Capture(object):
         pattern: Pattern,
         matching: Match,
         parsers: dict[str, "GrammarParser"],
-        starting,
-        boundary,
+        starting: tuple[int, int],
+        boundary: tuple[int, int],
+        key: str = "",
         **kwargs,
     ) -> None:
         self.handler = handler
@@ -61,11 +62,11 @@ class Capture(object):
         self.parsers = parsers
         self.starting = starting
         self.boundary = boundary
+        self.key = key
         self.kwargs = kwargs
 
     def __repr__(self) -> str:
-        content = self.handler.read_pos(self.starting, self.boundary)
-        return f"@captures<<{content}>>"
+        return f"@capture<{self.key}>"
 
     def dispatch(self):
         """Dispatches the remaining parse of the capture group."""

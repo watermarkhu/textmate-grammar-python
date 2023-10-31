@@ -122,7 +122,7 @@ class GrammarParser(ABC):
         matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
-            captures = Capture(handler, pattern, matching, parsers, starting, boundary, **kwargs)
+            captures = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
             return span, matching.group(), [captures]
         else:
             return span, "", []

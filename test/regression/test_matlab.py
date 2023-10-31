@@ -12,8 +12,8 @@ test_files = [
     str(MODULE_ROOT.parent / "syntaxes" / "matlab" / (file + ".m"))
     for file in [
         "Account",
-        # "AnEnum",
-        # "argumentValidation",
+        "AnEnum",
+        "argumentValidation",
         # "CircleArea",
         # "controlFlow",
         # "lineContinuations",

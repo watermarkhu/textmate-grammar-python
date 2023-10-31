@@ -31,7 +31,10 @@ test_vector["?Superclass"] = {
 test_vector["variable ="] = {
     "token": "source.matlab",
     "captures": [
-        {"token": "meta.assignment.variable.single.matlab", "content": "variable"},
+        {
+            "token": "meta.assignment.variable.single.matlab",
+            "captures": [{"token": "variable.other.readwrite.matlab", "content": "variable"}],
+        },
         {"token": "keyword.operator.assignment.matlab", "content": "="},
     ],
 }
@@ -65,7 +68,9 @@ def test_control_statement(check, expected):
         assert element is None
 
 
-@pytest.mark.parametrize("check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"])
+@pytest.mark.parametrize(
+    "check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"]
+)
 def test_arithmetic(check):
     """Test arithmatic operators"""
     parsed, elements, _ = parser.parse(ContentHandler(check))
