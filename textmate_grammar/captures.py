@@ -8,19 +8,6 @@ if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
-def dispatch_list(captures: "list[ContentElement | Capture]"):
-    """Dispatches all captured parsers in the list.
-    """
-    elements = []
-    for capture in captures:
-        if isinstance(capture, Capture):
-            captured_elements = dispatch_list(capture.dispatch())
-            elements.extend(captured_elements)
-        else:
-            elements.append(capture)
-    return elements
-
-
 def parse_captures(
     captures: "list[ContentElement | Capture]", parent: ContentElement | None = None
 ) -> list[ContentElement]:
@@ -39,12 +26,25 @@ def parse_captures(
     return elements
 
 
+def dispatch_list(captures: "list[ContentElement | Capture]"):
+    """Dispatches all captured parsers in the list."""
+    elements = []
+    for capture in captures:
+        if isinstance(capture, Capture):
+            captured_elements = dispatch_list(capture.dispatch())
+            elements.extend(captured_elements)
+        else:
+            elements.append(capture)
+    return elements
+
+
 class Capture(object):
     """A captured matching group.
-    
-    After mathing, any pattern can have a number of capture groups for which subsequent parsers can be defined. 
+
+    After mathing, any pattern can have a number of capture groups for which subsequent parsers can be defined.
     The Capture object stores this subsequent parse to be dispatched at a later moment.
     """
+
     def __init__(
         self,
         handler: ContentHandler,
@@ -65,6 +65,18 @@ class Capture(object):
         self.key = key
         self.kwargs = kwargs
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Capture):
+            return (
+                True
+                if self.key == other.key
+                and self.starting == other.starting
+                and self.matching.group() == other.matching.group()
+                else False
+            )
+        else:
+            return False
+
     def __repr__(self) -> str:
         return f"@capture<{self.key}>"
 
@@ -73,7 +85,9 @@ class Capture(object):
         elements = []
         for group_id, parser in self.parsers.items():
             if group_id > self.pattern.number_of_captures():
-                LOGGER.warning(f"The capture group {group_id} does not exist in pattern {self.pattern._pattern}")
+                LOGGER.warning(
+                    f"The capture group {group_id} does not exist in pattern {self.pattern._pattern}"
+                )
                 continue
 
             group_span = self.matching.span(group_id)
@@ -89,35 +103,18 @@ class Capture(object):
                 LOGGER.warning("Parser loop detected, continuing...", self, self.starting)
                 continue
 
-            # Call the parse
-            parsed, captured_elements, span = parser._parse(
+            # Dispatch the parse
+            self.kwargs.pop("leading_chars", None)
+            parsed, captured_elements, _ = parser._parse(
                 self.handler,
                 starting=group_starting,
                 boundary=group_boundary,
                 find_one=self.kwargs.pop("find_one", False),
+                parent_capture=self,
                 **self.kwargs,
             )
 
-            # Create ContentElement of token is defined
-            if parser.token:
-                if parsed and not type(parser) == "TokenParser":
-                    element = ContentElement(
-                        token=parser.token,
-                        grammar=parser.grammar,
-                        content=self.handler.read_pos(*span),
-                        characters=self.handler.chars(*span),
-                        captures=captured_elements,
-                    )
-                else:
-                    element = ContentElement(
-                        token=parser.token,
-                        grammar=parser.grammar,
-                        content=self.handler.read_pos(group_starting, group_boundary),
-                        characters=self.handler.chars(group_starting, group_boundary),
-                    )
-                elements.append(element)
-            # Return captures 
-            else:
+            if parsed:
                 elements.extend(captured_elements)
 
         return elements

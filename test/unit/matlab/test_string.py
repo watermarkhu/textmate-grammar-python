@@ -36,6 +36,6 @@ test_vector[r'"This %.3f ""is"" %% a \\ string\n"'] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_string(check, expected):
     "Test strings"
-    parsed, elements, _ = parser.parse(ContentHandler(check))
-    assert parsed, MSG_NO_MATCH
-    assert elements[0].to_dict() == expected, MSG_NOT_PARSED
+    element = parser.parse_language(ContentHandler(check))
+    assert element, MSG_NO_MATCH
+    assert element.captures[0].to_dict() == expected, MSG_NOT_PARSED

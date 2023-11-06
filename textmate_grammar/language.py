@@ -96,18 +96,9 @@ class LanguageParser(PatternsParser):
     def parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
         """Parses the current stream with the language scope."""
 
-        parsed, elements, span = self.parse(handler, (0, 0), **kwargs)
-        if parsed:
-            element = ContentElement(
-                token=self.token,
-                grammar=self.grammar,
-                content=handler.source,
-                characters=handler.chars(*span),
-                captures=elements,
-            )
-        else:
-            element = None
-        return element
+        parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
+        return elements[0] if parsed else None
+        
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs

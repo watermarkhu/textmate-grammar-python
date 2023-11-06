@@ -14,10 +14,10 @@ test_files = [
         "Account",
         "AnEnum",
         "argumentValidation",
-        # "CircleArea",
-        # "controlFlow",
-        # "lineContinuations",
-        # "PropertyValidation",
+        "CircleArea",
+        "controlFlow",
+        "lineContinuations",
+        "PropertyValidation",
     ]
 ]
 

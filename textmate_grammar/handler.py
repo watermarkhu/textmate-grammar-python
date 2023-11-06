@@ -75,7 +75,7 @@ class ContentHandler(object):
         else:
             for lp in range(start[1], self.line_lengths[start[0]]):
                 indices.append((start[0], lp))
-            for ln in range(start[0], close[0]):
+            for ln in range(start[0]+1, close[0]):
                 for lp in range(self.line_lengths[ln]):
                     indices.append((ln, lp))
             for lp in range(close[1]):
@@ -150,6 +150,7 @@ class ContentHandler(object):
         pattern: Pattern,
         starting: POS,
         boundary: POS | None = None,
+        trim_boundary: bool = False,
         leading_chars: int = 0,
         **kwargs,
     ) -> (Match | None, tuple[POS, POS] | None):
@@ -166,14 +167,14 @@ class ContentHandler(object):
         - 2: any character allowed
         """
 
+        if pattern._pattern in ["\\z", "\\Z"]:
+            leading_chars = 2
+
         # Get line from starting (and boundary) positions
-        if boundary and starting[0] == boundary[0]:
+        if boundary and starting[0] == boundary[0] and ("\\z" in pattern._pattern or "\\Z" in pattern._pattern):
             line = self.lines[starting[0]][:boundary[1]]
         else:
             line = self.lines[starting[0]]
-
-        if pattern._pattern == "\\Z":
-            leading_chars = 2
 
         # Gets the previous matching end position from anchor in case of \G.
         init_pos = self.anchor if "\\G" in pattern._pattern else starting[1]

@@ -31,13 +31,21 @@ class GrammarParser(ABC):
         else:
             return TokenParser(grammar, **kwargs)
 
-    def __init__(self, grammar: dict, language: "LanguageParser | None" = None, key: str = "", **kwargs) -> None:
+    def __init__(
+        self,
+        grammar: dict,
+        language: "LanguageParser | None" = None,
+        key: str = "",
+        is_capture: bool = False,
+        **kwargs,
+    ) -> None:
         self.grammar = grammar
         self.language = language
         self.key = key
         self.token = grammar.get("name", "")
         self.comment = grammar.get("comment", "")
         self.disabled = grammar.get("disabled", False)
+        self.is_capture = is_capture
         self.initialized = False
         self.anchored = False
         self.injected_patterns = []
@@ -50,7 +58,7 @@ class GrammarParser(ABC):
         captures = {}
         if key in grammar:
             for group_id, pattern in grammar[key].items():
-                captures[int(group_id)] = self.initialize(pattern, language=self.language)
+                captures[int(group_id)] = self.initialize(pattern, language=self.language, is_capture = True)
         return captures
 
     def _find_include(self, key: str, **kwargs) -> "GrammarParser":
@@ -100,7 +108,9 @@ class GrammarParser(ABC):
         """The method to parse a handler using the current grammar."""
         if not self.initialized:
             self.language._initialize_repository()
-        parsed, captures, span = self._parse(handler, starting, boundary=boundary, verbosity=verbosity, **kwargs)
+        parsed, captures, span = self._parse(
+            handler, starting, boundary=boundary, verbosity=verbosity, **kwargs
+        )
         elements = parse_captures(captures)
         return parsed, elements, span
 
@@ -111,6 +121,7 @@ class GrammarParser(ABC):
         starting: POS,
         boundary: POS | None = None,
         parsers: dict[int, "GrammarParser"] = {},
+        parent_capture: Capture or None = None,
         **kwargs,
     ) -> (tuple[POS, POS] | None, str, "list[Capture]"):
         """Matches a pattern and its capture groups.
@@ -122,10 +133,13 @@ class GrammarParser(ABC):
         matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
-            captures = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
-            return span, matching.group(), [captures]
+            capture = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
+            if parent_capture is not None and capture == parent_capture:
+                return None, "", []
+            else:
+                return span, matching.group(), [capture]
         else:
-            return span, "", []
+            return None, "", []
 
 
 class TokenParser(GrammarParser):
@@ -153,7 +167,10 @@ class TokenParser(GrammarParser):
         content = handler.read_pos(starting, boundary)
         elements = [
             ContentElement(
-                token=self.token, grammar=self.grammar, content=content, characters=handler.chars(starting, boundary)
+                token=self.token,
+                grammar=self.grammar,
+                content=content,
+                characters=handler.chars(starting, boundary),
             )
         ]
         handler.anchor = boundary[1]
@@ -231,16 +248,18 @@ class MatchParser(GrammarParser):
 
 
 class ParserHasPatterns(GrammarParser, ABC):
-
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
-        self.patterns = [self.initialize(pattern, language=self.language) for pattern in grammar.get("patterns", [])]
+        self.patterns = [
+            self.initialize(pattern, language=self.language) for pattern in grammar.get("patterns", [])
+        ]
 
     def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
         self.initialized = True
         self.patterns = [
-            parser if isinstance(parser, GrammarParser) else self._find_include(parser) for parser in self.patterns
+            parser if isinstance(parser, GrammarParser) else self._find_include(parser)
+            for parser in self.patterns
         ]
         for parser in self.patterns:
             if not parser.initialized:
@@ -254,9 +273,11 @@ class ParserHasPatterns(GrammarParser, ABC):
 
         # Injection grammars
         for exception_scopes, injection_pattern in self.language.injections:
-            if self.token and ("meta" in self.token or not any(s in self.token for s in exception_scopes)):
+            if self.token:
+                if self.token.split(".")[0] not in exception_scopes:
+                    self.patterns.append(injection_pattern)
+            elif self.is_capture:
                 self.patterns.append(injection_pattern)
-
 
 class PatternsParser(ParserHasPatterns):
     """The parser for grammars for which several patterns are provided."""
@@ -294,7 +315,9 @@ class PatternsParser(ParserHasPatterns):
                 )
                 if parsed:
                     if find_one:
-                        LOGGER.info(f"{self.__class__.__name__} found single element", self, current, verbosity)
+                        LOGGER.info(
+                            f"{self.__class__.__name__} found single element", self, current, verbosity
+                        )
                         return True, captures, span
                     elements.extend(captures)
                     current = span[1]
@@ -308,26 +331,61 @@ class PatternsParser(ParserHasPatterns):
                 options_span, options_elements = {}, {}
                 for parser in patterns:
                     parsed, captures, span = parser._parse(
-                        handler, current, boundary=boundary, leading_chars=2, verbosity=verbosity + 1, **kwargs
+                        handler,
+                        current,
+                        boundary=boundary,
+                        leading_chars=2,
+                        verbosity=verbosity + 1,
+                        **kwargs,
                     )
                     if parsed:
                         options_span[parser] = span
                         options_elements[parser] = captures
-                        LOGGER.debug(f"{self.__class__.__name__} found pattern choice", self, current, verbosity)
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} found pattern choice", self, current, verbosity
+                        )
 
                 if options_span:
-                    parser = sorted(options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser)))[0]
+                    parser = sorted(
+                        options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser))
+                    )[0]
                     current = options_span[parser][1]
                     elements.extend(options_elements[parser])
-                    LOGGER.info(f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity)
+                    LOGGER.info(
+                        f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity
+                    )
                 else:
                     break
 
             if current == starting:
                 LOGGER.warning(
-                    f"{self.__class__.__name__} handler did not move after a search round", self, starting, verbosity
+                    f"{self.__class__.__name__} handler did not move after a search round",
+                    self,
+                    starting,
+                    verbosity,
                 )
                 break
+
+            if handler.line_lengths[current[0]] == current[1]:
+                try:
+                    empty_lines = next(
+                        i for i, v in enumerate(handler.line_lengths[current[0] + 1 :]) if v > 1
+                    )
+                    current = (current[0] + 1 + empty_lines, 0)
+                except StopIteration:
+                    break
+
+        if self.token:
+            closing = boundary if starting == current else current
+            elements = [
+                ContentElement(
+                    token=self.token,
+                    grammar=self.grammar,
+                    content=handler.read_pos(starting, closing),
+                    characters=handler.chars(starting, closing),
+                    captures=elements,
+                )
+            ]
 
         return bool(elements), elements, (starting, current)
 
@@ -392,7 +450,7 @@ class BeginEndParser(ParserHasPatterns):
             starting,
             boundary=boundary,
             parsers=self.parsers_begin,
-            leading_chars=leading_chars
+            leading_chars=leading_chars,
         )
 
         if not begin_span:
@@ -441,28 +499,41 @@ class BeginEndParser(ParserHasPatterns):
             if not parsed and not end_span:
                 # Try to find the patterns and end pattern allowing for leading whitespace charaters
 
-                LOGGER.info(f"{self.__class__.__name__} getting all pattern options", self, current, verbosity)
+                LOGGER.info(
+                    f"{self.__class__.__name__} getting all pattern options", self, current, verbosity
+                )
 
                 options_span, options_elements = {}, {}
                 for parser in patterns:
                     parsed, capture_elements, capture_span = parser._parse(
-                        handler, current, boundary=boundary, leading_chars=2, verbosity=verbosity + 1, **kwargs
+                        handler,
+                        current,
+                        boundary=boundary,
+                        leading_chars=2,
+                        verbosity=verbosity + 1,
+                        **kwargs,
                     )
                     if parsed:
                         options_span[parser] = capture_span
                         options_elements[parser] = capture_elements
-                        LOGGER.debug(f"{self.__class__.__name__} found pattern choice", self, current, verbosity)
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} found pattern choice", self, current, verbosity
+                        )
 
                 if options_span:
                     parsed = True
-                    parser = sorted(options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser)))[0]
+                    parser = sorted(
+                        options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser))
+                    )[0]
                     capture_span = options_span[parser]
                     capture_elements = options_elements[parser]
 
                     if parser == self:
                         apply_end_pattern_last = True
 
-                    LOGGER.info(f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity)
+                    LOGGER.info(
+                        f"{self.__class__.__name__} chosen pattern of {parser}", self, current, verbosity
+                    )
 
                 end_span, end_content, end_elements = self.match_and_capture(
                     handler,

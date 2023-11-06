@@ -73,22 +73,22 @@ def test_control_statement(check, expected):
 )
 def test_arithmetic(check):
     """Test arithmatic operators"""
-    parsed, elements, _ = parser.parse(ContentHandler(check))
-    assert parsed, MSG_NO_MATCH
-    assert elements[1].token == "keyword.operator.arithmetic.matlab", MSG_NO_MATCH
+    element = parser.parse_language(ContentHandler(check))
+    assert element, MSG_NO_MATCH
+    assert element.captures[1].token == "keyword.operator.arithmetic.matlab", MSG_NO_MATCH
 
 
 @pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b"])
 def test_logical(check):
     """Test logical operators"""
-    parsed, elements, _ = parser.parse(ContentHandler(check))
-    assert parsed, MSG_NO_MATCH
-    assert elements[1].token == "keyword.operator.logical.matlab", MSG_NO_MATCH
+    element = parser.parse_language(ContentHandler(check))
+    assert element, MSG_NO_MATCH
+    assert element.captures[1].token == "keyword.operator.logical.matlab", MSG_NO_MATCH
 
 
 @pytest.mark.parametrize("check", ["a>b", "a>=b", "a<b", "a<=b"])
 def test_comparative(check):
     """Test comparative operators"""
-    parsed, elements, _ = parser.parse(ContentHandler(check))
-    assert parsed, MSG_NO_MATCH
-    assert elements[1].token == "keyword.operator.relational.matlab", MSG_NO_MATCH
+    element = parser.parse_language(ContentHandler(check))
+    assert element, MSG_NO_MATCH
+    assert element.captures[1].token == "keyword.operator.relational.matlab", MSG_NO_MATCH
