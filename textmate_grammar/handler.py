@@ -150,7 +150,6 @@ class ContentHandler(object):
         pattern: Pattern,
         starting: POS,
         boundary: POS | None = None,
-        trim_boundary: bool = False,
         leading_chars: int = 0,
         **kwargs,
     ) -> (Match | None, tuple[POS, POS] | None):
@@ -199,7 +198,7 @@ class ContentHandler(object):
             return None, None
 
         if leading_string and not leading_string.isspace() and leading_chars == 2:
-            LOGGER.warning(f"skipping < {leading_string} >", position=start_pos)
+            LOGGER.warning(f"skipping < {leading_string} >", position=start_pos, depth=kwargs.get("depth", 0))
 
         # Include \n in match span if pattern matches on end of line $
         if "$" in pattern._pattern and matching.end() + 1 == self.line_lengths[starting[0]]:

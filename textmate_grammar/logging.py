@@ -1,11 +1,21 @@
 import logging
 from typing import TYPE_CHECKING
+from functools import wraps
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
 
 
 MAX_LENGTH = 79
+
+
+def track_depth(func):
+    """Simple decorator to track recusion depth."""
+
+    @wraps(func)
+    def wrapper(*args, depth: int = -1, **kwargs):
+        return func(*args, depth=depth + 1, **kwargs)
+    return wrapper
 
 
 class LogFormatter(logging.Formatter):
@@ -63,7 +73,7 @@ class Logger(object):
         message: str,
         parser: "GrammarParser | None" = None,
         position: tuple[int, int] | None = None,
-        verbosity: int = 0,
+        depth: int = 0,
     ) -> str:
         "Formats a logging message to the defined format"
         if position:
@@ -79,7 +89,7 @@ class Logger(object):
         else:
             msg_id = "." * self.max_token_length
 
-        vb_message = f"{'|'*(verbosity-1)}{'-'*bool(verbosity)}{message}"
+        vb_message = f"{'|'*(depth-1)}{'-'*bool(depth)}{message}"
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])
