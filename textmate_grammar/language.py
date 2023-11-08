@@ -1,6 +1,4 @@
-from typing import Union, Optional
 from pathlib import Path
-import logging
 
 from .logging import LOGGER
 from .exceptions import IncompatibleFileType
@@ -37,20 +35,18 @@ class LanguageParser(PatternsParser):
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
-        self.injections = {}
+        self.injections = []
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
             for key, parser_grammar in repo.items():
                 self.repository[key] = GrammarParser.initialize(parser_grammar, key=key, language=self)
 
-        # Initialize injections
-        injections = grammar.get("injections", {})
-        for key, injected_grammar in injections.items():
-            self.injections[key] = GrammarParser.initialize(injected_grammar, key=key, language=self)
-
         # Update language parser store
-        LANGUAGE_PARSERS[grammar.get("scopeName", "myScope")] = self
+        language_name = grammar.get("scopeName", "myLanguage")
+        LANGUAGE_PARSERS[language_name] = self
+
+        self._initialize_repository()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.key}"
@@ -61,14 +57,27 @@ class LanguageParser(PatternsParser):
 
     def _initialize_repository(self):
         """When the grammar has patterns, this method should called to initialize its inclusions."""
+
+        # Initialize injections
+        injections = self.grammar.get("injections", {})
+        for key, injected_grammar in injections.items():
+            target_string = key[: key.index("-")].strip()
+            if not target_string:
+                target_string = self.grammar.get("scopeName", "myLanguage")
+            target_language = LANGUAGE_PARSERS[target_string]
+
+            injected_parser = GrammarParser.initialize(
+                injected_grammar, key=f"{target_string}.injection", language=target_language
+            )
+            injected_parser._initialize_repository()
+
+            scope_string = key[key.index("-") :]
+            exception_scopes = [s.strip() for s in scope_string.split("-") if s.strip()]
+            target_language.injections.append([exception_scopes, injected_parser])
+
         super()._initialize_repository()
 
-        for key, injected_parser in self.injections.items():
-            injected_parser._initialize_repository()
-            parser_to_inject = self._find_include(key.split(" ")[0])  # TODO this is a hack
-            parser_to_inject.injected_patterns.append(injected_parser)
-
-    def parse_file(self, filePath: str | Path, log_level: int = logging.CRITICAL, **kwargs) -> ContentElement | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> ContentElement | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -79,31 +88,28 @@ class LanguageParser(PatternsParser):
         handler = ContentHandler.from_path(filePath)
 
         # Configure logger
-        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths), level=log_level)
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
-        return self.parse_language(handler, **kwargs)
+        return self._parse_language(handler, **kwargs)
 
-    def parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
+    def parse_string(self, input: str, **kwargs):
+        """Parses an input string"""
+        handler = ContentHandler(input)
+        # Configure logger
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+        return self._parse_language(handler, **kwargs)
+
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
         """Parses the current stream with the language scope."""
 
-        parsed, elements, span = self.parse(handler, (0, 0), **kwargs)
-
-        if parsed:
-            element = ContentElement(
-                token=self.token,
-                grammar=self.grammar,
-                content=handler.source,
-                characters=handler.chars(*span),
-                captures=elements,
-            )
-        else:
-            element = None
-        return element
+        parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
+        return elements[0] if parsed else None
 
     def _parse(
-        self, handler: ContentHandler, starting: POS, find_one: bool = False, **kwargs
+        self, handler: ContentHandler, starting: POS, **kwargs
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
-        return super()._parse(handler, starting, find_one=find_one, injections=True, **kwargs)
+        kwargs.pop("find_one", None)
+        return super()._parse(handler, starting, find_one=False, **kwargs)
 
 
 def gen_repositories(grammar, key="repository"):

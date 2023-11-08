@@ -1,6 +1,5 @@
-onigurumacffi
-charset-normalizer
-pyyaml
-pytest
-pytest-icdiff
-black
+onigurumacffi >= 1.3.0
+pyyaml >=6.0.1
+pytest >= 7.3.1
+pytest-icdiff >= 0.8
+poetry >= 1.6.1

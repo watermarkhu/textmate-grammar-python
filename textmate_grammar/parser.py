@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 import onigurumacffi as re
 
-from .logging import LOGGER
+from .logging import LOGGER, track_depth
 from .exceptions import IncludedParserNotFound
 from .elements import ContentElement, ContentBlockElement
 from .handler import ContentHandler, Pattern, POS
@@ -31,13 +31,21 @@ class GrammarParser(ABC):
         else:
             return TokenParser(grammar, **kwargs)
 
-    def __init__(self, grammar: dict, language: "LanguageParser | None" = None, key: str = "", **kwargs) -> None:
+    def __init__(
+        self,
+        grammar: dict,
+        language: "LanguageParser | None" = None,
+        key: str = "",
+        is_capture: bool = False,
+        **kwargs,
+    ) -> None:
         self.grammar = grammar
         self.language = language
         self.key = key
         self.token = grammar.get("name", "")
         self.comment = grammar.get("comment", "")
         self.disabled = grammar.get("disabled", False)
+        self.is_capture = is_capture
         self.initialized = False
         self.anchored = False
         self.injected_patterns = []
@@ -50,7 +58,7 @@ class GrammarParser(ABC):
         captures = {}
         if key in grammar:
             for group_id, pattern in grammar[key].items():
-                captures[int(group_id)] = self.initialize(pattern, language=self.language)
+                captures[int(group_id)] = self.initialize(pattern, language=self.language, is_capture=True)
         return captures
 
     def _find_include(self, key: str, **kwargs) -> "GrammarParser":
@@ -71,7 +79,6 @@ class GrammarParser(ABC):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[int, int] | None):
         """The abstract method which all parsers much implement
@@ -94,13 +101,13 @@ class GrammarParser(ABC):
         handler: ContentHandler,
         starting: POS = (0, 0),
         boundary: POS | None = None,
-        verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[int, int] | None):
         """The method to parse a handler using the current grammar."""
         if not self.initialized:
             self.language._initialize_repository()
-        parsed, captures, span = self._parse(handler, starting, boundary=boundary, verbosity=verbosity, **kwargs)
+        parsed, captures, span = self._parse(handler, starting, boundary=boundary, **kwargs)
+        LOGGER.info(f"--------------- Parsing captures ---------------", self)
         elements = parse_captures(captures)
         return parsed, elements, span
 
@@ -111,6 +118,7 @@ class GrammarParser(ABC):
         starting: POS,
         boundary: POS | None = None,
         parsers: dict[int, "GrammarParser"] = {},
+        parent_capture: Capture or None = None,
         **kwargs,
     ) -> (tuple[POS, POS] | None, str, "list[Capture]"):
         """Matches a pattern and its capture groups.
@@ -122,10 +130,13 @@ class GrammarParser(ABC):
         matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
-            captures = Capture(handler, pattern, matching, parsers, starting, boundary, **kwargs)
-            return span, matching.group(), [captures]
+            capture = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
+            if parent_capture is not None and capture == parent_capture:
+                return None, "", []
+            else:
+                return span, matching.group(), [capture]
         else:
-            return span, "", []
+            return None, "", []
 
 
 class TokenParser(GrammarParser):
@@ -138,12 +149,12 @@ class TokenParser(GrammarParser):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.token}"
 
+    @track_depth
     def _parse(
         self,
         handler: ContentHandler,
         starting: POS,
         boundary: POS,
-        verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
         """The parse method for grammars for which only the token is provided.
@@ -153,11 +164,14 @@ class TokenParser(GrammarParser):
         content = handler.read_pos(starting, boundary)
         elements = [
             ContentElement(
-                token=self.token, grammar=self.grammar, content=content, characters=handler.chars(starting, boundary)
+                token=self.token,
+                grammar=self.grammar,
+                content=content,
+                characters=handler.chars(starting, boundary),
             )
         ]
         handler.anchor = boundary[1]
-        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, starting, verbosity)
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, starting, kwargs.get("depth", 0))
         return True, elements, (starting, boundary)
 
 
@@ -188,12 +202,12 @@ class MatchParser(GrammarParser):
             if not parser.initialized:
                 parser._initialize_repository()
 
+    @track_depth
     def _parse(
         self,
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
         """The parse method for grammars for which a match pattern is provided."""
@@ -204,15 +218,14 @@ class MatchParser(GrammarParser):
             starting=starting,
             boundary=boundary,
             parsers=self.parsers,
-            verbosity=verbosity,
             **kwargs,
         )
 
         if span is None:
-            LOGGER.debug(f"{self.__class__.__name__} no match", self, starting, verbosity)
+            LOGGER.debug(f"{self.__class__.__name__} no match", self, starting, kwargs.get("depth", 0))
             return False, [], None
 
-        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, starting, verbosity)
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, starting, kwargs.get("depth", 0))
 
         if self.token:
             elements = [
@@ -221,7 +234,7 @@ class MatchParser(GrammarParser):
                     grammar=self.grammar,
                     content=content,
                     characters=handler.chars(*span),
-                    captures=captures,
+                    children=captures,
                 )
             ]
         else:
@@ -230,9 +243,7 @@ class MatchParser(GrammarParser):
         return True, elements, span
 
 
-class PatternsParser(GrammarParser):
-    """The parser for grammars for which several patterns are provided."""
-
+class ParserHasPatterns(GrammarParser, ABC):
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
         self.patterns = [self.initialize(pattern, language=self.language) for pattern in grammar.get("patterns", [])]
@@ -247,20 +258,32 @@ class PatternsParser(GrammarParser):
             if not parser.initialized:
                 parser._initialize_repository()
 
-        pattern_parsers = [parser for parser in self.patterns if type(parser) == PatternsParser]
+        # Copy patterns from included pattern parsers
+        pattern_parsers = [parser for parser in self.patterns if isinstance(parser, PatternsParser)]
         for parser in pattern_parsers:
             parser_index = self.patterns.index(parser)
             self.patterns[parser_index : parser_index + 1] = parser.patterns
 
+        # Injection grammars
+        for exception_scopes, injection_pattern in self.language.injections:
+            if self.token:
+                if self.token.split(".")[0] not in exception_scopes:
+                    self.patterns.append(injection_pattern)
+            elif self.is_capture:
+                self.patterns.append(injection_pattern)
+
+
+class PatternsParser(ParserHasPatterns):
+    """The parser for grammars for which several patterns are provided."""
+
+    @track_depth
     def _parse(
         self,
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        allow_leading_all: bool = False,
+        leading_chars: int = 1,
         find_one: bool = True,
-        injections: bool = False,
-        verbosity: int = 0,
         **kwargs,
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
         """The parse method for grammars for which a match pattern is provided."""
@@ -271,9 +294,6 @@ class PatternsParser(GrammarParser):
         parsed, elements = False, []
         patterns = [parser for parser in self.patterns if not parser.disabled]
 
-        if find_one or injections:
-            patterns = patterns + self.injected_patterns
-
         current = (starting[0], starting[1])
 
         while current < boundary:
@@ -283,13 +303,14 @@ class PatternsParser(GrammarParser):
                     handler,
                     current,
                     boundary=boundary,
-                    allow_leading_all=allow_leading_all,
-                    verbosity=verbosity + 1,
+                    leading_chars=leading_chars,
                     **kwargs,
                 )
                 if parsed:
                     if find_one:
-                        LOGGER.info(f"{self.__class__.__name__} found single element", self, current, verbosity)
+                        LOGGER.info(
+                            f"{self.__class__.__name__} found single element", self, current, kwargs.get("depth", 0)
+                        )
                         return True, captures, span
                     elements.extend(captures)
                     current = span[1]
@@ -297,33 +318,69 @@ class PatternsParser(GrammarParser):
             else:
                 if find_one:
                     break
-                # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
-                second_try_patterns = patterns if not allow_leading_all else []
 
-                for parser in second_try_patterns:
+            if not parsed and leading_chars != 2:
+                # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
+                options_span, options_elements = {}, {}
+                for parser in patterns:
                     parsed, captures, span = parser._parse(
-                        handler, current, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
+                        handler,
+                        current,
+                        boundary=boundary,
+                        leading_chars=2,
+                        **kwargs,
                     )
                     if parsed:
-                        if find_one:
-                            LOGGER.info(f"{self.__class__.__name__} found single element", self, current, verbosity)
-                            return True, captures, span
-                        elements.extend(captures)
-                        current = span[1]
-                        break
+                        options_span[parser] = span
+                        options_elements[parser] = captures
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} found pattern choice", self, current, kwargs.get("depth", 0)
+                        )
+
+                if options_span:
+                    parser = sorted(
+                        options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser))
+                    )[0]
+                    current = options_span[parser][1]
+                    elements.extend(options_elements[parser])
+                    LOGGER.info(
+                        f"{self.__class__.__name__} chosen pattern of {parser}", self, current, kwargs.get("depth", 0)
+                    )
                 else:
                     break
 
             if current == starting:
                 LOGGER.warning(
-                    f"{self.__class__.__name__} handler did not move after a search round", self, starting, verbosity
+                    f"{self.__class__.__name__} handler did not move after a search round",
+                    self,
+                    starting,
+                    kwargs.get("depth", 0),
                 )
                 break
+
+            if handler.line_lengths[current[0]] == current[1]:
+                try:
+                    empty_lines = next(i for i, v in enumerate(handler.line_lengths[current[0] + 1 :]) if v > 1)
+                    current = (current[0] + 1 + empty_lines, 0)
+                except StopIteration:
+                    break
+
+        if self.token:
+            closing = boundary if starting == current else current
+            elements = [
+                ContentElement(
+                    token=self.token,
+                    grammar=self.grammar,
+                    content=handler.read_pos(starting, closing),
+                    characters=handler.chars(starting, closing),
+                    children=elements,
+                )
+            ]
 
         return bool(elements), elements, (starting, current)
 
 
-class BeginEndParser(PatternsParser):
+class BeginEndParser(ParserHasPatterns):
     """The parser for grammars for which a begin/end pattern is provided."""
 
     def __init__(self, grammar: dict, **kwargs) -> None:
@@ -366,13 +423,13 @@ class BeginEndParser(PatternsParser):
             if not parser.initialized:
                 parser._initialize_repository()
 
+    @track_depth
     def _parse(
         self,
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        allow_leading_all: bool = False,
-        verbosity: int = 0,
+        leading_chars: int = 1,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
         """The parse method for grammars for which a begin/end pattern is provided."""
@@ -383,13 +440,14 @@ class BeginEndParser(PatternsParser):
             starting,
             boundary=boundary,
             parsers=self.parsers_begin,
-            allow_leading_all=allow_leading_all,
+            leading_chars=leading_chars,
+            **kwargs
         )
 
         if not begin_span:
-            LOGGER.debug(f"{self.__class__.__name__} no begin match", self, starting, verbosity)
+            LOGGER.debug(f"{self.__class__.__name__} no begin match", self, starting, kwargs.get("depth", 0))
             return False, [], None
-        LOGGER.info(f"{self.__class__.__name__} found begin", self, starting, verbosity)
+        LOGGER.info(f"{self.__class__.__name__} found begin", self, starting, kwargs.get("depth", 0))
 
         # Get initial and boundary positions
         current = begin_span[1]
@@ -411,12 +469,14 @@ class BeginEndParser(PatternsParser):
             # Try to find patterns first with no leading whitespace charaters allowed
             for parser in patterns:
                 parsed, capture_elements, capture_span = parser._parse(
-                    handler, current, boundary=boundary, allow_leading_all=False, verbosity=verbosity + 1, **kwargs
+                    handler, current, boundary=boundary, leading_chars=1, **kwargs
                 )
                 if parsed:
                     if parser == self:
                         apply_end_pattern_last = True
-                    LOGGER.debug(f"{self.__class__.__name__} found pattern (no ws)", self, current, verbosity)
+                    LOGGER.debug(
+                        f"{self.__class__.__name__} found pattern (no ws)", self, current, kwargs.get("depth", 0)
+                    )
                     break
 
             # Try to find the end pattern with no leading whitespace charaters allowed
@@ -426,20 +486,47 @@ class BeginEndParser(PatternsParser):
                 current,
                 boundary=boundary,
                 parsers=self.parsers_end,
-                allow_leading_all=False,
+                leading_chars=1,
+                **kwargs
             )
 
             if not parsed and not end_span:
                 # Try to find the patterns and end pattern allowing for leading whitespace charaters
+
+                LOGGER.info(
+                    f"{self.__class__.__name__} getting all pattern options", self, current, kwargs.get("depth", 0)
+                )
+
+                options_span, options_elements = {}, {}
                 for parser in patterns:
                     parsed, capture_elements, capture_span = parser._parse(
-                        handler, current, boundary=boundary, allow_leading_all=True, verbosity=verbosity + 1, **kwargs
+                        handler,
+                        current,
+                        boundary=boundary,
+                        leading_chars=2,
+                        **kwargs,
                     )
                     if parsed:
-                        if parser == self:
-                            apply_end_pattern_last = True
-                        LOGGER.debug(f"{self.__class__.__name__} found pattern (ws)", self, current, verbosity)
-                        break
+                        options_span[parser] = capture_span
+                        options_elements[parser] = capture_elements
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} found pattern choice", self, current, kwargs.get("depth", 0)
+                        )
+
+                if options_span:
+                    parsed = True
+                    parser = sorted(
+                        options_span, key=lambda parser: (*options_span[parser][0], patterns.index(parser))
+                    )[0]
+                    capture_span = options_span[parser]
+                    capture_elements = options_elements[parser]
+
+                    if parser == self:
+                        apply_end_pattern_last = True
+
+                    LOGGER.info(
+                        f"{self.__class__.__name__} chosen pattern of {parser}", self, current, kwargs.get("depth", 0)
+                    )
 
                 end_span, end_content, end_elements = self.match_and_capture(
                     handler,
@@ -447,7 +534,8 @@ class BeginEndParser(PatternsParser):
                     current,
                     boundary=boundary,
                     parsers=self.parsers_end,
-                    allow_leading_all=True,
+                    leading_chars=2,
+                    **kwargs
                 )
 
             if end_span:
@@ -470,7 +558,7 @@ class BeginEndParser(PatternsParser):
                                 f"{self.__class__.__name__} capture+end: both accepted, break",
                                 self,
                                 current,
-                                verbosity,
+                                kwargs.get("depth", 0),
                             )
                             mid_elements.extend(capture_elements)
                             closing = end_span[0] if self.between_content else end_span[1]
@@ -481,7 +569,7 @@ class BeginEndParser(PatternsParser):
                                 f"{self.__class__.__name__} capture+end: end prioritized, break",
                                 self,
                                 current,
-                                verbosity,
+                                kwargs.get("depth", 0),
                             )
                             closing = end_span[0] if self.between_content else end_span[1]
                             break
@@ -491,7 +579,7 @@ class BeginEndParser(PatternsParser):
                                 f"{self.__class__.__name__} capture+end: capture prioritized, continue",
                                 self,
                                 current,
-                                verbosity,
+                                kwargs.get("depth", 0),
                             )
                             mid_elements.extend(capture_elements)
                             current = capture_span[1]
@@ -502,7 +590,7 @@ class BeginEndParser(PatternsParser):
                             f"{self.__class__.__name__} capture<end: leading capture, continue",
                             self,
                             current,
-                            verbosity,
+                            kwargs.get("depth", 0),
                         )
                         mid_elements.extend(capture_elements)
                         current = capture_span[1]
@@ -512,13 +600,13 @@ class BeginEndParser(PatternsParser):
                             f"{self.__class__.__name__} end<capture: leading end, break",
                             self,
                             current,
-                            verbosity,
+                            kwargs.get("depth", 0),
                         )
                         closing = end_span[0] if self.between_content else end_span[1]
                         break
                 else:
                     # No capture pattern found, accept end pattern and break pattern search
-                    LOGGER.debug(f"{self.__class__.__name__} end: break", self, current, verbosity)
+                    LOGGER.debug(f"{self.__class__.__name__} end: break", self, current, kwargs.get("depth", 0))
                     closing = end_span[0] if self.between_content else end_span[1]
                     break
             else:  # No end pattern found
@@ -533,7 +621,7 @@ class BeginEndParser(PatternsParser):
                             f"{self.__class__.__name__} capture: next is newline, continue",
                             self,
                             current,
-                            verbosity,
+                            kwargs.get("depth", 0),
                         )
 
                         end_span, _, _ = self.match_and_capture(
@@ -543,6 +631,7 @@ class BeginEndParser(PatternsParser):
                             boundary=boundary,
                             parsers=self.parsers_end,
                             allow_leading_all=False,
+                            **kwargs
                         )
 
                         if end_span and end_span[1] <= handler.next(capture_span[1]):
@@ -552,7 +641,9 @@ class BeginEndParser(PatternsParser):
                             # Skip the newline character in the next pattern search round
                             current = handler.next(capture_span[1])
                     else:
-                        LOGGER.debug(f"{self.__class__.__name__} capture: continue", self, current, verbosity)
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} capture: continue", self, current, kwargs.get("depth", 0)
+                        )
                         current = capture_span[1]
                 else:
                     # No capture patterns nor end patterns found. Skip the current line.
@@ -560,7 +651,10 @@ class BeginEndParser(PatternsParser):
 
                     if line and not line.isspace():
                         LOGGER.warning(
-                            f"No patterns found in line, skipping < {repr(line)} >", self, current, verbosity
+                            f"No patterns found in line, skipping < {repr(line)} >",
+                            self,
+                            current,
+                            kwargs.get("depth", 0),
                         )
                     current = handler.next((current[0], handler.line_lengths[current[0]]))
 
@@ -579,7 +673,7 @@ class BeginEndParser(PatternsParser):
         start = begin_span[1] if self.between_content else begin_span[0]
 
         content = handler.read_pos(start, closing)
-        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start, verbosity)
+        LOGGER.info(f"{self.__class__.__name__} found < {repr(content)} >", self, start, kwargs.get("depth", 0))
 
         # Construct output elements
         if self.token:
@@ -589,7 +683,7 @@ class BeginEndParser(PatternsParser):
                     grammar=self.grammar,
                     content=content,
                     characters=handler.chars(start, closing),
-                    captures=mid_elements,
+                    children=mid_elements,
                     begin=begin_elements,
                     end=end_elements,
                 )
@@ -645,7 +739,6 @@ class BeginWhileParser(PatternsParser):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        verbosity: int = 0,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
         """The parse method for grammars for which a begin/while pattern is provided."""

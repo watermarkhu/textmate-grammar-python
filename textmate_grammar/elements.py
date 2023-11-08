@@ -21,13 +21,13 @@ class ContentElement(object):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        captures: "list[ContentElement | Capture]" = [],
+        children: "list[ContentElement | Capture]" = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
         self.content = content
         self.characters = characters
-        self.captures = captures
+        self.children = children
 
     def __eq__(self, other):
         if self.grammar == other.grammar and self.characters == other.characters:
@@ -38,13 +38,13 @@ class ContentElement(object):
     def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
         out_dict = {"token": self.token}
-        if all_content or not self.captures:
+        if all_content or not self.children:
             out_dict["content"] = self.content
-        if self.captures:
-            out_dict["captures"] = (
-                self._list_property_to_dict("captures", verbosity=verbosity - 1, all_content=all_content)
+        if self.children:
+            out_dict["children"] = (
+                self._list_property_to_dict("children", verbosity=verbosity - 1, all_content=all_content)
                 if verbosity
-                else self.captures
+                else self.children
             )
         return out_dict
 
@@ -82,7 +82,7 @@ class ContentElement(object):
             token_dict[pos].append(self.token)
 
         # Tokenize child elements
-        for element in self.captures:
+        for element in self.children:
             element._token_by_index(token_dict)
         return token_dict
 
@@ -94,7 +94,7 @@ class ContentElement(object):
 
     def __repr__(self) -> str:
         content = self.content if len(self.content) < 15 else self.content[:15] + "..."
-        return repr(f"{self.token}<<{content}>>({len(self.captures)})")
+        return repr(f"{self.token}<<{content}>>({len(self.children)})")
 
 
 class ContentBlockElement(ContentElement):
@@ -118,7 +118,7 @@ class ContentBlockElement(ContentElement):
                 self._list_property_to_dict("end", verbosity=verbosity - 1, **kwargs) if verbosity else self.end
             )
 
-        ordered_keys = [key for key in ["token", "begin", "end", "content", "captures"] if key in out_dict]
+        ordered_keys = [key for key in ["token", "begin", "end", "content", "children"] if key in out_dict]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
 

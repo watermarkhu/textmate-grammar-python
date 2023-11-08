@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "textmate-grammar-python"
+version = "0.1.0"
+description = "An interpreter for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format."
+authors = ["Mark Shui Hu <watermarkhu@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/watermarkhu/textmate-grammar-python"
+keywords = ["textmate", "tokenization"]
+packages = [{include = "textmate_grammar"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+onigurumacffi = "^1.3.0"
+PyYAML = "^6.0.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
+pytest-icdiff = "^0.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

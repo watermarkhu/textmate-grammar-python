@@ -75,7 +75,7 @@ class ContentHandler(object):
         else:
             for lp in range(start[1], self.line_lengths[start[0]]):
                 indices.append((start[0], lp))
-            for ln in range(start[0], close[0]):
+            for ln in range(start[0]+1, close[0]):
                 for lp in range(self.line_lengths[ln]):
                     indices.append((ln, lp))
             for lp in range(close[1]):
@@ -150,8 +150,7 @@ class ContentHandler(object):
         pattern: Pattern,
         starting: POS,
         boundary: POS | None = None,
-        allow_leading_ws: bool = True,
-        allow_leading_all: bool = False,
+        leading_chars: int = 0,
         **kwargs,
     ) -> (Match | None, tuple[POS, POS] | None):
         """Matches the stream against a capture group.
@@ -161,16 +160,20 @@ class ContentHandler(object):
         must match the number of capture groups of the expression, or there must be a single parser
         and no capture groups.
 
-        In a grammar that contains a pattern, first a round of search is performed while allow_leading_all
-        is set to False, trying to find a match directy from the initial position. If no matches are found,
-        a second round is initiated with allow_leading_all set to True, allowing for non-tokenized
-        charaters to be skipped in the matching.
+        leading_chars:
+        - 0: none allowed
+        - 1: whitespace characters allowed
+        - 2: any character allowed
         """
 
-        line = self.lines[starting[0]]
+        if pattern._pattern in ["\\z", "\\Z"]:
+            leading_chars = 2
 
-        if pattern._pattern == "\\Z":
-            allow_leading_all = True
+        # Get line from starting (and boundary) positions
+        if boundary and starting[0] == boundary[0] and ("\\z" in pattern._pattern or "\\Z" in pattern._pattern):
+            line = self.lines[starting[0]][:boundary[1]]
+        else:
+            line = self.lines[starting[0]]
 
         # Gets the previous matching end position from anchor in case of \G.
         init_pos = self.anchor if "\\G" in pattern._pattern else starting[1]
@@ -181,7 +184,7 @@ class ContentHandler(object):
         # Check that no charaters are skipped in case ws-only is enabled
         if matching:
             leading_string = line[init_pos : matching.start()]
-            if leading_string and not allow_leading_all and not (allow_leading_ws and leading_string.isspace()):
+            if leading_string and not (leading_chars == 2 or (leading_chars == 1 and leading_string.isspace())):
                 return None, None
         else:
             return None, None
@@ -194,8 +197,8 @@ class ContentHandler(object):
         if boundary and close_pos > boundary:
             return None, None
 
-        if leading_string and not allow_leading_all and not leading_string.isspace():
-            LOGGER.warning(f"skipping < {leading_string} >", position=start_pos)
+        if leading_string and not leading_string.isspace() and leading_chars == 2:
+            LOGGER.warning(f"skipping < {leading_string} >", position=start_pos, depth=kwargs.get("depth", 0))
 
         # Include \n in match span if pattern matches on end of line $
         if "$" in pattern._pattern and matching.end() + 1 == self.line_lengths[starting[0]]:
