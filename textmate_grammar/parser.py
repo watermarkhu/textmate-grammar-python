@@ -234,7 +234,7 @@ class MatchParser(GrammarParser):
                     grammar=self.grammar,
                     content=content,
                     characters=handler.chars(*span),
-                    captures=captures,
+                    children=captures,
                 )
             ]
         else:
@@ -373,7 +373,7 @@ class PatternsParser(ParserHasPatterns):
                     grammar=self.grammar,
                     content=handler.read_pos(starting, closing),
                     characters=handler.chars(starting, closing),
-                    captures=elements,
+                    children=elements,
                 )
             ]
 
@@ -683,7 +683,7 @@ class BeginEndParser(ParserHasPatterns):
                     grammar=self.grammar,
                     content=content,
                     characters=handler.chars(start, closing),
-                    captures=mid_elements,
+                    children=mid_elements,
                     begin=begin_elements,
                     end=end_elements,
                 )

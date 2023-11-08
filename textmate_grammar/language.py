@@ -1,5 +1,4 @@
 from pathlib import Path
-import logging
 
 from .logging import LOGGER
 from .exceptions import IncompatibleFileType
@@ -47,6 +46,8 @@ class LanguageParser(PatternsParser):
         language_name = grammar.get("scopeName", "myLanguage")
         LANGUAGE_PARSERS[language_name] = self
 
+        self._initialize_repository()
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.key}"
 
@@ -76,9 +77,7 @@ class LanguageParser(PatternsParser):
 
         super()._initialize_repository()
 
-    def parse_file(
-        self, filePath: str | Path, **kwargs
-    ) -> ContentElement | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> ContentElement | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -91,19 +90,25 @@ class LanguageParser(PatternsParser):
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
-        return self.parse_language(handler, **kwargs)
+        return self._parse_language(handler, **kwargs)
 
-    def parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
+    def parse_string(self, input: str, **kwargs):
+        """Parses an input string"""
+        handler = ContentHandler(input)
+        # Configure logger
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+        return self._parse_language(handler, **kwargs)
+
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
         """Parses the current stream with the language scope."""
 
         parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
         return elements[0] if parsed else None
-        
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
-        kwargs.pop('find_one', None)
+        kwargs.pop("find_one", None)
         return super()._parse(handler, starting, find_one=False, **kwargs)
 
 

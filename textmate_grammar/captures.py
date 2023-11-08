@@ -21,7 +21,7 @@ def parse_captures(
         if isinstance(element, ContentBlockElement):
             element.begin = parse_captures(element.begin, parent=element)
             element.end = parse_captures(element.end, parent=element)
-        element.captures = parse_captures(element.captures, parent=element)
+        element.children = parse_captures(element.children, parent=element)
 
     return elements
 
