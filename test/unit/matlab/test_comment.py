@@ -1,5 +1,4 @@
 import pytest
-from textmate_grammar.handler import ContentHandler
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
 from . import parser
 
@@ -18,7 +17,7 @@ test_vector["% Test this is a comment. \n"] = {
 test_vector["%% This is a section comment \n"] = {
     "token": "comment.line.double-percentage.matlab",
     "begin": [{"token": "punctuation.definition.comment.matlab", "content": "%%"}],
-    "captures": [
+    "children": [
         {
             "token": "entity.name.section.matlab",
             "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
@@ -42,6 +41,6 @@ test_vector["%{\nThis is a comment\nmultiple\n %}"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_comment(check, expected):
     """Test comment"""
-    element = parser.parse_language(ContentHandler(check))
+    element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
-    assert element.captures[0].to_dict() == expected, MSG_NOT_PARSED
+    assert element.children[0].to_dict() == expected, MSG_NOT_PARSED

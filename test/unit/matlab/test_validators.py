@@ -28,11 +28,11 @@ test_vector["argument (1,1) string;"] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "argument"}],
     "end": [{"token": "punctuation.terminator.semicolon.matlab", "content": ";"}],
-    "captures": [
+    "children": [
         {"token": "punctuation.section.parens.begin.matlab", "content": "("},
         {
             "token": "meta.parens.size.matlab",
-            "captures": [
+            "children": [
                 {"token": "constant.numeric.decimal.matlab", "content": "1"},
                 {"token": "punctuation.separator.comma.matlab", "content": ","},
                 {"token": "constant.numeric.decimal.matlab", "content": "1"},
@@ -48,11 +48,11 @@ test_vector["argument (1,1) string;"] = {
 test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "x"}],
-    "captures": [
+    "children": [
         {"token": "punctuation.section.parens.begin.matlab", "content": "("},
         {
             "token": "meta.parens.size.matlab",
-            "captures": [
+            "children": [
                 {"token": "constant.numeric.decimal.matlab", "content": "1"},
                 {"token": "punctuation.separator.comma.matlab", "content": ","},
                 {"token": "keyword.operator.vector.colon.matlab", "content": ":"},
@@ -63,7 +63,7 @@ test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
             "token": "meta.block.validation.matlab",
             "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-            "captures": [
+            "children": [
                 {"token": "variable.other.readwrite.matlab", "content": "mustBeNumeric"},
                 {"token": "variable.other.readwrite.matlab", "content": "mustBeReal"},
             ],
@@ -75,18 +75,18 @@ test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
 test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
     "token": "meta.assignment.definition.property.matlab",
     "begin": [{"token": "variable.object.property.matlab", "content": "method"}],
-    "captures": [
+    "children": [
         {
             "token": "meta.block.validation.matlab",
             "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-            "captures": [
+            "children": [
                 {"token": "variable.other.readwrite.matlab", "content": "method"},
                 {
                     "token": "meta.block.validation.matlab",
                     "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
                     "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
-                    "captures": [
+                    "children": [
                         {
                             "token": "string.quoted.single.matlab",
                             "begin": [

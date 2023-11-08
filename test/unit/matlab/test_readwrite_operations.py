@@ -1,5 +1,4 @@
 import pytest
-from textmate_grammar.handler import ContentHandler
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
 from . import parser
 
@@ -9,13 +8,13 @@ test_vector = {}
 # simple
 test_vector["variable"] = {
     "token": "source.matlab",
-    "captures": [{"token": "variable.other.readwrite.matlab", "content": "variable"}],
+    "children": [{"token": "variable.other.readwrite.matlab", "content": "variable"}],
 }
 
 # property
 test_vector["variable.property"] = {
     "token": "source.matlab",
-    "captures": [
+    "children": [
         {"token": "variable.other.readwrite.matlab", "content": "variable"},
         {"token": "punctuation.accessor.dot.matlab", "content": "."},
         {"token": "variable.other.property.matlab", "content": "property"},
@@ -25,7 +24,7 @@ test_vector["variable.property"] = {
 # subproperty
 test_vector["variable.class.property"] = {
     "token": "source.matlab",
-    "captures": [
+    "children": [
         {"token": "variable.other.readwrite.matlab", "content": "variable"},
         {"token": "punctuation.accessor.dot.matlab", "content": "."},
         {"token": "variable.other.property.matlab", "content": "class"},
@@ -37,7 +36,7 @@ test_vector["variable.class.property"] = {
 # property access
 test_vector["variable.property(0)"] = {
     "token": "source.matlab",
-    "captures": [
+    "children": [
         {"token": "variable.other.readwrite.matlab", "content": "variable"},
         {"token": "punctuation.accessor.dot.matlab", "content": "."},
         {
@@ -47,7 +46,7 @@ test_vector["variable.property(0)"] = {
                 {"token": "punctuation.section.parens.begin.matlab", "content": "("},
             ],
             "end": [{"token": "punctuation.section.parens.end.matlab", "content": ")"}],
-            "captures": [{"token": "constant.numeric.decimal.matlab", "content": "0"}],
+            "children": [{"token": "constant.numeric.decimal.matlab", "content": "0"}],
         },
     ],
 }
@@ -55,7 +54,7 @@ test_vector["variable.property(0)"] = {
 # class method
 test_vector["variable.function(argument)"] = {
     "token": "source.matlab",
-    "captures": [
+    "children": [
         {"token": "variable.other.readwrite.matlab", "content": "variable"},
         {"token": "punctuation.accessor.dot.matlab", "content": "."},
         {
@@ -65,7 +64,7 @@ test_vector["variable.function(argument)"] = {
                 {"token": "punctuation.section.parens.begin.matlab", "content": "("},
             ],
             "end": [{"token": "punctuation.section.parens.end.matlab", "content": ")"}],
-            'captures': [{'content': 'argument', 'token': 'variable.other.readwrite.matlab'}], 
+            "children": [{"content": "argument", "token": "variable.other.readwrite.matlab"}],
         },
     ],
 }
@@ -74,6 +73,6 @@ test_vector["variable.function(argument)"] = {
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_readwrite_operation(check, expected):
     """Test read/write operations"""
-    element = parser.parse_language(ContentHandler(check))
+    element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
     assert element.to_dict() == expected, MSG_NOT_PARSED
