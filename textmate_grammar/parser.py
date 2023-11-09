@@ -130,11 +130,14 @@ class GrammarParser(ABC):
         matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
-            capture = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
-            if parent_capture is not None and capture == parent_capture:
-                return None, "", []
+            if parsers:
+                capture = Capture(handler, pattern, matching, parsers, starting, boundary, key=self.key, **kwargs)
+                if parent_capture is not None and capture == parent_capture:
+                    return None, "", []
+                else:
+                    return span, matching.group(), [capture]
             else:
-                return span, matching.group(), [capture]
+                return span, matching.group(), []
         else:
             return None, "", []
 
@@ -357,8 +360,9 @@ class PatternsParser(ParserHasPatterns):
                     kwargs.get("depth", 0),
                 )
                 break
-
-            if handler.line_lengths[current[0]] == current[1]:
+            
+            line_length = handler.line_lengths[current[0]]
+            if current[1] in [line_length, line_length - 1]:
                 try:
                     empty_lines = next(i for i, v in enumerate(handler.line_lengths[current[0] + 1 :]) if v > 1)
                     current = (current[0] + 1 + empty_lines, 0)

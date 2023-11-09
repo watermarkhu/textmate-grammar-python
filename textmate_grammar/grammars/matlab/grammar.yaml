@@ -671,9 +671,6 @@ repository:
       '1':
         patterns:
         - include: '#variables'
-        - comment: Indexed cell reference
-          match: ([a-zA-Z][a-zA-Z0-9_]*)(?=\s*\{)
-          name: variable.other.readwrite.matlab
     comment: We don't include $self here to avoid matching command syntax inside (),
       [], {}
     end: (\}|(?<!\.\.\..*)\n)

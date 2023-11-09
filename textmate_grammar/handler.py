@@ -170,7 +170,7 @@ class ContentHandler(object):
             leading_chars = 2
 
         # Get line from starting (and boundary) positions
-        if boundary and starting[0] == boundary[0] and ("\\z" in pattern._pattern or "\\Z" in pattern._pattern):
+        if boundary and starting[0] == boundary[0]:
             line = self.lines[starting[0]][:boundary[1]]
         else:
             line = self.lines[starting[0]]
