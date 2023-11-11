@@ -150,7 +150,7 @@ class ContentHandler(object):
         pattern: Pattern,
         starting: POS,
         boundary: POS | None = None,
-        leading_chars: int = 0,
+        greedy: bool = False,
         **kwargs,
     ) -> (Match | None, tuple[POS, POS] | None):
         """Matches the stream against a capture group.
@@ -167,7 +167,7 @@ class ContentHandler(object):
         """
 
         if pattern._pattern in ["\\z", "\\Z"]:
-            leading_chars = 2
+            greedy = True
 
         # Get line from starting (and boundary) positions
         if boundary and starting[0] == boundary[0]:
@@ -184,7 +184,7 @@ class ContentHandler(object):
         # Check that no charaters are skipped in case ws-only is enabled
         if matching:
             leading_string = line[init_pos : matching.start()]
-            if leading_string and not (leading_chars == 2 or (leading_chars == 1 and leading_string.isspace())):
+            if leading_string and not (greedy or (not greedy and leading_string.isspace())):
                 return None, None
         else:
             return None, None
@@ -197,7 +197,7 @@ class ContentHandler(object):
         if boundary and close_pos > boundary:
             return None, None
 
-        if leading_string and not leading_string.isspace() and leading_chars == 2:
+        if leading_string and not leading_string.isspace() and greedy:
             LOGGER.warning(f"skipping < {leading_string} >", position=start_pos, depth=kwargs.get("depth", 0))
 
         # Include \n in match span if pattern matches on end of line $

@@ -285,7 +285,7 @@ class PatternsParser(ParserHasPatterns):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        leading_chars: int = 1,
+        greedy: bool = False,
         find_one: bool = True,
         **kwargs,
     ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
@@ -306,7 +306,7 @@ class PatternsParser(ParserHasPatterns):
                     handler,
                     current,
                     boundary=boundary,
-                    leading_chars=leading_chars,
+                    greedy=greedy,
                     **kwargs,
                 )
                 if parsed:
@@ -322,7 +322,7 @@ class PatternsParser(ParserHasPatterns):
                 if find_one:
                     break
 
-            if not parsed and leading_chars != 2:
+            if not parsed and not greedy:
                 # Try again if previously allowed no leading white space charaters, only when multple patterns are to be found
                 options_span, options_elements = {}, {}
                 for parser in patterns:
@@ -330,7 +330,7 @@ class PatternsParser(ParserHasPatterns):
                         handler,
                         current,
                         boundary=boundary,
-                        leading_chars=2,
+                        greedy=True,
                         **kwargs,
                     )
                     if parsed:
@@ -433,7 +433,7 @@ class BeginEndParser(ParserHasPatterns):
         handler: ContentHandler,
         starting: POS,
         boundary: POS | None = None,
-        leading_chars: int = 1,
+        greedy: bool = False,
         **kwargs,
     ) -> (bool, list[ContentElement], tuple[POS, POS] | None):
         """The parse method for grammars for which a begin/end pattern is provided."""
@@ -444,7 +444,7 @@ class BeginEndParser(ParserHasPatterns):
             starting,
             boundary=boundary,
             parsers=self.parsers_begin,
-            leading_chars=leading_chars,
+            greedy=greedy,
             **kwargs
         )
 
@@ -473,7 +473,7 @@ class BeginEndParser(ParserHasPatterns):
             # Try to find patterns first with no leading whitespace charaters allowed
             for parser in patterns:
                 parsed, capture_elements, capture_span = parser._parse(
-                    handler, current, boundary=boundary, leading_chars=1, **kwargs
+                    handler, current, boundary=boundary, greedy=False, **kwargs
                 )
                 if parsed:
                     if parser == self:
@@ -490,7 +490,7 @@ class BeginEndParser(ParserHasPatterns):
                 current,
                 boundary=boundary,
                 parsers=self.parsers_end,
-                leading_chars=1,
+                greedy=False,
                 **kwargs
             )
 
@@ -507,7 +507,7 @@ class BeginEndParser(ParserHasPatterns):
                         handler,
                         current,
                         boundary=boundary,
-                        leading_chars=2,
+                        greedy=True,
                         **kwargs,
                     )
                     if parsed:
@@ -538,7 +538,7 @@ class BeginEndParser(ParserHasPatterns):
                     current,
                     boundary=boundary,
                     parsers=self.parsers_end,
-                    leading_chars=2,
+                    greedy=True,
                     **kwargs
                 )
 

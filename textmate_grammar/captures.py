@@ -104,7 +104,7 @@ class Capture(object):
                 continue
 
             # Dispatch the parse
-            self.kwargs.pop("leading_chars", None)
+            self.kwargs.pop("greedy", None)
             parsed, captured_elements, _ = parser._parse(
                 self.handler,
                 starting=group_starting,
