@@ -10,21 +10,25 @@ logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 parser = LanguageParser(matlab.GRAMMAR)
 
-test_files = [
-    str(MODULE_ROOT.parent / "syntaxes" / "matlab" / (file + ".m"))
-    for file in [
-        "Account",
-        "AnEnum",
-        "argumentValidation",
-        "CircleArea",
-        "controlFlow",
-        "lineContinuations",
-        "PropertyValidation",
+test_files = (
+    [
+        str(MODULE_ROOT.parent / "syntaxes" / "matlab" / (file + ".m"))
+        for file in [
+            "Account",
+            "AnEnum",
+            "argumentValidation",
+            "CircleArea",
+            "controlFlow",
+            "lineContinuations",
+            "PropertyValidation",
+        ]
     ]
-] + [
-    str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
-    for file in ["test_multiple_inheritance_ml"]
-]
+    + [str(test) for test in (MODULE_ROOT.parent / "syntaxes" / "matlab" / "test").glob("*.m")]
+    + [
+        str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
+        for file in ["test_multiple_inheritance_ml"]
+    ]
+)
 
 
 @pytest.mark.parametrize("source", test_files)
