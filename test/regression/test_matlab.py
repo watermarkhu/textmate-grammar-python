@@ -21,6 +21,9 @@ test_files = [
         "lineContinuations",
         "PropertyValidation",
     ]
+] + [
+    str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
+    for file in ["test_multiple_inheritance_ml"]
 ]
 
 

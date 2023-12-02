@@ -1,4 +1,4 @@
-from onigurumacffi import _Pattern as Pattern, _Match as Match
+from onigurumacffi import _Pattern as Pattern, _Match as Match, compile
 
 from .logging import LOGGER
 from .exceptions import FileNotFound, ImpossibleSpan
@@ -16,6 +16,7 @@ class ContentHandler(object):
     are index by a tuple (line_number, line_position). Additionally, the handler contains the
     search method to match a search span against a input oniguruma regex pattern.
     """
+    notLookForwardEOL = compile("(?<!\(\?=[^\(]*)\$")
 
     def __init__(self, source: str) -> None:
         self.source = source
@@ -201,7 +202,7 @@ class ContentHandler(object):
             LOGGER.warning(f"skipping < {leading_string} >", position=start_pos, depth=kwargs.get("depth", 0))
 
         # Include \n in match span if pattern matches on end of line $
-        if "$" in pattern._pattern and matching.end() + 1 == self.line_lengths[starting[0]]:
+        if self.notLookForwardEOL.search(pattern._pattern) and matching.end() + 1 == self.line_lengths[starting[0]]:
             newline_matching = pattern.search(line[:-1])
             if newline_matching and newline_matching.span() == matching.span():
                 close_pos = (starting[0], matching.end() + 1)
