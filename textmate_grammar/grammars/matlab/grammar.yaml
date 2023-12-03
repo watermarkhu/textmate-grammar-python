@@ -525,10 +525,10 @@ repository:
       name: meta.function.matlab
       patterns:
       - begin: \G
-        end: (?<=[\)\n])
+        end: (?<=\))|(?>(?<!\.\.\..*)\n)
         name: meta.function.declaration.matlab
         patterns:
-        - begin: \G(?=.*?=)
+        - begin: \G(?=[^\(]*?(?:=|\[|\.{3}))
           comment: Function output
           contentName: meta.assignment.variable.output.matlab
           end: \s*(=)\s*
@@ -541,21 +541,21 @@ repository:
           - captures:
               '1':
                 name: punctuation.section.assignment.group.end.matlab
-            match: (\])\s*\z
+            match: (\])\s*
           - match: '[a-zA-Z][a-zA-Z0-9_]*'
             name: variable.parameter.output.matlab
           - match: ','
             name: punctuation.separator.parameter.comma.matlab
-          - include: '#comments'
           - include: '#line_continuation'
+          - include: '#comments'
         - comment: Function name
-          match: '[a-zA-Z][a-zA-Z0-9_.]*(?=[^a-zA-Z0-9_.])'
+          match: '[a-zA-Z][a-zA-Z0-9_]*(?>\.[a-zA-Z0-9_]+)*'
           name: entity.name.function.matlab
           patterns:
           - match: \.
             name: punctuation.accessor.dot.matlab
           - include: '#line_continuation'
-        - begin: (?<=[a-zA-Z0-9_])\s*\(
+        - begin: \s*\(
           beginCaptures:
             '0':
               name: punctuation.definition.parameters.begin.matlab
@@ -574,6 +574,7 @@ repository:
             name: punctuation.separator.parameter.comma.matlab
           - include: '#comments'
           - include: '#line_continuation'
+        - include: '#line_continuation'
         - include: '#comments'
       - begin: "(?x)\n\t\t\t\t\t\t\t\t\t(^\\s*)\t\t\t\t\t\t\t\t# Leading whitespace\n\
           \t\t\t\t\t\t\t\t\t(arguments)\\b([^%]*)\n\t\t\t\t\t\t\t\t\t\\s*\n\t\t\t\t\
