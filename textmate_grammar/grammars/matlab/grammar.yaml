@@ -18,7 +18,7 @@ repository:
     beginCaptures:
       '1':
         name: punctuation.definition.function.anonymous.matlab
-    end: (?=;|(?<!(?:\.\.\..*))\n|%)
+    end: (?=;|(?<!(?:\.{3}.*))\n|%)
     name: meta.function.anonymous.matlab
     patterns:
     - begin: \G(\()
@@ -40,7 +40,7 @@ repository:
       beginCaptures:
         '1':
           name: punctuation.section.group.begin.matlab
-      end: (\))?[^\S\n]*(?=;|(?<!(?:\.\.\..*))\n|%)
+      end: (\))?[^\S\n]*(?=;|(?<!(?:\.{3}.*))\n|%)
       endCaptures:
         '1':
           name: punctuation.section.group.end.matlab
@@ -62,7 +62,7 @@ repository:
       name: meta.for.matlab
       patterns:
       - begin: \G(?!$)
-        end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         name: meta.for.declaration.matlab
         patterns:
         - include: $self
@@ -81,7 +81,7 @@ repository:
       name: meta.if.matlab
       patterns:
       - begin: \G(?!$)
-        end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         name: meta.if.declaration.matlab
         patterns:
         - include: $self
@@ -92,7 +92,7 @@ repository:
         name: meta.elseif.matlab
         patterns:
         - begin: \G(?!$)
-          end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+          end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
           name: meta.elseif.declaration.matlab
           patterns:
           - include: $self
@@ -114,7 +114,7 @@ repository:
       name: meta.for.parallel.matlab
       patterns:
       - begin: \G(?!$)
-        end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         name: meta.for.parallel.declaration.matlab
         patterns:
         - include: $self
@@ -130,7 +130,7 @@ repository:
       name: meta.repeat.parallel.matlab
       patterns:
       - begin: \G(?!$)
-        end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         name: meta.repeat.parallel.declaration.matlab
         patterns:
         - include: $self
@@ -152,11 +152,11 @@ repository:
             name: keyword.control.switch.case.matlab
           '3':
             begin: \G(?!$)
-            end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+            end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
             name: meta.case.declaration.matlab
             patterns:
             - include: $self
-        match: (\s*)(?<=^|[\s,;])(case)\b(.*?)(?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        match: (\s*)(?<=^|[\s,;])(case)\b(.*?)(?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         name: meta.case.matlab
       - captures:
           '2':
@@ -196,7 +196,7 @@ repository:
       name: meta.while.matlab
       patterns:
       - begin: \G
-        end: (?<!\.\.\.)(?:(?=([,;])(?![^(]*\)))|$)
+        end: (?<!\.{3})(?:(?=([,;])(?![^(]*\)))|$)
         endCaptures:
           '1':
             include: $self
@@ -235,7 +235,7 @@ repository:
       name: meta.class.matlab
       patterns:
       - begin: \G
-        end: (?<!\.\.\.)(?=\n)
+        end: (?<!\.{3})(?=\n)
         name: meta.class.declaration.matlab
         patterns:
         - begin: \G(\([^)]*\))?\s*
@@ -262,14 +262,14 @@ repository:
                 - include: '#string'
               - include: '#comments'
               - include: '#line_continuation'
-          end: (?<!\.\.\.)(?=\s*%|\n)
+          end: (?<!\.{3})(?=\s*%|\n)
           patterns:
           - begin: \G\s*([a-zA-Z][a-zA-Z0-9_]*)
             beginCaptures:
               '1':
                 comment: Class name
                 name: entity.name.type.class.matlab
-            end: (?<!\.\.\.)(?=\n)
+            end: (?<!\.{3})(?=\n)
             patterns:
             - comment: Optional inheritance operator
               match: <
@@ -414,7 +414,7 @@ repository:
         - include: '#string_quoted_single'
     comment: "\t\t\t\t\t  1 \t\t\t\t   2\t\t3 \t\t\t\t   4\t\t\t\t\t\t\t\t\t\t\t\t\
       \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   "
-    match: (?<=^|[^.]\n|;|,|=)([^\S\n]*)(?# A> )(\b\w+\b)([^\S\n]+)(?# B> )((?!(\+|-|\*|\.\*|\/|\.\/|\\|\.\\|\^|\.\^|==|~=|&|&&|\||\|\||=|:|>|>=|<|<=|\.\.\.)[^\S\n]?)[^\s({=;%][^\n;%]*)
+    match: (?<=^|[^.]\n|;|,|=)([^\S\n]*)(?# A> )(\b\w+\b)([^\S\n]+)(?# B> )((?!(\+|-|\*|\.\*|\/|\.\/|\\|\.\\|\^|\.\^|==|~=|&|&&|\||\|\||=|:|>|>=|<|<=|\.{3})[^\S\n]?)[^\s({=;%][^\n;%]*)
     name: meta.function-call.command.matlab
   comment_block:
     begin: (^[\s]*)(%\{)[^\S\n]*+\n
@@ -525,7 +525,7 @@ repository:
       name: meta.function.matlab
       patterns:
       - begin: \G
-        end: (?<=\))|(?>(?<!\.\.\..*)\n)
+        end: (?<=\))|(?>(?<!\.{3}.*)\n)
         name: meta.function.declaration.matlab
         patterns:
         - begin: \G(?=[^\(]*?(?:=|\[|\.{3}))
@@ -618,7 +618,7 @@ repository:
     comment: "\n\t\t\t\tFunction call; matrix or array index (subscript)\n\t\t\t\t\
       We don't include $self here to avoid matching command syntax inside (), [],\
       \ {}\n\t\t\t"
-    end: (\)|(?<!\.\.\..*)\n)
+    end: (\)|(?<!\.{3}.*)\n)
     endCaptures:
       '0':
         name: punctuation.section.parens.end.matlab
@@ -659,7 +659,7 @@ repository:
         name: punctuation.section.parens.begin.matlab
     comment: Index array with expression evaluated to variable name or number
     contentName: meta.parens.matlab
-    end: (\)|(?<!\.\.\..*)\n)
+    end: (\)|(?<!\.{3}.*)\n)
     endCaptures:
       '0':
         name: punctuation.section.parens.end.matlab
@@ -674,7 +674,7 @@ repository:
         - include: '#variables'
     comment: We don't include $self here to avoid matching command syntax inside (),
       [], {}
-    end: (\}|(?<!\.\.\..*)\n)
+    end: (\}|(?<!\.{3}.*)\n)
     patterns:
     - include: '#end_in_parentheses'
     - include: '#rules_before_command_dual'
@@ -686,7 +686,7 @@ repository:
       '2':
         name: comment.continuation.line.matlab
     comment: Line continuations
-    match: (\.\.\.)(.*)$
+    match: (\.{3})(.*)$
     name: meta.continuation.line.matlab
   multiple_assignment:
     begin: \[(?=[^\]]+\]\s*=[a-zA-Z0-9_\s(])
@@ -741,19 +741,19 @@ repository:
       match: (?<!\w)\?(?=\w)
       name: keyword.operator.other.question.matlab
     - comment: Arithmetic operator symbols
-      match: (?<=[a-zA-Z0-9\s])(\+|-|\*|\.\*|/|\./|\\|\.\\|\^|\.\^)(?=[a-zA-Z0-9\s]|(?:\.\.\.))
+      match: (?<=[a-zA-Z0-9\s])(\+|-|\*|\.\*|/|\./|\\|\.\\|\^|\.\^)(?=[a-zA-Z0-9\s]|(?:\.{3}))
       name: keyword.operator.arithmetic.matlab
     - comment: Operator symbols
-      match: (?<=[a-zA-Z0-9\s])(==|~=|&|&&|\||\|\|)(?=[a-zA-Z0-9\s]|(?:\.\.\.))
+      match: (?<=[a-zA-Z0-9\s])(==|~=|&|&&|\||\|\|)(?=[a-zA-Z0-9\s]|(?:\.{3}))
       name: keyword.operator.logical.matlab
     - comment: Assignment operator
       match: (?<=[a-zA-Z0-9\s])(=)(?!=)
       name: keyword.operator.assignment.matlab
     - comment: Colon operator for vector creation/indexing
-      match: (?<=[a-zA-Z0-9_\s(){,]|^):(?=[a-zA-Z0-9_\s()},]|$||(?:\.\.\.))
+      match: (?<=[a-zA-Z0-9_\s(){,]|^):(?=[a-zA-Z0-9_\s()},]|$||(?:\.{3}))
       name: keyword.operator.vector.colon.matlab
     - comment: Comparative operators
-      match: (?<=[a-zA-Z0-9\s])(>|>=|<|<=)(?=[a-zA-Z0-9\s]|(?:\.\.\.))
+      match: (?<=[a-zA-Z0-9\s])(>|>=|<|<=)(?=[a-zA-Z0-9\s]|(?:\.{3}))
       name: keyword.operator.relational.matlab
   parentheses:
     begin: \(
@@ -763,7 +763,7 @@ repository:
     comment: "\n\t\t\t\tOperator precedence in expressions\n\t\t\t\tWe don't include\
       \ $self here to avoid matching command syntax inside (), [], {}\n\t\t\t"
     contentName: meta.parens.matlab
-    end: (\)|(?<!\.\.\..*)\n)
+    end: (\)|(?<!\.{3}.*)\n)
     endCaptures:
       '0':
         name: punctuation.section.parens.end.matlab
@@ -936,7 +936,7 @@ repository:
     comment: "\n\t\t\t\tSuperclass method call; matrix or array index (subscript)\n\
       \t\t\t\tWe don't include $self here to avoid matching command syntax inside\
       \ (), [], {}\n\t\t\t"
-    end: (\)|(?<!\.\.\..*)\n)
+    end: (\)|(?<!\.{3}.*)\n)
     endCaptures:
       '0':
         name: punctuation.section.parens.end.matlab
