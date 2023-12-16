@@ -4,7 +4,7 @@ apt update
 apt install -y curl vim wget git python3 build-essential
 
 # install nvm
-if command -v nvm &> /dev/null
+if ! command -v nvm &> /dev/null
 then
     wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 fi
