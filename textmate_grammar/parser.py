@@ -349,8 +349,21 @@ class PatternsParser(ParserHasPatterns):
                     LOGGER.info(
                         f"{self.__class__.__name__} chosen pattern of {parser}", self, current, kwargs.get("depth", 0)
                     )
-                else:
+                elif self != self.language:
                     break
+                else:
+                    remainder = handler.read_line(current)
+                    if not remainder.isspace():
+                        LOGGER.warning(
+                            f"{self.__class__.__name__} remainder of line not parsed: {remainder}", self, current, kwargs.get("depth", 0)
+                        )
+                    if current[0] + 1 <= len(handler.lines):
+                        current = (current[0] + 1, 0)
+                    else:
+                        LOGGER.debug(
+                            f"{self.__class__.__name__} EOF encountered", self, current, kwargs.get("depth", 0)
+                        )
+                        break
 
             if current == starting:
                 LOGGER.warning(
@@ -370,13 +383,12 @@ class PatternsParser(ParserHasPatterns):
                     break
 
         if self.token:
-            closing = boundary if starting == current else current
             elements = [
                 ContentElement(
                     token=self.token,
                     grammar=self.grammar,
-                    content=handler.read_pos(starting, closing),
-                    characters=handler.chars(starting, closing),
+                    content=handler.read_pos(starting, boundary),
+                    characters=handler.chars(starting, boundary),
                     children=elements,
                 )
             ]

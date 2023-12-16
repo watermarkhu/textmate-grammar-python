@@ -73,21 +73,13 @@ Install the repository after cloning with [poetry](https://python-poetry.org/)
 > poetry install
 ```
 
-Setup nodejs dependencies in the regression testing folder.
+Run unit tests
 ```bash
-> cd test/regression
-> bash install.js
+> tox run
 ```
 
-Run all tests in main test directory
+Run regression testing against vscode-textmate (will install npm and required packages)
 ```bash
-> cd ..
-> pytest
-
-====================== test session starts =====================
-platform linux -- Python 3.11.4, pytest-7.4.0, pluggy-1.2.0
-rootdir: /home/watermarkhu/repositories/sphinx-matlab/test
-plugins: icdiff-0.8
-...
+> tox run -e regression
 ```
 
