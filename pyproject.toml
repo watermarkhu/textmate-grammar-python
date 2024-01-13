@@ -19,6 +19,15 @@ pytest = "^7.3.1"
 pytest-icdiff = "^0.8"
 tox = "^4.11.4"
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+ruff = "^0.1.13"
+mypy = "^1.8.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+include = ["pyproject.toml", "textmate_grammar/**/*.py"]
+exclude = ["textmate_grammar/grammars/"]

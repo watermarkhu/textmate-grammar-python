@@ -7,7 +7,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 parser = LanguageParser(matlab.GRAMMAR)
 
-filePath =  Path(__file__).parent / "syntaxes" / "matlab" / "AnEnum.m"
+filePath = Path(__file__).parent / "syntaxes" / "matlab" / "AnEnum.m"
 
 element = parser.parse_file(filePath)
 element.print()

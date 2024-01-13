@@ -99,8 +99,14 @@ class Capture(object):
             group_starting = (self.starting[0], group_span[0])
             group_boundary = (self.starting[0], group_span[1])
 
-            if parser == self and group_starting == self.starting and group_boundary == self.boundary:
-                LOGGER.warning("Parser loop detected, continuing...", self, self.starting)
+            if (
+                parser == self
+                and group_starting == self.starting
+                and group_boundary == self.boundary
+            ):
+                LOGGER.warning(
+                    "Parser loop detected, continuing...", self, self.starting
+                )
                 continue
 
             # Dispatch the parse

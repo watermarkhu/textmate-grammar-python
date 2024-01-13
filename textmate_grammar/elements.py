@@ -42,7 +42,9 @@ class ContentElement(object):
             out_dict["content"] = self.content
         if self.children:
             out_dict["children"] = (
-                self._list_property_to_dict("children", verbosity=verbosity - 1, all_content=all_content)
+                self._list_property_to_dict(
+                    "children", verbosity=verbosity - 1, all_content=all_content
+                )
                 if verbosity
                 else self.children
             )
@@ -52,7 +54,9 @@ class ContentElement(object):
         """Converts the object to a flattened array of tokens per index."""
         token_dict = self._token_by_index(defaultdict(list))
         tokens = []
-        for (_, key), group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
+        for (_, key), group in groupby(
+            sorted(token_dict.items()), lambda x: (x[0][0], x[1])
+        ):
             group_tokens = list(group)
             starting = group_tokens[0][0]
             content = ""
@@ -62,12 +66,20 @@ class ContentElement(object):
                 tokens.append([starting, content, key])
         return tokens
 
-    def print(self, flatten: bool = False, verbosity: int = -1, all_content: bool = False, **kwargs) -> None:
+    def print(
+        self,
+        flatten: bool = False,
+        verbosity: int = -1,
+        all_content: bool = False,
+        **kwargs,
+    ) -> None:
         """Prints the current object recursively by converting to dictionary."""
         if flatten:
             output = self.flatten(**kwargs)
         else:
-            output = self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs)
+            output = self.to_dict(
+                verbosity=verbosity, all_content=all_content, **kwargs
+            )
 
         pprint(
             output,
@@ -89,7 +101,8 @@ class ContentElement(object):
     def _list_property_to_dict(self, prop: str, **kwargs):
         """Makes a dictionary from a property."""
         return [
-            item.to_dict(**kwargs) if isinstance(item, ContentElement) else item for item in getattr(self, prop, [])
+            item.to_dict(**kwargs) if isinstance(item, ContentElement) else item
+            for item in getattr(self, prop, [])
         ]
 
     def __repr__(self) -> str:
@@ -101,7 +114,10 @@ class ContentBlockElement(ContentElement):
     """A parsed element with a begin and a end"""
 
     def __init__(
-        self, begin: "list[ContentElement | Capture]" = [], end: "list[ContentElement | Capture]" = [], **kwargs
+        self,
+        begin: "list[ContentElement | Capture]" = [],
+        end: "list[ContentElement | Capture]" = [],
+        **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.begin = begin
@@ -111,14 +127,22 @@ class ContentBlockElement(ContentElement):
         out_dict = super().to_dict(verbosity=verbosity, **kwargs)
         if self.begin:
             out_dict["begin"] = (
-                self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs) if verbosity else self.begin
+                self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs)
+                if verbosity
+                else self.begin
             )
         if self.end:
             out_dict["end"] = (
-                self._list_property_to_dict("end", verbosity=verbosity - 1, **kwargs) if verbosity else self.end
+                self._list_property_to_dict("end", verbosity=verbosity - 1, **kwargs)
+                if verbosity
+                else self.end
             )
 
-        ordered_keys = [key for key in ["token", "begin", "end", "content", "children"] if key in out_dict]
+        ordered_keys = [
+            key
+            for key in ["token", "begin", "end", "content", "children"]
+            if key in out_dict
+        ]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
 

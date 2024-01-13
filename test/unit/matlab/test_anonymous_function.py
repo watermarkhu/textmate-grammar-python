@@ -8,15 +8,30 @@ test_vector = {}
 # single line
 test_vector["@(x,  y) x.^2+y"] = {
     "token": "meta.function.anonymous.matlab",
-    "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
+    "begin": [
+        {"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}
+    ],
     "children": [
         {
             "token": "meta.parameters.matlab",
-            "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-            "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+            "begin": [
+                {
+                    "token": "punctuation.definition.parameters.begin.matlab",
+                    "content": "(",
+                }
+            ],
+            "end": [
+                {
+                    "token": "punctuation.definition.parameters.end.matlab",
+                    "content": ")",
+                }
+            ],
             "children": [
                 {"token": "variable.parameter.input.matlab", "content": "x"},
-                {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
+                {
+                    "token": "punctuation.separator.parameter.comma.matlab",
+                    "content": ",",
+                },
                 {"token": "variable.parameter.input.matlab", "content": "y"},
             ],
         },
@@ -36,18 +51,38 @@ test_vector["@(x,  y) x.^2+y"] = {
 # multiple lines
 test_vector["@(x,...\n  y) x...\n   .^2+y"] = {
     "token": "meta.function.anonymous.matlab",
-    "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
+    "begin": [
+        {"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}
+    ],
     "children": [
         {
             "token": "meta.parameters.matlab",
-            "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-            "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+            "begin": [
+                {
+                    "token": "punctuation.definition.parameters.begin.matlab",
+                    "content": "(",
+                }
+            ],
+            "end": [
+                {
+                    "token": "punctuation.definition.parameters.end.matlab",
+                    "content": ")",
+                }
+            ],
             "children": [
                 {"token": "variable.parameter.input.matlab", "content": "x"},
-                {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
+                {
+                    "token": "punctuation.separator.parameter.comma.matlab",
+                    "content": ",",
+                },
                 {
                     "token": "meta.continuation.line.matlab",
-                    "children": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
+                    "children": [
+                        {
+                            "token": "punctuation.separator.continuation.line.matlab",
+                            "content": "...",
+                        }
+                    ],
                 },
                 {"token": "variable.parameter.input.matlab", "content": "y"},
             ],
@@ -58,7 +93,12 @@ test_vector["@(x,...\n  y) x...\n   .^2+y"] = {
                 {"token": "variable.other.readwrite.matlab", "content": "x"},
                 {
                     "token": "meta.continuation.line.matlab",
-                    "children": [{"token": "punctuation.separator.continuation.line.matlab", "content": "..."}],
+                    "children": [
+                        {
+                            "token": "punctuation.separator.continuation.line.matlab",
+                            "content": "...",
+                        }
+                    ],
                 },
                 {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},
                 {"token": "constant.numeric.decimal.matlab", "content": "2"},
@@ -73,20 +113,41 @@ test_vector["@(x,...\n  y) x...\n   .^2+y"] = {
 # multiple lines with comments
 test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y"] = {
     "token": "meta.function.anonymous.matlab",
-    "begin": [{"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}],
+    "begin": [
+        {"token": "punctuation.definition.function.anonymous.matlab", "content": "@"}
+    ],
     "children": [
         {
             "token": "meta.parameters.matlab",
-            "begin": [{"token": "punctuation.definition.parameters.begin.matlab", "content": "("}],
-            "end": [{"token": "punctuation.definition.parameters.end.matlab", "content": ")"}],
+            "begin": [
+                {
+                    "token": "punctuation.definition.parameters.begin.matlab",
+                    "content": "(",
+                }
+            ],
+            "end": [
+                {
+                    "token": "punctuation.definition.parameters.end.matlab",
+                    "content": ")",
+                }
+            ],
             "children": [
                 {"token": "variable.parameter.input.matlab", "content": "x"},
-                {"token": "punctuation.separator.parameter.comma.matlab", "content": ","},
+                {
+                    "token": "punctuation.separator.parameter.comma.matlab",
+                    "content": ",",
+                },
                 {
                     "token": "meta.continuation.line.matlab",
                     "children": [
-                        {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                        {"token": "comment.continuation.line.matlab", "content": " comment"},
+                        {
+                            "token": "punctuation.separator.continuation.line.matlab",
+                            "content": "...",
+                        },
+                        {
+                            "token": "comment.continuation.line.matlab",
+                            "content": " comment",
+                        },
                     ],
                 },
                 {"token": "variable.parameter.input.matlab", "content": "y"},
@@ -98,16 +159,28 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y"
                 {
                     "token": "meta.continuation.line.matlab",
                     "children": [
-                        {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                        {"token": "comment.continuation.line.matlab", "content": " comment "},
+                        {
+                            "token": "punctuation.separator.continuation.line.matlab",
+                            "content": "...",
+                        },
+                        {
+                            "token": "comment.continuation.line.matlab",
+                            "content": " comment ",
+                        },
                     ],
                 },
                 {"token": "variable.other.readwrite.matlab", "content": "x"},
                 {
                     "token": "meta.continuation.line.matlab",
                     "children": [
-                        {"token": "punctuation.separator.continuation.line.matlab", "content": "..."},
-                        {"token": "comment.continuation.line.matlab", "content": " more comment"},
+                        {
+                            "token": "punctuation.separator.continuation.line.matlab",
+                            "content": "...",
+                        },
+                        {
+                            "token": "comment.continuation.line.matlab",
+                            "content": " more comment",
+                        },
                     ],
                 },
                 {"token": "keyword.operator.arithmetic.matlab", "content": ".^"},

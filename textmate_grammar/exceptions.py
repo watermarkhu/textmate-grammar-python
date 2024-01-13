@@ -24,4 +24,7 @@ class FileNotParsed(Exception):
 
 class ImpossibleSpan(Exception):
     def __init__(self, **kwargs) -> None:
-        super().__init__("The closing position cannot be less or equal than the starting position", **kwargs)
+        super().__init__(
+            "The closing position cannot be less or equal than the starting position",
+            **kwargs,
+        )

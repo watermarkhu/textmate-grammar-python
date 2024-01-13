@@ -61,10 +61,15 @@ test_vector["x (1,:) {mustBeNumeric,mustBeReal}\n"] = {
         {"token": "punctuation.section.parens.end.matlab", "content": ")"},
         {
             "token": "meta.block.validation.matlab",
-            "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
+            "begin": [
+                {"token": "punctuation.section.block.begin.matlab", "content": "{"}
+            ],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
             "children": [
-                {"token": "variable.other.readwrite.matlab", "content": "mustBeNumeric"},
+                {
+                    "token": "variable.other.readwrite.matlab",
+                    "content": "mustBeNumeric",
+                },
                 {"token": "variable.other.readwrite.matlab", "content": "mustBeReal"},
             ],
         },
@@ -78,29 +83,57 @@ test_vector["method {mustBeMember(method,{'linear','spline'})}\n"] = {
     "children": [
         {
             "token": "meta.block.validation.matlab",
-            "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
+            "begin": [
+                {"token": "punctuation.section.block.begin.matlab", "content": "{"}
+            ],
             "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
             "children": [
                 {"token": "variable.other.readwrite.matlab", "content": "method"},
                 {
                     "token": "meta.block.validation.matlab",
-                    "begin": [{"token": "punctuation.section.block.begin.matlab", "content": "{"}],
-                    "end": [{"token": "punctuation.section.block.end.matlab", "content": "}"}],
+                    "begin": [
+                        {
+                            "token": "punctuation.section.block.begin.matlab",
+                            "content": "{",
+                        }
+                    ],
+                    "end": [
+                        {
+                            "token": "punctuation.section.block.end.matlab",
+                            "content": "}",
+                        }
+                    ],
                     "children": [
                         {
                             "token": "string.quoted.single.matlab",
                             "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                                {
+                                    "token": "punctuation.definition.string.begin.matlab",
+                                    "content": "'",
+                                }
                             ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
+                            "end": [
+                                {
+                                    "token": "punctuation.definition.string.end.matlab",
+                                    "content": "'",
+                                }
+                            ],
                             "content": "'linear'",
                         },
                         {
                             "token": "string.quoted.single.matlab",
                             "begin": [
-                                {"token": "punctuation.definition.string.begin.matlab", "content": "'"}
+                                {
+                                    "token": "punctuation.definition.string.begin.matlab",
+                                    "content": "'",
+                                }
                             ],
-                            "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
+                            "end": [
+                                {
+                                    "token": "punctuation.definition.string.end.matlab",
+                                    "content": "'",
+                                }
+                            ],
                             "content": "'spline'",
                         },
                     ],

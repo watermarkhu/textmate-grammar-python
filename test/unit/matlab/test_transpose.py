@@ -20,8 +20,12 @@ conjugate_transpose_test_vector["[1]'"] = {
     "children": [
         {
             "token": "meta.brackets.matlab",
-            "begin": [{"token": "punctuation.section.brackets.begin.matlab", "content": "["}],
-            "end": [{"token": "punctuation.section.brackets.end.matlab", "content": "]"}],
+            "begin": [
+                {"token": "punctuation.section.brackets.begin.matlab", "content": "["}
+            ],
+            "end": [
+                {"token": "punctuation.section.brackets.end.matlab", "content": "]"}
+            ],
             "children": [{"token": "constant.numeric.decimal.matlab", "content": "1"}],
         },
         {"token": "keyword.operator.transpose.matlab", "content": "'"},
@@ -34,7 +38,9 @@ conjugate_transpose_test_vector["{1}'"] = {
     "children": [
         {
             "token": "meta.cell.literal.matlab",
-            "begin": [{"token": "punctuation.section.braces.begin.matlab", "content": "{"}],
+            "begin": [
+                {"token": "punctuation.section.braces.begin.matlab", "content": "{"}
+            ],
             "end": [{"token": "punctuation.section.braces.end.matlab", "content": "}"}],
             "children": [{"token": "constant.numeric.decimal.matlab", "content": "1"}],
         },
