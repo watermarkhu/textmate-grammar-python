@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
-from .logging import LOGGER
+
+from .logger import LOGGER
 from .handler import ContentHandler, Pattern, Match
 from .elements import ContentElement, ContentBlockElement
 
@@ -9,8 +11,8 @@ if TYPE_CHECKING:
 
 
 def parse_captures(
-    captures: "list[ContentElement | Capture]", parent: ContentElement | None = None
-) -> list[ContentElement]:
+    captures: "Sequence[ContentElement | Capture]", parent: ContentElement | None = None
+) -> Sequence[ContentElement]:
     """Dispatches all nested captured parsers in list of elements."""
     elements = dispatch_list(captures)
 
@@ -26,7 +28,7 @@ def parse_captures(
     return elements
 
 
-def dispatch_list(captures: "list[ContentElement | Capture]"):
+def dispatch_list(captures: "Sequence[ContentElement | Capture]"):
     """Dispatches all captured parsers in the list."""
     elements = []
     for capture in captures:
@@ -124,3 +126,7 @@ class Capture(object):
                 elements.extend(captured_elements)
 
         return elements
+
+    def _token_by_index(self, *args, **kwargs):
+        # Stub for Mypy
+        pass

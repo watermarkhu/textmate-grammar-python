@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from pprint import pprint
 from collections import defaultdict
 from itertools import groupby
+from collections.abc import Sequence
 
 from .handler import POS
 
@@ -21,7 +22,7 @@ class ContentElement(object):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        children: "list[ContentElement | Capture]" = [],
+        children: "Sequence[ContentElement | Capture]" = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
@@ -63,7 +64,7 @@ class ContentElement(object):
             for pos, _ in group_tokens:
                 content += self.characters[pos]
             if content:
-                tokens.append([starting, content, key])
+                tokens.append((starting, content, key))
         return tokens
 
     def print(
@@ -75,18 +76,19 @@ class ContentElement(object):
     ) -> None:
         """Prints the current object recursively by converting to dictionary."""
         if flatten:
-            output = self.flatten(**kwargs)
-        else:
-            output = self.to_dict(
-                verbosity=verbosity, all_content=all_content, **kwargs
+            pprint(
+                self.flatten(**kwargs),
+                sort_dicts=False,
+                width=kwargs.pop("width", 150),
+                **kwargs,
             )
-
-        pprint(
-            output,
-            sort_dicts=False,
-            width=kwargs.pop("width", 150),
-            **kwargs,
-        )
+        else:
+            pprint(
+                self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs),
+                sort_dicts=False,
+                width=kwargs.pop("width", 150),
+                **kwargs,
+            )
 
     def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
         """Recursively tokenize every index between start and close."""
@@ -115,16 +117,18 @@ class ContentBlockElement(ContentElement):
 
     def __init__(
         self,
-        begin: "list[ContentElement | Capture]" = [],
-        end: "list[ContentElement | Capture]" = [],
+        begin: "Sequence[ContentElement | Capture]" = [],
+        end: "Sequence[ContentElement | Capture]" = [],
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.begin = begin
         self.end = end
 
-    def to_dict(self, verbosity: int = -1, **kwargs) -> dict:
-        out_dict = super().to_dict(verbosity=verbosity, **kwargs)
+    def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
+        out_dict = super().to_dict(
+            verbosity=verbosity, all_content=all_content, **kwargs
+        )
         if self.begin:
             out_dict["begin"] = (
                 self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs)

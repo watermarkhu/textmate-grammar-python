@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .logging import LOGGER
+from .logger import LOGGER
 from .exceptions import IncompatibleFileType
 from .parser import GrammarParser, PatternsParser
 from .elements import ContentElement

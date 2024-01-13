@@ -1,6 +1,8 @@
 from onigurumacffi import _Pattern as Pattern, _Match as Match, compile
+from pathlib import Path
 
-from .logging import LOGGER
+
+from .logger import LOGGER
 from .exceptions import FileNotFound, ImpossibleSpan
 
 
@@ -17,7 +19,7 @@ class ContentHandler(object):
     search method to match a search span against a input oniguruma regex pattern.
     """
 
-    notLookForwardEOL = compile("(?<!\(\?=[^\(]*)\$")
+    notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
     def __init__(self, source: str) -> None:
         self.source = source
@@ -26,7 +28,7 @@ class ContentHandler(object):
         self.anchor: int = 0
 
     @classmethod
-    def from_path(cls, file_path: str):
+    def from_path(cls, file_path: Path):
         """Loads a file from a path"""
 
         if not file_path.exists():
@@ -84,7 +86,7 @@ class ContentHandler(object):
                 indices.append((close[0], lp))
         return indices
 
-    def chars(self, start: POS, close: POS) -> dict[POS:str]:
+    def chars(self, start: POS, close: POS) -> dict[POS, str]:
         """Returns the source per position"""
         indices = self.range(start, close)
         return {pos: self.read(pos) for pos in indices}
@@ -156,7 +158,7 @@ class ContentHandler(object):
         boundary: POS | None = None,
         greedy: bool = False,
         **kwargs,
-    ) -> (Match | None, tuple[POS, POS] | None):
+    ) -> tuple[Match | None, tuple[POS, POS] | None]:
         """Matches the stream against a capture group.
 
         The stream is matched against the input pattern. If there are any capture groups,
