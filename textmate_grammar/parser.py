@@ -1,12 +1,14 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 import onigurumacffi as re
 
+
 from .logger import LOGGER, track_depth
 from .exceptions import IncludedParserNotFound
-from .elements import ContentElement, ContentBlockElement
+from .elements import Element, Capture, ContentElement, ContentBlockElement
 from .handler import ContentHandler, Pattern, POS
-from .captures import Capture, parse_captures
+
 
 if TYPE_CHECKING:
     from .language import LanguageParser
@@ -34,7 +36,7 @@ class GrammarParser(ABC):
     def __init__(
         self,
         grammar: dict,
-        language: "LanguageParser | None" = None,
+        language: LanguageParser | None = None,
         key: str = "",
         is_capture: bool = False,
         **kwargs,
@@ -62,7 +64,7 @@ class GrammarParser(ABC):
                 )
         return captures
 
-    def _find_include(self, key: str, **kwargs) -> "GrammarParser":
+    def _find_include(self, key: str, **kwargs) -> GrammarParser:
         """Find the included grammars and during repository initialization"""
         if not self.language:
             raise IncludedParserNotFound(key)
@@ -80,7 +82,7 @@ class GrammarParser(ABC):
         handler: ContentHandler,
         starting: POS,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[int, int] | None]:
+    ) -> tuple[bool, list[Element], tuple[int, int] | None]:
         """The abstract method which all parsers much implement
 
         The _parse method is called by parse, which will additionally parse any nested Capture elements.
@@ -102,15 +104,13 @@ class GrammarParser(ABC):
         starting: POS = (0, 0),
         boundary: POS | None = None,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[int, int] | None]:
+    ) -> tuple[bool, list[Element], tuple[int, int] | None]:
         """The method to parse a handler using the current grammar."""
-        if not self.initialized:
+        if not self.initialized and self.language is not None:
             self.language._initialize_repository()
-        parsed, captures, span = self._parse(
+        parsed, elements, span = self._parse(
             handler, starting, boundary=boundary, **kwargs
         )
-        LOGGER.info("--------------- Parsing captures ---------------", self)
-        elements = parse_captures(captures)
         return parsed, elements, span
 
     def match_and_capture(
@@ -118,11 +118,11 @@ class GrammarParser(ABC):
         handler: ContentHandler,
         pattern: Pattern,
         starting: POS,
-        boundary: POS | None = None,
-        parsers: dict[int, "GrammarParser"] = {},
+        boundary: POS,
+        parsers: dict[int, GrammarParser] = {},
         parent_capture: Capture | None = None,
         **kwargs,
-    ) -> tuple[tuple[POS, POS] | None, str, "list[Capture]"]:
+    ) -> tuple[tuple[POS, POS] | None, str, list[Element]]:
         """Matches a pattern and its capture groups.
 
         Matches the pattern on the handler between the starting and boundary positions. If a pattern is matched,
@@ -172,13 +172,13 @@ class TokenParser(GrammarParser):
         starting: POS,
         boundary: POS,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
         """The parse method for grammars for which only the token is provided.
 
         When no regex patterns are provided. The element is created between the initial and boundary positions.
         """
         content = handler.read_pos(starting, boundary)
-        elements = [
+        elements: list[Element] = [
             ContentElement(
                 token=self.token,
                 grammar=self.grammar,
@@ -230,9 +230,9 @@ class MatchParser(GrammarParser):
         self,
         handler: ContentHandler,
         starting: POS,
-        boundary: POS | None = None,
+        boundary: POS,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
         """The parse method for grammars for which a match pattern is provided."""
 
         span, content, captures = self.match_and_capture(
@@ -261,7 +261,7 @@ class MatchParser(GrammarParser):
         )
 
         if self.token:
-            elements = [
+            elements: list[Element] = [
                 ContentElement(
                     token=self.token,
                     grammar=self.grammar,
@@ -324,13 +324,14 @@ class PatternsParser(ParserHasPatterns):
         greedy: bool = False,
         find_one: bool = True,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
+    ) -> tuple[bool, list[Element], tuple[POS, POS]]:
         """The parse method for grammars for which a match pattern is provided."""
 
         if boundary is None:
             boundary = (len(handler.lines) - 1, handler.line_lengths[-1])
 
-        parsed, elements = False, []
+        parsed = False
+        elements: list[Element] = []
         patterns = [parser for parser in self.patterns if not parser.disabled]
 
         current = (starting[0], starting[1])
@@ -505,10 +506,10 @@ class BeginEndParser(ParserHasPatterns):
         self,
         handler: ContentHandler,
         starting: POS,
-        boundary: POS | None = None,
+        boundary: POS,
         greedy: bool = False,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
         """The parse method for grammars for which a begin/end pattern is provided."""
 
         begin_span, _, begin_elements = self.match_and_capture(
@@ -542,7 +543,8 @@ class BeginEndParser(ParserHasPatterns):
             boundary = (len(handler.lines) - 1, handler.line_lengths[-1])
 
         # Define loop parameters
-        end_elements, mid_elements = [], []
+        end_elements: list[Element] = []
+        mid_elements: list[Element] = []
         patterns = [parser for parser in self.patterns if not parser.disabled]
         first_run = True
 
@@ -791,7 +793,7 @@ class BeginEndParser(ParserHasPatterns):
         else:
             # Did not break out of while loop, set closing to boundary
             closing = boundary
-            end_span = (None, boundary)
+            end_span = ((0, 0), boundary)
 
         start = begin_span[1] if self.between_content else begin_span[0]
 
@@ -805,7 +807,7 @@ class BeginEndParser(ParserHasPatterns):
 
         # Construct output elements
         if self.token:
-            elements = [
+            elements: list[Element] = [
                 ContentBlockElement(
                     token=self.token,
                     grammar=self.grammar,
@@ -869,6 +871,6 @@ class BeginWhileParser(PatternsParser):
         handler: ContentHandler,
         starting: POS,
         **kwargs,
-    ) -> tuple[bool, list[ContentElement], tuple[POS, POS] | None]:
+    ):
         """The parse method for grammars for which a begin/while pattern is provided."""
         raise NotImplementedError

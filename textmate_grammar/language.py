@@ -3,7 +3,7 @@ from pathlib import Path
 from .logger import LOGGER
 from .exceptions import IncompatibleFileType
 from .parser import GrammarParser, PatternsParser
-from .elements import ContentElement
+from .elements import Element
 from .handler import ContentHandler, POS
 
 
@@ -37,7 +37,7 @@ class LanguageParser(PatternsParser):
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
-        self.injections = []
+        self.injections: list[dict] = []
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
@@ -83,7 +83,7 @@ class LanguageParser(PatternsParser):
 
         super()._initialize_repository()
 
-    def parse_file(self, filePath: str | Path, **kwargs) -> ContentElement | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> Element | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -109,9 +109,7 @@ class LanguageParser(PatternsParser):
         )
         return self._parse_language(handler, **kwargs)
 
-    def _parse_language(
-        self, handler: ContentHandler, **kwargs
-    ) -> ContentElement | None:
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> Element | None:
         """Parses the current stream with the language scope."""
 
         parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
@@ -119,7 +117,7 @@ class LanguageParser(PatternsParser):
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs
-    ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
+    ) -> tuple[bool, list[Element], tuple[int, int]]:
         kwargs.pop("find_one", None)
         return super()._parse(handler, starting, find_one=False, **kwargs)
 

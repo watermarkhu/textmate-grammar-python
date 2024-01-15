@@ -31,3 +31,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 include = ["pyproject.toml", "textmate_grammar/**/*.py"]
 exclude = ["textmate_grammar/grammars/"]
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = ["test/*", "example.py"]

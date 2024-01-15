@@ -1,19 +1,130 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 from pprint import pprint
+from abc import ABC
 from collections import defaultdict
 from itertools import groupby
-from collections.abc import Sequence
 
 from .handler import POS
+from .handler import ContentHandler, Pattern, Match
+from .logger import LOGGER
 
 if TYPE_CHECKING:
-    from .parser import Capture
+    from .parser import GrammarParser
 
 
 TOKEN_DICT = dict[POS, list[str]]
 
 
-class ContentElement(object):
+class Element(ABC):
+    def _token_by_index(self, *args, **kwargs):
+        # Stub for Mypy
+        pass
+
+
+class Capture(Element):
+    """A captured matching group.
+
+    After mathing, any pattern can have a number of capture groups for which subsequent parsers can be defined.
+    The Capture object stores this subsequent parse to be dispatched at a later moment.
+    """
+
+    def __init__(
+        self,
+        handler: ContentHandler,
+        pattern: Pattern,
+        matching: Match,
+        parsers: dict[int, GrammarParser],
+        starting: tuple[int, int],
+        boundary: tuple[int, int],
+        key: str = "",
+        **kwargs,
+    ) -> None:
+        self.handler = handler
+        self.pattern = pattern
+        self.matching = matching
+        self.parsers = parsers
+        self.starting = starting
+        self.boundary = boundary
+        self.key = key
+        self.kwargs = kwargs
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Capture):
+            return (
+                True
+                if self.key == other.key
+                and self.starting == other.starting
+                and self.matching.group() == other.matching.group()
+                else False
+            )
+        else:
+            return False
+
+    def __repr__(self) -> str:
+        return f"@capture<{self.key}>"
+
+    def dispatch(self) -> list[Element]:
+        """Dispatches the remaining parse of the capture group."""
+        elements = []
+        for group_id, parser in self.parsers.items():
+            if group_id > self.pattern.number_of_captures():
+                LOGGER.warning(
+                    f"The capture group {group_id} does not exist in pattern {self.pattern._pattern}"
+                )
+                continue
+
+            group_span = self.matching.span(group_id)
+
+            # Empty group
+            if group_span[0] == group_span[1]:
+                continue
+
+            group_starting = (self.starting[0], group_span[0])
+            group_boundary = (self.starting[0], group_span[1])
+
+            if (
+                parser == self
+                and group_starting == self.starting
+                and group_boundary == self.boundary
+            ):
+                LOGGER.warning(
+                    "Parser loop detected, continuing...", self, self.starting
+                )
+                continue
+
+            # Dispatch the parse
+            self.kwargs.pop("greedy", None)
+            parsed, captured_elements, _ = parser._parse(
+                self.handler,
+                starting=group_starting,
+                boundary=group_boundary,
+                find_one=self.kwargs.pop("find_one", False),
+                parent_capture=self,
+                **self.kwargs,
+            )
+
+            if parsed:
+                elements.extend(captured_elements)
+
+        return elements
+
+
+def dispatch_list(
+    pending_elements: list[Element], parent: ContentElement | None = None
+) -> list[Element]:
+    """Dispatches all captured parsers in the list."""
+    elements = []
+    for item in pending_elements:
+        if isinstance(item, Capture):
+            captured_elements = dispatch_list(item.dispatch())
+            elements.extend(captured_elements)
+        elif item != parent:
+            elements.append(item)
+    return elements
+
+
+class ContentElement(Element):
     """The base grammar element object."""
 
     def __init__(
@@ -22,15 +133,31 @@ class ContentElement(object):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        children: "Sequence[ContentElement | Capture]" = [],
+        children: list[Element] = [],
     ) -> None:
         self.token = token
         self.grammar = grammar
         self.content = content
         self.characters = characters
-        self.children = children
+        self._children_pending = children
+        self._children_dispached: list[Element] = []
+        self._dispatched_children: bool = False
+
+    @property
+    def children(self) -> list[Element]:
+        if self._children_pending:
+            if not self._dispatched_children:
+                self._children_dispached = dispatch_list(
+                    self._children_pending, parent=self
+                )
+                self._dispatched_children = True
+            return self._children_dispached
+        else:
+            return []
 
     def __eq__(self, other):
+        if not isinstance(other, ContentElement):
+            return False
         if self.grammar == other.grammar and self.characters == other.characters:
             return True
         else:
@@ -117,13 +244,37 @@ class ContentBlockElement(ContentElement):
 
     def __init__(
         self,
-        begin: "Sequence[ContentElement | Capture]" = [],
-        end: "Sequence[ContentElement | Capture]" = [],
+        begin: list[Element] = [],
+        end: list[Element] = [],
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-        self.begin = begin
-        self.end = end
+        self._begin_pending = begin
+        self._end_pending = end
+        self._begin_dispached: list[Element] = []
+        self._end_dispached: list[Element] = []
+        self._dispatched_begin: bool = False
+        self._dispatched_end: bool = False
+
+    @property
+    def begin(self) -> list[Element]:
+        if self._begin_pending:
+            if not self._dispatched_begin:
+                self._begin_dispached = dispatch_list(self._begin_pending, parent=self)
+                self._dispatched_begin = True
+            return self._begin_dispached
+        else:
+            return []
+
+    @property
+    def end(self) -> list[Element]:
+        if self._end_pending:
+            if not self._dispatched_end:
+                self._end_dispached = dispatch_list(self._end_pending, parent=self)
+                self._dispatched_end = True
+            return self._end_dispached
+        else:
+            return []
 
     def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
         out_dict = super().to_dict(

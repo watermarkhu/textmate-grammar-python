@@ -3,12 +3,6 @@ import plistlib
 import yaml
 
 
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
-
-
 tmLanguageFile = (
     Path(__file__).parents[3]
     / "syntaxes"
@@ -27,4 +21,7 @@ if tmLanguageFile.exists():
         f.write(yaml.dump(GRAMMAR, indent=2))
 else:
     with open(tmLanguageYAML, "r") as file:
-        GRAMMAR = yaml.load(file.read(), Loader=Loader)
+        try:
+            GRAMMAR = yaml.load(file.read(), Loader=yaml.CLoader)
+        except ImportError:
+            GRAMMAR = yaml.load(file.read(), Loader=yaml.Loader)
