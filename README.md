@@ -79,6 +79,11 @@ Run unit tests
 > tox run
 ```
 
+Run static type checker
+```bash
+> tox run -e mypy
+```
+
 Run regression testing against vscode-textmate (will install npm and required packages)
 ```bash
 > tox run -e regression

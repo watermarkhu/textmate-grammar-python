@@ -17,6 +17,8 @@ TOKEN_DICT = dict[POS, list[str]]
 
 
 class Element(ABC):
+    """Base element class"""
+
     def _token_by_index(self, *args, **kwargs):
         # Stub for Mypy
         pass
@@ -145,6 +147,7 @@ class ContentElement(Element):
 
     @property
     def children(self) -> list[Element]:
+        "Children elements"
         if self._children_pending:
             if not self._dispatched_children:
                 self._children_dispached = dispatch_list(
@@ -258,6 +261,7 @@ class ContentBlockElement(ContentElement):
 
     @property
     def begin(self) -> list[Element]:
+        "Begin elements"
         if self._begin_pending:
             if not self._dispatched_begin:
                 self._begin_dispached = dispatch_list(self._begin_pending, parent=self)
@@ -268,6 +272,7 @@ class ContentBlockElement(ContentElement):
 
     @property
     def end(self) -> list[Element]:
+        "End elements"
         if self._end_pending:
             if not self._dispatched_end:
                 self._end_dispached = dispatch_list(self._end_pending, parent=self)
