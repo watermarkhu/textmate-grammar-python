@@ -20,4 +20,3 @@ def test_line_continuation(check, expected):
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
     assert element.children[0].to_dict() == expected, MSG_NOT_PARSED
-

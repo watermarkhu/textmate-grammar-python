@@ -32,7 +32,9 @@ test_vector["variable ="] = {
     "children": [
         {
             "token": "meta.assignment.variable.single.matlab",
-            "children": [{"token": "variable.other.readwrite.matlab", "content": "variable"}],
+            "children": [
+                {"token": "variable.other.readwrite.matlab", "content": "variable"}
+            ],
         },
         {"token": "keyword.operator.assignment.matlab", "content": "="},
     ],
@@ -44,8 +46,12 @@ test_vector["[1:2]"] = {
     "children": [
         {
             "token": "meta.brackets.matlab",
-            "begin": [{"token": "punctuation.section.brackets.begin.matlab", "content": "["}],
-            "end": [{"token": "punctuation.section.brackets.end.matlab", "content": "]"}],
+            "begin": [
+                {"token": "punctuation.section.brackets.begin.matlab", "content": "["}
+            ],
+            "end": [
+                {"token": "punctuation.section.brackets.end.matlab", "content": "]"}
+            ],
             "children": [
                 {"token": "constant.numeric.decimal.matlab", "content": "1"},
                 {"token": "keyword.operator.vector.colon.matlab", "content": ":"},
@@ -68,13 +74,16 @@ def test_control_statement(check, expected):
 
 
 @pytest.mark.parametrize(
-    "check", ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"]
+    "check",
+    ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"],
 )
 def test_arithmetic(check):
     """Test arithmatic operators"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
-    assert element.children[1].token == "keyword.operator.arithmetic.matlab", MSG_NO_MATCH
+    assert (
+        element.children[1].token == "keyword.operator.arithmetic.matlab"
+    ), MSG_NO_MATCH
 
 
 @pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b"])
@@ -90,4 +99,6 @@ def test_comparative(check):
     """Test comparative operators"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
-    assert element.children[1].token == "keyword.operator.relational.matlab", MSG_NO_MATCH
+    assert (
+        element.children[1].token == "keyword.operator.relational.matlab"
+    ), MSG_NO_MATCH

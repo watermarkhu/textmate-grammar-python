@@ -15,6 +15,7 @@ def track_depth(func):
     @wraps(func)
     def wrapper(*args, depth: int = -1, **kwargs):
         return func(*args, depth=depth + 1, **kwargs)
+
     return wrapper
 
 
@@ -25,14 +26,14 @@ class LogFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(name)s:%(message)s"
+    format_string = "%(name)s:%(message)s"
 
     FORMATS = {
-        logging.DEBUG: green + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset,
+        logging.DEBUG: green + format_string + reset,
+        logging.INFO: grey + format_string + reset,
+        logging.WARNING: yellow + format_string + reset,
+        logging.ERROR: red + format_string + reset,
+        logging.CRITICAL: bold_red + format_string + reset,
     }
 
     def format(self, record):
@@ -57,7 +58,9 @@ class Logger(object):
         channel.setFormatter(LogFormatter())
         self.logger.addHandler(channel)
 
-    def configure(self, parser: "GrammarParser", height: int, width: int, **kwargs) -> None:
+    def configure(
+        self, parser: "GrammarParser", height: int, width: int, **kwargs
+    ) -> None:
         """Configures the logger to a specific grammar and content length"""
         self.line_decimals = len(str(height))
         self.position_decimials = len(str(width))
@@ -77,15 +80,18 @@ class Logger(object):
     ) -> str:
         "Formats a logging message to the defined format"
         if position:
-            msg_pos = "{:{ll}d}-{:{lp}d}".format(*position, ll=self.line_decimals, lp=self.position_decimials).replace(
-                " ", "0"
-            )
+            msg_pos = "{:{ll}d}-{:{lp}d}".format(
+                *position, ll=self.line_decimals, lp=self.position_decimials
+            ).replace(" ", "0")
         else:
             msg_pos = "." * (self.line_decimals + self.position_decimials + 1)
 
         if parser:
             parser_id = parser.token if parser.token else parser.key
-            msg_id = "." * (self.max_token_length - len(parser_id)) + parser_id[: self.max_token_length]
+            msg_id = (
+                "." * (self.max_token_length - len(parser_id))
+                + parser_id[: self.max_token_length]
+            )
         else:
             msg_id = "." * self.max_token_length
 
@@ -93,7 +99,9 @@ class Logger(object):
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])
-            vb_message = vb_message[:half_length] + self.long_msg_div + vb_message[-half_length:]
+            vb_message = (
+                vb_message[:half_length] + self.long_msg_div + vb_message[-half_length:]
+            )
 
         return f"{self.scope}:{msg_pos}:{msg_id}: {vb_message}"
 

@@ -1,6 +1,8 @@
 from onigurumacffi import _Pattern as Pattern, _Match as Match, compile
+from pathlib import Path
 
-from .logging import LOGGER
+
+from .logger import LOGGER
 from .exceptions import FileNotFound, ImpossibleSpan
 
 
@@ -10,13 +12,14 @@ POS = tuple[int, int]
 class ContentHandler(object):
 
     """The handler object targetted for parsing.
-    
-    To parse a string or file, it needs to be loaded into the ContentHandler object. 
+
+    To parse a string or file, it needs to be loaded into the ContentHandler object.
     The handler will take care of all read actions on the input stream, where the contents
     are index by a tuple (line_number, line_position). Additionally, the handler contains the
     search method to match a search span against a input oniguruma regex pattern.
     """
-    notLookForwardEOL = compile("(?<!\(\?=[^\(]*)\$")
+
+    notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
     def __init__(self, source: str) -> None:
         self.source = source
@@ -25,7 +28,7 @@ class ContentHandler(object):
         self.anchor: int = 0
 
     @classmethod
-    def from_path(cls, file_path: str):
+    def from_path(cls, file_path: Path):
         """Loads a file from a path"""
 
         if not file_path.exists():
@@ -66,7 +69,7 @@ class ContentHandler(object):
                 return (pos[0] - 1, self.line_lengths[pos[0] - 1])
         else:
             return (pos[0], pos[1] - 1)
-        
+
     def range(self, start: POS, close: POS) -> list[POS]:
         """Returns the range of positions between start and close"""
         indices = []
@@ -76,19 +79,21 @@ class ContentHandler(object):
         else:
             for lp in range(start[1], self.line_lengths[start[0]]):
                 indices.append((start[0], lp))
-            for ln in range(start[0]+1, close[0]):
+            for ln in range(start[0] + 1, close[0]):
                 for lp in range(self.line_lengths[ln]):
                     indices.append((ln, lp))
             for lp in range(close[1]):
                 indices.append((close[0], lp))
         return indices
-    
-    def chars(self, start: POS, close: POS) -> dict[POS: str]:
+
+    def chars(self, start: POS, close: POS) -> dict[POS, str]:
         """Returns the source per position"""
         indices = self.range(start, close)
         return {pos: self.read(pos) for pos in indices}
 
-    def read_pos(self, start_pos: POS, close_pos: POS, skip_newline: bool = True) -> str:
+    def read_pos(
+        self, start_pos: POS, close_pos: POS, skip_newline: bool = True
+    ) -> str:
         """Reads the content between the start and end positions."""
 
         self._check_pos(start_pos)
@@ -112,10 +117,10 @@ class ContentHandler(object):
             readout = readout[:-1]
 
         return readout
-    
+
     def read_line(self, pos: POS) -> str:
         line = self.lines[pos[0]]
-        return line[pos[1]:]
+        return line[pos[1] :]
 
     def read(self, start_pos: POS, length: int = 1, skip_newline: bool = True) -> str:
         """Reads the content from start for a length"""
@@ -133,7 +138,7 @@ class ContentHandler(object):
             ln = start_pos[0] + 1
             if ln >= len(self.lines):
                 return ""
-            
+
             while unread_length > self.line_lengths[ln]:
                 readout += self.lines[ln]
                 unread_length -= self.line_lengths[ln]
@@ -153,7 +158,7 @@ class ContentHandler(object):
         boundary: POS | None = None,
         greedy: bool = False,
         **kwargs,
-    ) -> (Match | None, tuple[POS, POS] | None):
+    ) -> tuple[Match | None, tuple[POS, POS] | None]:
         """Matches the stream against a capture group.
 
         The stream is matched against the input pattern. If there are any capture groups,
@@ -172,7 +177,7 @@ class ContentHandler(object):
 
         # Get line from starting (and boundary) positions
         if boundary and starting[0] == boundary[0]:
-            line = self.lines[starting[0]][:boundary[1]]
+            line = self.lines[starting[0]][: boundary[1]]
         else:
             line = self.lines[starting[0]]
 
@@ -185,7 +190,9 @@ class ContentHandler(object):
         # Check that no charaters are skipped in case ws-only is enabled
         if matching:
             leading_string = line[init_pos : matching.start()]
-            if leading_string and not (greedy or (not greedy and leading_string.isspace())):
+            if leading_string and not (
+                greedy or (not greedy and leading_string.isspace())
+            ):
                 return None, None
         else:
             return None, None
@@ -199,10 +206,17 @@ class ContentHandler(object):
             return None, None
 
         if leading_string and not leading_string.isspace() and greedy:
-            LOGGER.warning(f"skipping < {leading_string} >", position=start_pos, depth=kwargs.get("depth", 0))
+            LOGGER.warning(
+                f"skipping < {leading_string} >",
+                position=start_pos,
+                depth=kwargs.get("depth", 0),
+            )
 
         # Include \n in match span if pattern matches on end of line $
-        if self.notLookForwardEOL.search(pattern._pattern) and matching.end() + 1 == self.line_lengths[starting[0]]:
+        if (
+            self.notLookForwardEOL.search(pattern._pattern)
+            and matching.end() + 1 == self.line_lengths[starting[0]]
+        ):
             newline_matching = pattern.search(line[:-1])
             if newline_matching and newline_matching.span() == matching.span():
                 close_pos = (starting[0], matching.end() + 1)

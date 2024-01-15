@@ -5,7 +5,7 @@ from . import parser
 
 test_vector = {}
 
-test_vector["import module.submodule.class"] = { # import module
+test_vector["import module.submodule.class"] = {  # import module
     "token": "meta.import.matlab",
     "children": [
         {"token": "keyword.other.import.matlab", "content": "import"},
@@ -22,7 +22,7 @@ test_vector["import module.submodule.class"] = { # import module
     ],
 }
 
-test_vector["import module.submodule.*"] = { #import with wildcard
+test_vector["import module.submodule.*"] = {  # import with wildcard
     "token": "meta.import.matlab",
     "children": [
         {"token": "keyword.other.import.matlab", "content": "import"},
@@ -38,6 +38,7 @@ test_vector["import module.submodule.*"] = { #import with wildcard
         },
     ],
 }
+
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_imports(check, expected):

@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from .logging import LOGGER
+from .logger import LOGGER
 from .exceptions import IncompatibleFileType
 from .parser import GrammarParser, PatternsParser
-from .elements import ContentElement
+from .elements import Element
 from .handler import ContentHandler, POS
 
 
@@ -28,19 +28,23 @@ class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
     def __init__(self, grammar: dict, **kwargs):
-        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
+        super().__init__(
+            grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs
+        )
 
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
-        self.injections = []
+        self.injections: list[dict] = []
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
             for key, parser_grammar in repo.items():
-                self.repository[key] = GrammarParser.initialize(parser_grammar, key=key, language=self)
+                self.repository[key] = GrammarParser.initialize(
+                    parser_grammar, key=key, language=self
+                )
 
         # Update language parser store
         language_name = grammar.get("scopeName", "myLanguage")
@@ -67,7 +71,9 @@ class LanguageParser(PatternsParser):
             target_language = LANGUAGE_PARSERS[target_string]
 
             injected_parser = GrammarParser.initialize(
-                injected_grammar, key=f"{target_string}.injection", language=target_language
+                injected_grammar,
+                key=f"{target_string}.injection",
+                language=target_language,
             )
             injected_parser._initialize_repository()
 
@@ -77,7 +83,7 @@ class LanguageParser(PatternsParser):
 
         super()._initialize_repository()
 
-    def parse_file(self, filePath: str | Path, **kwargs) -> ContentElement | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> Element | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -88,7 +94,9 @@ class LanguageParser(PatternsParser):
         handler = ContentHandler.from_path(filePath)
 
         # Configure logger
-        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+        LOGGER.configure(
+            self, height=len(handler.lines), width=max(handler.line_lengths)
+        )
 
         return self._parse_language(handler, **kwargs)
 
@@ -96,10 +104,12 @@ class LanguageParser(PatternsParser):
         """Parses an input string"""
         handler = ContentHandler(input)
         # Configure logger
-        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+        LOGGER.configure(
+            self, height=len(handler.lines), width=max(handler.line_lengths)
+        )
         return self._parse_language(handler, **kwargs)
 
-    def _parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> Element | None:
         """Parses the current stream with the language scope."""
 
         parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
@@ -107,7 +117,7 @@ class LanguageParser(PatternsParser):
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs
-    ) -> tuple[bool, list[ContentElement], tuple[int, int]]:
+    ) -> tuple[bool, list[Element], tuple[int, int]]:
         kwargs.pop("find_one", None)
         return super()._parse(handler, starting, find_one=False, **kwargs)
 

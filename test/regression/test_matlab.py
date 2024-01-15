@@ -23,7 +23,10 @@ test_files = (
             "PropertyValidation",
         ]
     ]
-    + [str(test) for test in (MODULE_ROOT.parent / "syntaxes" / "matlab" / "test").glob("*.m")]
+    + [
+        str(test)
+        for test in (MODULE_ROOT.parent / "syntaxes" / "matlab" / "test").glob("*.m")
+    ]
     + [
         str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
         for file in ["test_multiple_inheritance_ml"]

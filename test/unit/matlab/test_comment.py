@@ -20,7 +20,12 @@ test_vector["%% This is a section comment \n"] = {
     "children": [
         {
             "token": "entity.name.section.matlab",
-            "begin": [{"token": "punctuation.whitespace.comment.leading.matlab", "content": " "}],
+            "begin": [
+                {
+                    "token": "punctuation.whitespace.comment.leading.matlab",
+                    "content": " ",
+                }
+            ],
             "content": "This is a section comment ",
         }
     ],
@@ -29,7 +34,9 @@ test_vector["%% This is a section comment \n"] = {
 # multiline comment
 test_vector["%{\nThis is a comment\nmultiple\n %}"] = {
     "token": "comment.block.percentage.matlab",
-    "begin": [{"token": "punctuation.definition.comment.begin.matlab", "content": "%{"}],
+    "begin": [
+        {"token": "punctuation.definition.comment.begin.matlab", "content": "%{"}
+    ],
     "end": [
         {"token": "punctuation.whitespace.comment.leading.matlab", "content": " "},
         {"token": "punctuation.definition.comment.end.matlab", "content": "%}"},

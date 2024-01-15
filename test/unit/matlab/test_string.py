@@ -11,7 +11,7 @@ test_vector[r"'This %.3f ''is'' %% a \\ string\n'"] = {
     "begin": [{"token": "punctuation.definition.string.begin.matlab", "content": "'"}],
     "end": [{"token": "punctuation.definition.string.end.matlab", "content": "'"}],
     "children": [
-        {'token': 'constant.character.escape.matlab', 'content': '%.3f'},
+        {"token": "constant.character.escape.matlab", "content": "%.3f"},
         {"token": "constant.character.escape.matlab", "content": "''"},
         {"token": "constant.character.escape.matlab", "content": "''"},
         {"token": "constant.character.escape.matlab", "content": "%%"},

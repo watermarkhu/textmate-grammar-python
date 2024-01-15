@@ -20,6 +20,7 @@ test_vector["return"] = {
     "children": [{"token": "keyword.control.flow.matlab", "content": "return"}],
 }
 
+
 @pytest.mark.parametrize("check,expected", test_vector.items())
 def test_control_statement(check, expected):
     """Test control statement"""

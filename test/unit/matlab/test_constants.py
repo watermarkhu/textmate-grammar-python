@@ -4,7 +4,18 @@ from . import parser
 
 
 @pytest.mark.parametrize(
-    "check", ["eps", "Inf", "inf", "intmax", "intmin", "namelengthmax", "realmax", "realmin", "pi"]
+    "check",
+    [
+        "eps",
+        "Inf",
+        "inf",
+        "intmax",
+        "intmin",
+        "namelengthmax",
+        "realmax",
+        "realmin",
+        "pi",
+    ],
 )
 def test_numeric(check):
     """Test constant numeric"""
@@ -26,4 +37,6 @@ def test_binary(check):
     """Test constant binary"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
-    assert element.children[0].token == "constant.language.boolean.matlab", MSG_NOT_PARSED
+    assert (
+        element.children[0].token == "constant.language.boolean.matlab"
+    ), MSG_NOT_PARSED

@@ -64,7 +64,9 @@ test_vector["variable.function(argument)"] = {
                 {"token": "punctuation.section.parens.begin.matlab", "content": "("},
             ],
             "end": [{"token": "punctuation.section.parens.end.matlab", "content": ")"}],
-            "children": [{"content": "argument", "token": "variable.other.readwrite.matlab"}],
+            "children": [
+                {"content": "argument", "token": "variable.other.readwrite.matlab"}
+            ],
         },
     ],
 }
