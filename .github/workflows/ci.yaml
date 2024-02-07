@@ -1,4 +1,4 @@
-name: "CI: lint with ruff, run pytest"
+name: "CI"
 
 on: 
   workflow_dispatch:
