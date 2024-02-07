@@ -1,11 +1,10 @@
 from pathlib import Path
 
-from .logger import LOGGER
-from .exceptions import IncompatibleFileType
-from .parser import GrammarParser, PatternsParser
 from .elements import Element
-from .handler import ContentHandler, POS
-
+from .exceptions import IncompatibleFileType
+from .handler import POS, ContentHandler
+from .logger import LOGGER
+from .parser import GrammarParser, PatternsParser
 
 LANGUAGE_PARSERS = {}
 
@@ -28,9 +27,7 @@ class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
     def __init__(self, grammar: dict, **kwargs):
-        super().__init__(
-            grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs
-        )
+        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
 
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
@@ -94,9 +91,7 @@ class LanguageParser(PatternsParser):
         handler = ContentHandler.from_path(filePath)
 
         # Configure logger
-        LOGGER.configure(
-            self, height=len(handler.lines), width=max(handler.line_lengths)
-        )
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
         return self._parse_language(handler, **kwargs)
 
@@ -104,9 +99,7 @@ class LanguageParser(PatternsParser):
         """Parses an input string"""
         handler = ContentHandler(input)
         # Configure logger
-        LOGGER.configure(
-            self, height=len(handler.lines), width=max(handler.line_lengths)
-        )
+        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
         return self._parse_language(handler, **kwargs)
 
     def _parse_language(self, handler: ContentHandler, **kwargs) -> Element | None:

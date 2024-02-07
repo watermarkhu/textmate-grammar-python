@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
 import onigurumacffi as re
 
-
-from .logger import LOGGER, track_depth
+from .elements import Capture, ContentBlockElement, ContentElement, Element
 from .exceptions import IncludedParserNotFound
-from .elements import Element, Capture, ContentElement, ContentBlockElement
-from .handler import ContentHandler, Pattern, POS
-
+from .handler import POS, ContentHandler, Pattern
+from .logger import LOGGER, track_depth
 
 if TYPE_CHECKING:
     from .language import LanguageParser
@@ -96,7 +96,7 @@ class GrammarParser(ABC):
         When the grammar has patterns, this method should called to initialize its inclusions.
         This should occur after all sub patterns have been initialized.
         """
-        pass
+        return
 
     def parse(
         self,
@@ -108,9 +108,7 @@ class GrammarParser(ABC):
         """The method to parse a handler using the current grammar."""
         if not self.initialized and self.language is not None:
             self.language._initialize_repository()
-        parsed, elements, span = self._parse(
-            handler, starting, boundary=boundary, **kwargs
-        )
+        parsed, elements, span = self._parse(handler, starting, boundary=boundary, **kwargs)
         return parsed, elements, span
 
     def match_and_capture(
@@ -119,7 +117,7 @@ class GrammarParser(ABC):
         pattern: Pattern,
         starting: POS,
         boundary: POS,
-        parsers: dict[int, GrammarParser] = {},
+        parsers: dict[int, GrammarParser] | None = None,
         parent_capture: Capture | None = None,
         **kwargs,
     ) -> tuple[tuple[POS, POS] | None, str, list[Element]]:
@@ -129,9 +127,9 @@ class GrammarParser(ABC):
         its capture groups are initalized as Capture objects. These are only parsed after the full handler has been
         parsed. This occurs in GrammarParser.parse when calling parse_captures.
         """
-        matching, span = handler.search(
-            pattern, starting=starting, boundary=boundary, **kwargs
-        )
+        if parsers is None:
+            parsers = {}
+        matching, span = handler.search(pattern, starting=starting, boundary=boundary, **kwargs)
 
         if matching:
             if parsers:
@@ -210,9 +208,7 @@ class MatchParser(GrammarParser):
         if self.token:
             return f"{self.__class__.__name__}:{self.token}"
         else:
-            identifier = (
-                self.key if self.key else "_".join(self.comment.lower().split(" "))
-            )
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
     def _initialize_repository(self, **kwargs) -> None:
@@ -296,9 +292,7 @@ class ParserHasPatterns(GrammarParser, ABC):
                 parser._initialize_repository()
 
         # Copy patterns from included pattern parsers
-        pattern_parsers = [
-            parser for parser in self.patterns if isinstance(parser, PatternsParser)
-        ]
+        pattern_parsers = [parser for parser in self.patterns if isinstance(parser, PatternsParser)]
         for parser in pattern_parsers:
             parser_index = self.patterns.index(parser)
             self.patterns[parser_index : parser_index + 1] = parser.patterns
@@ -434,9 +428,7 @@ class PatternsParser(ParserHasPatterns):
             if current[1] in [line_length, line_length - 1]:
                 try:
                     empty_lines = next(
-                        i
-                        for i, v in enumerate(handler.line_lengths[current[0] + 1 :])
-                        if v > 1
+                        i for i, v in enumerate(handler.line_lengths[current[0] + 1 :]) if v > 1
                     )
                     current = (current[0] + 1 + empty_lines, 0)
                 except StopIteration:
@@ -465,7 +457,7 @@ class BeginEndParser(ParserHasPatterns):
             self.token = grammar["contentName"]
             self.between_content = True
         else:
-            self.token = grammar.get("name", None)
+            self.token = grammar.get("name")
             self.between_content = False
         self.apply_end_pattern_last = grammar.get("applyEndPatternLast", False)
         self.exp_begin = re.compile(grammar["begin"])
@@ -479,9 +471,7 @@ class BeginEndParser(ParserHasPatterns):
         if self.token:
             return f"{self.__class__.__name__}:{self.token}"
         else:
-            identifier = (
-                self.key if self.key else "_".join(self.comment.lower().split(" "))
-            )
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
     def _initialize_repository(self, **kwargs) -> None:
@@ -669,14 +659,9 @@ class BeginEndParser(ParserHasPatterns):
                                 kwargs.get("depth", 0),
                             )
                             mid_elements.extend(capture_elements)
-                            closing = (
-                                end_span[0] if self.between_content else end_span[1]
-                            )
+                            closing = end_span[0] if self.between_content else end_span[1]
                             break
-                        elif (
-                            not self.apply_end_pattern_last
-                            and not apply_end_pattern_last
-                        ):
+                        elif not self.apply_end_pattern_last and not apply_end_pattern_last:
                             # End pattern prioritized over capture pattern, break pattern search
                             LOGGER.debug(
                                 f"{self.__class__.__name__} capture+end: end prioritized, break",
@@ -684,9 +669,7 @@ class BeginEndParser(ParserHasPatterns):
                                 current,
                                 kwargs.get("depth", 0),
                             )
-                            closing = (
-                                end_span[0] if self.between_content else end_span[1]
-                            )
+                            closing = end_span[0] if self.between_content else end_span[1]
                             break
                         else:
                             # Capture pattern prioritized over end pattern, continue pattern search
@@ -779,9 +762,7 @@ class BeginEndParser(ParserHasPatterns):
                             current,
                             kwargs.get("depth", 0),
                         )
-                    current = handler.next(
-                        (current[0], handler.line_lengths[current[0]])
-                    )
+                    current = handler.next((current[0], handler.line_lengths[current[0]]))
 
             if apply_end_pattern_last:
                 current = handler.next(current)
@@ -833,7 +814,7 @@ class BeginWhileParser(PatternsParser):
             self.token = grammar["contentName"]
             self.between_content = True
         else:
-            self.token = grammar.get("name", None)
+            self.token = grammar.get("name")
             self.between_content = False
         self.exp_begin = re.compile(grammar["begin"])
         self.exp_while = re.compile(grammar["while"])
@@ -844,9 +825,7 @@ class BeginWhileParser(PatternsParser):
         if self.token:
             return f"{self.__class__.__name__}:{self.token}"
         else:
-            identifier = (
-                self.key if self.key else "_".join(self.comment.lower().split(" "))
-            )
+            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
     def _initialize_repository(self):

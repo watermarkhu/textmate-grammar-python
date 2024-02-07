@@ -1,3 +1,11 @@
+[![PyPI - Version](https://img.shields.io/pypi/v/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
+[![PyPI - License](https://img.shields.io/pypi/l/textmate-grammar-python.svg)](https://github.com/watermarkhu/textmate-grammar-python/tree/main?tab=MIT-1-ov-file)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](http://mypy-lang.org/)
+[![Python versions](https://img.shields.io/pypi/pyversions/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
+[![CI/CD](https://github.com/watermarkhu/textmate-grammar-python/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/watermarkhu/textmate-grammar-python/blob/main/.github/workflows/ci.yaml)
+
+
 # textmate-grammar-python
 
 An interpreter for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format. 

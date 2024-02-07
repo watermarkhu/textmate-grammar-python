@@ -1,12 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from pprint import pprint
+
 from abc import ABC
 from collections import defaultdict
 from itertools import groupby
+from pprint import pprint
+from typing import TYPE_CHECKING
 
-from .handler import POS
-from .handler import ContentHandler, Pattern, Match
+from .handler import POS, ContentHandler, Match, Pattern
 from .logger import LOGGER
 
 if TYPE_CHECKING:
@@ -16,12 +16,10 @@ if TYPE_CHECKING:
 TOKEN_DICT = dict[POS, list[str]]
 
 
-class Element(ABC):
-    """Base element class"""
-
+class Element:
     def _token_by_index(self, *args, **kwargs):
         # Stub for Mypy
-        pass
+        return
 
 
 class Capture(Element):
@@ -53,12 +51,10 @@ class Capture(Element):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Capture):
-            return (
-                True
-                if self.key == other.key
+            return bool(
+                self.key == other.key
                 and self.starting == other.starting
                 and self.matching.group() == other.matching.group()
-                else False
             )
         else:
             return False
@@ -90,9 +86,7 @@ class Capture(Element):
                 and group_starting == self.starting
                 and group_boundary == self.boundary
             ):
-                LOGGER.warning(
-                    "Parser loop detected, continuing...", self, self.starting
-                )
+                LOGGER.warning("Parser loop detected, continuing...", self, self.starting)
                 continue
 
             # Dispatch the parse
@@ -135,8 +129,10 @@ class ContentElement(Element):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        children: list[Element] = [],
+        children: list[Element] | None = None,
     ) -> None:
+        if children is None:
+            children = []
         self.token = token
         self.grammar = grammar
         self.content = content
@@ -150,9 +146,7 @@ class ContentElement(Element):
         "Children elements"
         if self._children_pending:
             if not self._dispatched_children:
-                self._children_dispached = dispatch_list(
-                    self._children_pending, parent=self
-                )
+                self._children_dispached = dispatch_list(self._children_pending, parent=self)
                 self._dispatched_children = True
             return self._children_dispached
         else:
@@ -161,10 +155,7 @@ class ContentElement(Element):
     def __eq__(self, other):
         if not isinstance(other, ContentElement):
             return False
-        if self.grammar == other.grammar and self.characters == other.characters:
-            return True
-        else:
-            return False
+        return bool(self.grammar == other.grammar and self.characters == other.characters)
 
     def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
@@ -185,9 +176,7 @@ class ContentElement(Element):
         """Converts the object to a flattened array of tokens per index."""
         token_dict = self._token_by_index(defaultdict(list))
         tokens = []
-        for (_, key), group in groupby(
-            sorted(token_dict.items()), lambda x: (x[0][0], x[1])
-        ):
+        for (_, key), group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
             group_tokens = list(group)
             starting = group_tokens[0][0]
             content = ""
@@ -220,9 +209,11 @@ class ContentElement(Element):
                 **kwargs,
             )
 
-    def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
+    def _token_by_index(self, token_dict: TOKEN_DICT | None = None) -> TOKEN_DICT:
         """Recursively tokenize every index between start and close."""
-        for pos in self.characters.keys():
+        if token_dict is None:
+            token_dict = defaultdict(list)
+        for pos in self.characters:
             token_dict[pos].append(self.token)
 
         # Tokenize child elements
@@ -247,10 +238,14 @@ class ContentBlockElement(ContentElement):
 
     def __init__(
         self,
-        begin: list[Element] = [],
-        end: list[Element] = [],
+        begin: list[Element] | None = None,
+        end: list[Element] | None = None,
         **kwargs,
     ) -> None:
+        if end is None:
+            end = []
+        if begin is None:
+            begin = []
         super().__init__(**kwargs)
         self._begin_pending = begin
         self._end_pending = end
@@ -282,9 +277,7 @@ class ContentBlockElement(ContentElement):
             return []
 
     def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
-        out_dict = super().to_dict(
-            verbosity=verbosity, all_content=all_content, **kwargs
-        )
+        out_dict = super().to_dict(verbosity=verbosity, all_content=all_content, **kwargs)
         if self.begin:
             out_dict["begin"] = (
                 self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs)
@@ -299,15 +292,15 @@ class ContentBlockElement(ContentElement):
             )
 
         ordered_keys = [
-            key
-            for key in ["token", "begin", "end", "content", "children"]
-            if key in out_dict
+            key for key in ["token", "begin", "end", "content", "children"] if key in out_dict
         ]
         ordered_dict = {key: out_dict[key] for key in ordered_keys}
         return ordered_dict
 
-    def _token_by_index(self, token_dict: TOKEN_DICT = defaultdict(list)) -> TOKEN_DICT:
+    def _token_by_index(self, token_dict: TOKEN_DICT | None = None) -> TOKEN_DICT:
         """Converts the object to a flattened array of tokens."""
+        if token_dict is None:
+            token_dict = defaultdict(list)
         super()._token_by_index(token_dict)
         for element in self.begin:
             element._token_by_index(token_dict)

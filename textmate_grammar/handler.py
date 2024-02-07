@@ -1,15 +1,16 @@
-from onigurumacffi import _Pattern as Pattern, _Match as Match, compile
 from pathlib import Path
 
+from onigurumacffi import _Match as Match
+from onigurumacffi import _Pattern as Pattern
+from onigurumacffi import compile
 
-from .logger import LOGGER
 from .exceptions import FileNotFound, ImpossibleSpan
-
+from .logger import LOGGER
 
 POS = tuple[int, int]
 
 
-class ContentHandler(object):
+class ContentHandler:
 
     """The handler object targetted for parsing.
 
@@ -35,7 +36,7 @@ class ContentHandler(object):
             raise FileNotFound(str(file_path))
 
         # Open file and replace Windows/Mac line endings
-        with open(file_path, "r") as file:
+        with open(file_path) as file:
             content = file.read()
         content = content.replace("\r\n", "\n")
         content = content.replace("\r", "\n")
@@ -91,9 +92,7 @@ class ContentHandler(object):
         indices = self.range(start, close)
         return {pos: self.read(pos) for pos in indices}
 
-    def read_pos(
-        self, start_pos: POS, close_pos: POS, skip_newline: bool = True
-    ) -> str:
+    def read_pos(self, start_pos: POS, close_pos: POS, skip_newline: bool = True) -> str:
         """Reads the content between the start and end positions."""
 
         self._check_pos(start_pos)
@@ -190,9 +189,7 @@ class ContentHandler(object):
         # Check that no charaters are skipped in case ws-only is enabled
         if matching:
             leading_string = line[init_pos : matching.start()]
-            if leading_string and not (
-                greedy or (not greedy and leading_string.isspace())
-            ):
+            if leading_string and not (greedy or (not greedy and leading_string.isspace())):
                 return None, None
         else:
             return None, None
