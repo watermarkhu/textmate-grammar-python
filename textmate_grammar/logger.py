@@ -1,6 +1,6 @@
 import logging
-from typing import TYPE_CHECKING
 from functools import wraps
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
@@ -42,7 +42,7 @@ class LogFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-class Logger(object):
+class Logger:
     """The logger object for the grammar parsers."""
 
     long_msg_div = "\x1b[1;32m ... \x1b[0m"
@@ -58,9 +58,7 @@ class Logger(object):
         channel.setFormatter(LogFormatter())
         self.logger.addHandler(channel)
 
-    def configure(
-        self, parser: "GrammarParser", height: int, width: int, **kwargs
-    ) -> None:
+    def configure(self, parser: "GrammarParser", height: int, width: int, **kwargs) -> None:
         """Configures the logger to a specific grammar and content length"""
         self.line_decimals = len(str(height))
         self.position_decimials = len(str(width))
@@ -68,13 +66,13 @@ class Logger(object):
         if self.id != id:
             self.id = id
             tokens = gen_all_tokens(parser.grammar)
-            self.max_token_length = max((len(token) for token in tokens))
+            self.max_token_length = max(len(token) for token in tokens)
             self.scope = parser.token
 
     def format_message(
         self,
         message: str,
-        parser: "GrammarParser | None" = None,
+        parser: Optional["GrammarParser"] = None,
         position: tuple[int, int] | None = None,
         depth: int = 0,
     ) -> str:
@@ -89,8 +87,7 @@ class Logger(object):
         if parser:
             parser_id = parser.token if parser.token else parser.key
             msg_id = (
-                "." * (self.max_token_length - len(parser_id))
-                + parser_id[: self.max_token_length]
+                "." * (self.max_token_length - len(parser_id)) + parser_id[: self.max_token_length]
             )
         else:
             msg_id = "." * self.max_token_length
@@ -99,9 +96,7 @@ class Logger(object):
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])
-            vb_message = (
-                vb_message[:half_length] + self.long_msg_div + vb_message[-half_length:]
-            )
+            vb_message = vb_message[:half_length] + self.long_msg_div + vb_message[-half_length:]
 
         return f"{self.scope}:{msg_pos}:{msg_id}: {vb_message}"
 
@@ -136,7 +131,9 @@ class Logger(object):
         self.logger.critical(message)
 
 
-def gen_all_tokens(grammar: dict, items: list[str] = []) -> list[str]:
+def gen_all_tokens(grammar: dict, items: list[str] | None = None) -> list[str]:
+    if items is None:
+        items = []
     for key, value in grammar.items():
         if key in ["name", "contentName"]:
             items.append(value)

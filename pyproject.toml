@@ -1,3 +1,4 @@
+##################################### poetry ##################################### 
 [tool.poetry]
 name = "textmate-grammar-python"
 version = "0.1.2"
@@ -25,13 +26,33 @@ ruff = "^0.1.13"
 mypy = "^1.8.0"
 types-pyyaml = "^6.0.12.12"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
+
+##################################### ruff ##################################### 
 [tool.ruff]
 include = ["pyproject.toml", "textmate_grammar/**/*.py"]
 exclude = ["textmate_grammar/grammars/"]
+line-length = 100
+indent-width = 4
 
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+ignore = ["E111", "E114", "E117", "E501", "F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+##################################### mypy ##################################### 
 [tool.mypy]
 ignore_missing_imports = true
+exclude = ["test/*", "example.py"]
+
+##################################### build ##################################### 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
