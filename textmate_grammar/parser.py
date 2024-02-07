@@ -457,7 +457,7 @@ class BeginEndParser(ParserHasPatterns):
             self.token = grammar["contentName"]
             self.between_content = True
         else:
-            self.token = grammar.get("name", None)
+            self.token = grammar.get("name")
             self.between_content = False
         self.apply_end_pattern_last = grammar.get("applyEndPatternLast", False)
         self.exp_begin = re.compile(grammar["begin"])
@@ -814,7 +814,7 @@ class BeginWhileParser(PatternsParser):
             self.token = grammar["contentName"]
             self.between_content = True
         else:
-            self.token = grammar.get("name", None)
+            self.token = grammar.get("name")
             self.between_content = False
         self.exp_begin = re.compile(grammar["begin"])
         self.exp_while = re.compile(grammar["while"])
