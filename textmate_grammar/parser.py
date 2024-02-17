@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import onigurumacffi as re
 
-from .elements import Capture, ContentBlockElement, ContentElement, Element
+from .elements import Capture, ContentBlockElement, ContentElement
 from .exceptions import IncludedParserNotFound
 from .handler import POS, ContentHandler, Pattern
 from .logger import LOGGER, track_depth
@@ -82,7 +82,7 @@ class GrammarParser(ABC):
         handler: ContentHandler,
         starting: POS,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[int, int] | None]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[int, int] | None]:
         """The abstract method which all parsers much implement
 
         The _parse method is called by parse, which will additionally parse any nested Capture elements.
@@ -104,7 +104,7 @@ class GrammarParser(ABC):
         starting: POS = (0, 0),
         boundary: POS | None = None,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[int, int] | None]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[int, int] | None]:
         """The method to parse a handler using the current grammar."""
         if not self.initialized and self.language is not None:
             self.language._initialize_repository()
@@ -120,7 +120,7 @@ class GrammarParser(ABC):
         parsers: dict[int, GrammarParser] | None = None,
         parent_capture: Capture | None = None,
         **kwargs,
-    ) -> tuple[tuple[POS, POS] | None, str, list[Element]]:
+    ) -> tuple[tuple[POS, POS] | None, str, list[Capture | ContentElement]]:
         """Matches a pattern and its capture groups.
 
         Matches the pattern on the handler between the starting and boundary positions. If a pattern is matched,
@@ -170,13 +170,13 @@ class TokenParser(GrammarParser):
         starting: POS,
         boundary: POS,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[POS, POS] | None]:
         """The parse method for grammars for which only the token is provided.
 
         When no regex patterns are provided. The element is created between the initial and boundary positions.
         """
         content = handler.read_pos(starting, boundary)
-        elements: list[Element] = [
+        elements: list[Capture | ContentElement] = [
             ContentElement(
                 token=self.token,
                 grammar=self.grammar,
@@ -228,7 +228,7 @@ class MatchParser(GrammarParser):
         starting: POS,
         boundary: POS,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[POS, POS] | None]:
         """The parse method for grammars for which a match pattern is provided."""
 
         span, content, captures = self.match_and_capture(
@@ -257,7 +257,7 @@ class MatchParser(GrammarParser):
         )
 
         if self.token:
-            elements: list[Element] = [
+            elements: list[Capture | ContentElement] = [
                 ContentElement(
                     token=self.token,
                     grammar=self.grammar,
@@ -318,14 +318,14 @@ class PatternsParser(ParserHasPatterns):
         greedy: bool = False,
         find_one: bool = True,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[POS, POS]]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[POS, POS]]:
         """The parse method for grammars for which a match pattern is provided."""
 
         if boundary is None:
             boundary = (len(handler.lines) - 1, handler.line_lengths[-1])
 
         parsed = False
-        elements: list[Element] = []
+        elements: list[Capture | ContentElement] = []
         patterns = [parser for parser in self.patterns if not parser.disabled]
 
         current = (starting[0], starting[1])
@@ -499,7 +499,7 @@ class BeginEndParser(ParserHasPatterns):
         boundary: POS,
         greedy: bool = False,
         **kwargs,
-    ) -> tuple[bool, list[Element], tuple[POS, POS] | None]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[POS, POS] | None]:
         """The parse method for grammars for which a begin/end pattern is provided."""
 
         begin_span, _, begin_elements = self.match_and_capture(
@@ -533,8 +533,8 @@ class BeginEndParser(ParserHasPatterns):
             boundary = (len(handler.lines) - 1, handler.line_lengths[-1])
 
         # Define loop parameters
-        end_elements: list[Element] = []
-        mid_elements: list[Element] = []
+        end_elements: list[Capture | ContentElement] = []
+        mid_elements: list[Capture | ContentElement] = []
         patterns = [parser for parser in self.patterns if not parser.disabled]
         first_run = True
 
@@ -788,7 +788,7 @@ class BeginEndParser(ParserHasPatterns):
 
         # Construct output elements
         if self.token:
-            elements: list[Element] = [
+            elements: list[Capture | ContentElement] = [
                 ContentBlockElement(
                     token=self.token,
                     grammar=self.grammar,
