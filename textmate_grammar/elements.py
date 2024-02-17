@@ -171,7 +171,11 @@ class ContentElement:
         return out_dict
 
     def find(
-        self, tokens: str | list[str], verbosity: int = -1, stack: list[str] | None = None
+        self,
+        tokens: str | list[str],
+        stop_tokens: str | list[str] = "",
+        verbosity: int = -1,
+        stack: list[str] | None = None,
     ) -> Generator[tuple[ContentElement, list[str]], None, None]:
         """Find the next subelement that match the input token(s).
 
@@ -180,6 +184,11 @@ class ContentElement:
         """
         if isinstance(tokens, str):
             tokens = [tokens]
+        if isinstance(stop_tokens, str):
+            stop_tokens = [stop_tokens] if stop_tokens else []
+        if not set(tokens).isdisjoint(set(stop_tokens)):
+            raise ValueError("Input tokens and stop_tokens must be disjoint")
+
         if stack is None:
             stack = []
         stack += [self.token]
@@ -187,6 +196,12 @@ class ContentElement:
         if verbosity:
             verbosity -= 1
             for child in self._subelements:
+                if stop_tokens and (
+                    child.token in stop_tokens
+                    or (stop_tokens == ["*"] and child.token not in tokens)
+                ):
+                    return None
+
                 if child.token in tokens or tokens == ["*"]:
                     yield child, [e for e in stack]
                 if verbosity:
@@ -197,10 +212,10 @@ class ContentElement:
         return None
 
     def findall(
-        self, tokens: str | list[str], verbosity: int = -1
+        self, tokens: str | list[str], stop_tokens: str | list[str] = "", verbosity: int = -1
     ) -> list[tuple[ContentElement, list[str]]]:
         """Returns subelements that match the input token(s)."""
-        return list(self.find(tokens, verbosity=verbosity))
+        return list(self.find(tokens, stop_tokens=stop_tokens, verbosity=verbosity))
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""

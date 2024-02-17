@@ -89,6 +89,8 @@ class LanguageParser(PatternsParser):
             raise IncompatibleFileType(extensions=self.file_types)
 
         handler = ContentHandler.from_path(filePath)
+        if handler.source == "":
+            return None
 
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
