@@ -1,45 +1,39 @@
-import re
-import os
 import logging
-import warnings
+import os
 import platform
+import re
 import subprocess
-from pathlib import Path
+import warnings
 from abc import ABC, abstractmethod
 from itertools import groupby
+from pathlib import Path
 
-
-from textmate_grammar.language import LanguageParser
 import textmate_grammar
-
+from textmate_grammar.language import LanguageParser
 
 MODULE_ROOT = Path(textmate_grammar.__path__[0])
-INDEX = MODULE_ROOT.parent / "test" / "regression" / "node_root" / "index.js"
+INDEX = MODULE_ROOT.parents[1] / "test" / "regression" / "node_root" / "index.js"
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 
 if platform.system() != "Linux":
-    warnings.warn(f"Regression tests on {os.name} is not supported")
+    warnings.warn(f"Regression tests on {os.name} is not supported", stacklevel=1)
 
-elif (
-    "CI" not in os.environ or not os.environ["CI"] or "GITHUB_RUN_ID" not in os.environ
-):
+elif "CI" not in os.environ or not os.environ["CI"] or "GITHUB_RUN_ID" not in os.environ:
     nvm_dir = Path(os.environ["HOME"]) / ".nvm"
     nvm_script = nvm_dir / "nvm.sh"
     env = os.environ.copy()
     env["NVM_DIR"] = str(nvm_dir)
 
     if not nvm_script.exists():
-        raise EnvironmentError(
+        raise OSError(
             'Node environment not setup. Please run "bash install.sh" in the test/regression directory. '
         )
 
-    pipe = subprocess.Popen(
-        f". {nvm_script}; env", stdout=subprocess.PIPE, shell=True, env=env
-    )
+    pipe = subprocess.Popen(f". {nvm_script}; env", stdout=subprocess.PIPE, shell=True, env=env)
     output = pipe.communicate()[0]
-    NODE_ENV = dict((line.split("=", 1) for line in output.decode().splitlines()))
+    NODE_ENV = dict(line.split("=", 1) for line in output.decode().splitlines())
 
 else:
     NODE_ENV = os.environ.copy()

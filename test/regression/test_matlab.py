@@ -1,10 +1,11 @@
-from pathlib import Path
 import logging
-import pytest
+from pathlib import Path
 
-from textmate_grammar.language import LanguageParser
+import pytest
 from textmate_grammar.grammars import matlab
-from . import RegressionTestClass, MODULE_ROOT
+from textmate_grammar.language import LanguageParser
+
+from . import MODULE_ROOT, RegressionTestClass
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
@@ -12,7 +13,7 @@ parser = LanguageParser(matlab.GRAMMAR)
 
 test_files = (
     [
-        str(MODULE_ROOT.parent / "syntaxes" / "matlab" / (file + ".m"))
+        str(MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / (file + ".m"))
         for file in [
             "Account",
             "AnEnum",
@@ -23,10 +24,7 @@ test_files = (
             "PropertyValidation",
         ]
     ]
-    + [
-        str(test)
-        for test in (MODULE_ROOT.parent / "syntaxes" / "matlab" / "test").glob("*.m")
-    ]
+    + [str(test) for test in (MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / "test").glob("*.m")]
     + [
         str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
         for file in ["test_multiple_inheritance_ml"]

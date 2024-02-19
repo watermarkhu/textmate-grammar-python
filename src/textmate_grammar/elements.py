@@ -4,7 +4,7 @@ from abc import ABC
 from collections import defaultdict
 from itertools import groupby
 from pprint import pprint
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 from .handler import POS, ContentHandler, Match, Pattern
 from .logger import LOGGER
@@ -16,13 +16,7 @@ if TYPE_CHECKING:
 TOKEN_DICT = dict[POS, list[str]]
 
 
-class Element:
-    def _token_by_index(self, *args, **kwargs):
-        # Stub for Mypy
-        return
-
-
-class Capture(Element):
+class Capture:
     """A captured matching group.
 
     After mathing, any pattern can have a number of capture groups for which subsequent parsers can be defined.
@@ -62,7 +56,7 @@ class Capture(Element):
     def __repr__(self) -> str:
         return f"@capture<{self.key}>"
 
-    def dispatch(self) -> list[Element]:
+    def dispatch(self) -> list[Capture | ContentElement]:
         """Dispatches the remaining parse of the capture group."""
         elements = []
         for group_id, parser in self.parsers.items():
@@ -107,20 +101,20 @@ class Capture(Element):
 
 
 def dispatch_list(
-    pending_elements: list[Element], parent: ContentElement | None = None
-) -> list[Element]:
+    pending_elements: list[Capture | ContentElement], parent: ContentElement | None = None
+) -> list[ContentElement]:
     """Dispatches all captured parsers in the list."""
     elements = []
     for item in pending_elements:
         if isinstance(item, Capture):
-            captured_elements = dispatch_list(item.dispatch())
+            captured_elements: list[ContentElement] = dispatch_list(item.dispatch())
             elements.extend(captured_elements)
         elif item != parent:
             elements.append(item)
     return elements
 
 
-class ContentElement(Element):
+class ContentElement:
     """The base grammar element object."""
 
     def __init__(
@@ -129,7 +123,7 @@ class ContentElement(Element):
         grammar: dict,
         content: str,
         characters: dict[POS, str],
-        children: list[Element] | None = None,
+        children: list[Capture | ContentElement] | None = None,
     ) -> None:
         if children is None:
             children = []
@@ -138,11 +132,15 @@ class ContentElement(Element):
         self.content = content
         self.characters = characters
         self._children_pending = children
-        self._children_dispached: list[Element] = []
+        self._children_dispached: list[ContentElement] = []
         self._dispatched_children: bool = False
 
     @property
-    def children(self) -> list[Element]:
+    def _subelements(self) -> list[ContentElement]:
+        return self.children
+
+    @property
+    def children(self) -> list[ContentElement]:
         "Children elements"
         if self._children_pending:
             if not self._dispatched_children:
@@ -171,6 +169,61 @@ class ContentElement(Element):
                 else self.children
             )
         return out_dict
+
+    def find(
+        self,
+        tokens: str | list[str],
+        stop_tokens: str | list[str] = "",
+        verbosity: int = -1,
+        stack: list[str] | None = None,
+        attribute: str = "_subelements",
+    ) -> Generator[tuple[ContentElement, list[str]], None, None]:
+        """Find the next subelement that match the input token(s).
+
+        The find method will return a generator that globs though the element-tree, searching for the next
+        subelement that matches the given token.
+        """
+        if isinstance(tokens, str):
+            tokens = [tokens]
+        if isinstance(stop_tokens, str):
+            stop_tokens = [stop_tokens] if stop_tokens else []
+        if not set(tokens).isdisjoint(set(stop_tokens)):
+            raise ValueError("Input tokens and stop_tokens must be disjoint")
+
+        if stack is None:
+            stack = []
+        stack += [self.token]
+
+        if verbosity:
+            verbosity -= 1
+            children: list[ContentElement] = getattr(self, attribute, self._subelements)
+            for child in children:
+                if stop_tokens and (
+                    child.token in stop_tokens
+                    or (stop_tokens == ["*"] and child.token not in tokens)
+                ):
+                    return None
+
+                if child.token in tokens or tokens == ["*"]:
+                    yield child, [e for e in stack]
+                if verbosity:
+                    nested_generator = child.find(
+                        tokens, verbosity=verbosity - 1, stack=[e for e in stack]
+                    )
+                    yield from nested_generator
+        return None
+
+    def findall(
+        self,
+        tokens: str | list[str],
+        stop_tokens: str | list[str] = "",
+        verbosity: int = -1,
+        attribute: str = "_subelements",
+    ) -> list[tuple[ContentElement, list[str]]]:
+        """Returns subelements that match the input token(s)."""
+        return list(
+            self.find(tokens, stop_tokens=stop_tokens, verbosity=verbosity, attribute=attribute)
+        )
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""
@@ -238,8 +291,8 @@ class ContentBlockElement(ContentElement):
 
     def __init__(
         self,
-        begin: list[Element] | None = None,
-        end: list[Element] | None = None,
+        begin: list[Capture | ContentElement] | None = None,
+        end: list[Capture | ContentElement] | None = None,
         **kwargs,
     ) -> None:
         if end is None:
@@ -249,13 +302,17 @@ class ContentBlockElement(ContentElement):
         super().__init__(**kwargs)
         self._begin_pending = begin
         self._end_pending = end
-        self._begin_dispached: list[Element] = []
-        self._end_dispached: list[Element] = []
+        self._begin_dispached: list[ContentElement] = []
+        self._end_dispached: list[ContentElement] = []
         self._dispatched_begin: bool = False
         self._dispatched_end: bool = False
 
     @property
-    def begin(self) -> list[Element]:
+    def _subelements(self) -> list[ContentElement]:
+        return self.begin + self.children + self.end
+
+    @property
+    def begin(self) -> list[ContentElement]:
         "Begin elements"
         if self._begin_pending:
             if not self._dispatched_begin:
@@ -266,7 +323,7 @@ class ContentBlockElement(ContentElement):
             return []
 
     @property
-    def end(self) -> list[Element]:
+    def end(self) -> list[ContentElement]:
         "End elements"
         if self._end_pending:
             if not self._dispatched_end:

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .elements import Element
+from .elements import Capture, ContentElement
 from .exceptions import IncompatibleFileType
 from .handler import POS, ContentHandler
 from .logger import LOGGER
@@ -80,7 +80,7 @@ class LanguageParser(PatternsParser):
 
         super()._initialize_repository()
 
-    def parse_file(self, filePath: str | Path, **kwargs) -> Element | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> Capture | ContentElement | None:
         """Parses an entire file with the current grammar"""
         if type(filePath) != Path:
             filePath = Path(filePath)
@@ -89,6 +89,8 @@ class LanguageParser(PatternsParser):
             raise IncompatibleFileType(extensions=self.file_types)
 
         handler = ContentHandler.from_path(filePath)
+        if handler.source == "":
+            return None
 
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
@@ -102,7 +104,7 @@ class LanguageParser(PatternsParser):
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
         return self._parse_language(handler, **kwargs)
 
-    def _parse_language(self, handler: ContentHandler, **kwargs) -> Element | None:
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> Capture | ContentElement | None:
         """Parses the current stream with the language scope."""
 
         parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
@@ -110,7 +112,7 @@ class LanguageParser(PatternsParser):
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs
-    ) -> tuple[bool, list[Element], tuple[int, int]]:
+    ) -> tuple[bool, list[Capture | ContentElement], tuple[int, int]]:
         kwargs.pop("find_one", None)
         return super()._parse(handler, starting, find_one=False, **kwargs)
 
