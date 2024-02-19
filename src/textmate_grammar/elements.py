@@ -176,6 +176,7 @@ class ContentElement:
         stop_tokens: str | list[str] = "",
         verbosity: int = -1,
         stack: list[str] | None = None,
+        attribute: str = "_subelements",
     ) -> Generator[tuple[ContentElement, list[str]], None, None]:
         """Find the next subelement that match the input token(s).
 
@@ -195,7 +196,8 @@ class ContentElement:
 
         if verbosity:
             verbosity -= 1
-            for child in self._subelements:
+            children: list[ContentElement] = getattr(self, attribute, self._subelements)
+            for child in children:
                 if stop_tokens and (
                     child.token in stop_tokens
                     or (stop_tokens == ["*"] and child.token not in tokens)
@@ -212,10 +214,16 @@ class ContentElement:
         return None
 
     def findall(
-        self, tokens: str | list[str], stop_tokens: str | list[str] = "", verbosity: int = -1
+        self,
+        tokens: str | list[str],
+        stop_tokens: str | list[str] = "",
+        verbosity: int = -1,
+        attribute: str = "_subelements",
     ) -> list[tuple[ContentElement, list[str]]]:
         """Returns subelements that match the input token(s)."""
-        return list(self.find(tokens, stop_tokens=stop_tokens, verbosity=verbosity))
+        return list(
+            self.find(tokens, stop_tokens=stop_tokens, verbosity=verbosity, attribute=attribute)
+        )
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""

@@ -1,13 +1,10 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 import yaml
 
-
 tmLanguageFile = (
-    Path(__file__).parents[3]
-    / "syntaxes"
-    / "markdown"
-    / "markdown.tmLanguage.base.yaml"
+    Path(__file__).parents[3] / "syntaxes" / "markdown" / "markdown.tmLanguage.base.yaml"
 )
 tmLanguageYAML = Path(__file__).parent / "grammar.yaml"
 
@@ -15,7 +12,7 @@ tmLanguageYAML = Path(__file__).parent / "grammar.yaml"
 if tmLanguageFile.exists():
     shutil.copyfile(tmLanguageFile, tmLanguageYAML)
 
-with open(tmLanguageYAML, "r") as file:
+with open(tmLanguageYAML) as file:
     try:
         GRAMMAR = yaml.load(file.read(), Loader=yaml.CLoader)
     except ImportError:

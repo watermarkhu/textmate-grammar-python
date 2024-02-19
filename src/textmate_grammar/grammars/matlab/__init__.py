@@ -1,7 +1,7 @@
-from pathlib import Path
 import plistlib
-import yaml
+from pathlib import Path
 
+import yaml
 
 tmLanguageFile = (
     Path(__file__).parents[3]
@@ -20,7 +20,7 @@ if tmLanguageFile.exists():
     with open(tmLanguageYAML, "w") as f:
         f.write(yaml.dump(GRAMMAR, indent=2))
 else:
-    with open(tmLanguageYAML, "r") as file:
+    with open(tmLanguageYAML) as file:
         try:
             GRAMMAR = yaml.load(file.read(), Loader=yaml.CLoader)
         except ImportError:
