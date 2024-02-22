@@ -155,17 +155,15 @@ class ContentElement:
             return False
         return bool(self.grammar == other.grammar and self.characters == other.characters)
 
-    def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
+    def to_dict(self, depth: int = -1, all_content: bool = False, **kwargs) -> dict:
         "Converts the object to dictionary."
         out_dict = {"token": self.token}
         if all_content or not self.children:
             out_dict["content"] = self.content
         if self.children:
             out_dict["children"] = (
-                self._list_property_to_dict(
-                    "children", verbosity=verbosity - 1, all_content=all_content
-                )
-                if verbosity
+                self._list_property_to_dict("children", depth=depth - 1, all_content=all_content)
+                if depth
                 else self.children
             )
         return out_dict
@@ -174,7 +172,7 @@ class ContentElement:
         self,
         tokens: str | list[str],
         stop_tokens: str | list[str] = "",
-        verbosity: int = -1,
+        depth: int = -1,
         stack: list[str] | None = None,
         attribute: str = "_subelements",
     ) -> Generator[tuple[ContentElement, list[str]], None, None]:
@@ -194,8 +192,8 @@ class ContentElement:
             stack = []
         stack += [self.token]
 
-        if verbosity:
-            verbosity -= 1
+        if depth:
+            depth -= 1
             children: list[ContentElement] = getattr(self, attribute, self._subelements)
             for child in children:
                 if stop_tokens and (
@@ -206,10 +204,8 @@ class ContentElement:
 
                 if child.token in tokens or tokens == ["*"]:
                     yield child, [e for e in stack]
-                if verbosity:
-                    nested_generator = child.find(
-                        tokens, verbosity=verbosity - 1, stack=[e for e in stack]
-                    )
+                if depth:
+                    nested_generator = child.find(tokens, depth=depth - 1, stack=[e for e in stack])
                     yield from nested_generator
         return None
 
@@ -217,13 +213,11 @@ class ContentElement:
         self,
         tokens: str | list[str],
         stop_tokens: str | list[str] = "",
-        verbosity: int = -1,
+        depth: int = -1,
         attribute: str = "_subelements",
     ) -> list[tuple[ContentElement, list[str]]]:
         """Returns subelements that match the input token(s)."""
-        return list(
-            self.find(tokens, stop_tokens=stop_tokens, verbosity=verbosity, attribute=attribute)
-        )
+        return list(self.find(tokens, stop_tokens=stop_tokens, depth=depth, attribute=attribute))
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""
@@ -242,7 +236,7 @@ class ContentElement:
     def print(
         self,
         flatten: bool = False,
-        verbosity: int = -1,
+        depth: int = -1,
         all_content: bool = False,
         **kwargs,
     ) -> None:
@@ -256,7 +250,7 @@ class ContentElement:
             )
         else:
             pprint(
-                self.to_dict(verbosity=verbosity, all_content=all_content, **kwargs),
+                self.to_dict(depth=depth, all_content=all_content, **kwargs),
                 sort_dicts=False,
                 width=kwargs.pop("width", 150),
                 **kwargs,
@@ -333,19 +327,17 @@ class ContentBlockElement(ContentElement):
         else:
             return []
 
-    def to_dict(self, verbosity: int = -1, all_content: bool = False, **kwargs) -> dict:
-        out_dict = super().to_dict(verbosity=verbosity, all_content=all_content, **kwargs)
+    def to_dict(self, depth: int = -1, all_content: bool = False, **kwargs) -> dict:
+        out_dict = super().to_dict(depth=depth, all_content=all_content, **kwargs)
         if self.begin:
             out_dict["begin"] = (
-                self._list_property_to_dict("begin", verbosity=verbosity - 1, **kwargs)
-                if verbosity
+                self._list_property_to_dict("begin", depth=depth - 1, **kwargs)
+                if depth
                 else self.begin
             )
         if self.end:
             out_dict["end"] = (
-                self._list_property_to_dict("end", verbosity=verbosity - 1, **kwargs)
-                if verbosity
-                else self.end
+                self._list_property_to_dict("end", depth=depth - 1, **kwargs) if depth else self.end
             )
 
         ordered_keys = [
