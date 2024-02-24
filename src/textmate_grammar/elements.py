@@ -171,6 +171,8 @@ class ContentElement:
     def find(
         self,
         tokens: str | list[str],
+        start_tokens: str | list[str] = "",
+        hide_tokens: str | list[str] = "",
         stop_tokens: str | list[str] = "",
         depth: int = -1,
         stack: list[str] | None = None,
@@ -183,14 +185,21 @@ class ContentElement:
         """
         if isinstance(tokens, str):
             tokens = [tokens]
+        if isinstance(start_tokens, str):
+            start_tokens = [start_tokens] if start_tokens else []
+        if isinstance(hide_tokens, str):
+            hide_tokens = [hide_tokens] if hide_tokens else []
         if isinstance(stop_tokens, str):
             stop_tokens = [stop_tokens] if stop_tokens else []
+
         if not set(tokens).isdisjoint(set(stop_tokens)):
             raise ValueError("Input tokens and stop_tokens must be disjoint")
 
         if stack is None:
             stack = []
         stack += [self.token]
+
+        start_found = not start_tokens
 
         if depth:
             depth -= 1
@@ -202,22 +211,39 @@ class ContentElement:
                 ):
                     return None
 
-                if child.token in tokens or tokens == ["*"]:
+                if not start_found and child.token in start_tokens:
+                    start_found = True
+                    start_tokens = []
+
+                if (
+                    start_found
+                    and (child.token in tokens or tokens == ["*"])
+                    and child.token not in hide_tokens
+                ):
                     yield child, [e for e in stack]
                 if depth:
-                    nested_generator = child.find(tokens, depth=depth - 1, stack=[e for e in stack])
+                    nested_generator = child.find(
+                        tokens,
+                        start_tokens,
+                        hide_tokens,
+                        stop_tokens,
+                        depth - 1,
+                        [e for e in stack],
+                    )
                     yield from nested_generator
         return None
 
     def findall(
         self,
         tokens: str | list[str],
+        start_tokens: str | list[str] = "",
+        hide_tokens: str | list[str] = "",
         stop_tokens: str | list[str] = "",
         depth: int = -1,
         attribute: str = "_subelements",
     ) -> list[tuple[ContentElement, list[str]]]:
         """Returns subelements that match the input token(s)."""
-        return list(self.find(tokens, stop_tokens=stop_tokens, depth=depth, attribute=attribute))
+        return list(self.find(tokens, start_tokens, hide_tokens, stop_tokens, depth, attribute))
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""
