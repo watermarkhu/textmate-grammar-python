@@ -155,19 +155,6 @@ class ContentElement:
             return False
         return bool(self.grammar == other.grammar and self.characters == other.characters)
 
-    def to_dict(self, depth: int = -1, all_content: bool = False, **kwargs) -> dict:
-        "Converts the object to dictionary."
-        out_dict = {"token": self.token}
-        if all_content or not self.children:
-            out_dict["content"] = self.content
-        if self.children:
-            out_dict["children"] = (
-                self._list_property_to_dict("children", depth=depth - 1, all_content=all_content)
-                if depth
-                else self.children
-            )
-        return out_dict
-
     def find(
         self,
         tokens: str | list[str],
@@ -175,8 +162,8 @@ class ContentElement:
         hide_tokens: str | list[str] = "",
         stop_tokens: str | list[str] = "",
         depth: int = -1,
-        stack: list[str] | None = None,
         attribute: str = "_subelements",
+        stack: list[str] | None = None,
     ) -> Generator[tuple[ContentElement, list[str]], None, None]:
         """Find the next subelement that match the input token(s).
 
@@ -224,11 +211,11 @@ class ContentElement:
                 if depth:
                     nested_generator = child.find(
                         tokens,
-                        start_tokens,
-                        hide_tokens,
-                        stop_tokens,
-                        depth - 1,
-                        [e for e in stack],
+                        start_tokens=start_tokens,
+                        hide_tokens=hide_tokens,
+                        stop_tokens=stop_tokens,
+                        depth=depth - 1,
+                        stack=[e for e in stack],
                     )
                     yield from nested_generator
         return None
@@ -243,7 +230,29 @@ class ContentElement:
         attribute: str = "_subelements",
     ) -> list[tuple[ContentElement, list[str]]]:
         """Returns subelements that match the input token(s)."""
-        return list(self.find(tokens, start_tokens, hide_tokens, stop_tokens, depth, attribute))
+        return list(
+            self.find(
+                tokens,
+                start_tokens=start_tokens,
+                hide_tokens=hide_tokens,
+                stop_tokens=stop_tokens,
+                depth=depth,
+                attribute=attribute,
+            )
+        )
+
+    def to_dict(self, depth: int = -1, all_content: bool = False, **kwargs) -> dict:
+        "Converts the object to dictionary."
+        out_dict = {"token": self.token}
+        if all_content or not self.children:
+            out_dict["content"] = self.content
+        if self.children:
+            out_dict["children"] = (
+                self._list_property_to_dict("children", depth=depth - 1, all_content=all_content)
+                if depth
+                else self.children
+            )
+        return out_dict
 
     def flatten(self) -> list[tuple[tuple[int, int], str, list[str]]]:
         """Converts the object to a flattened array of tokens per index."""
