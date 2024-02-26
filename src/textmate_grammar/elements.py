@@ -100,18 +100,26 @@ class Capture:
         return elements
 
 
-def dispatch_list(
+def _dispatch_list(
     pending_elements: list[Capture | ContentElement], parent: ContentElement | None = None
 ) -> list[ContentElement]:
     """Dispatches all captured parsers in the list."""
     elements = []
     for item in pending_elements:
         if isinstance(item, Capture):
-            captured_elements: list[ContentElement] = dispatch_list(item.dispatch())
+            captured_elements: list[ContentElement] = _dispatch_list(item.dispatch())
             elements.extend(captured_elements)
         elif item != parent:
             elements.append(item)
+    pending_elements = []
     return elements
+
+
+def _str_to_list(input: str | list[str]) -> list[str]:
+    if isinstance(input, str):
+        return [input] if input else []
+    else:
+        return input
 
 
 class ContentElement:
@@ -131,9 +139,8 @@ class ContentElement:
         self.grammar = grammar
         self.content = content
         self.characters = characters
-        self._children_pending = children
-        self._children_dispached: list[ContentElement] = []
-        self._dispatched_children: bool = False
+        self._children_captures = children
+        self._dispatched: bool = False
 
     @property
     def _subelements(self) -> list[ContentElement]:
@@ -142,13 +149,15 @@ class ContentElement:
     @property
     def children(self) -> list[ContentElement]:
         "Children elements"
-        if self._children_pending:
-            if not self._dispatched_children:
-                self._children_dispached = dispatch_list(self._children_pending, parent=self)
-                self._dispatched_children = True
-            return self._children_dispached
-        else:
-            return []
+        if not self._dispatched:
+            self._dispatch()
+        return self._children
+
+    def _dispatch(self, nested: bool = False):
+        self._children: list[ContentElement] = _dispatch_list(self._children_captures, parent=self)
+        if nested:
+            for child in self._children:
+                child._dispatch(True)
 
     def __eq__(self, other):
         if not isinstance(other, ContentElement):
@@ -170,14 +179,10 @@ class ContentElement:
         The find method will return a generator that globs though the element-tree, searching for the next
         subelement that matches the given token.
         """
-        if isinstance(tokens, str):
-            tokens = [tokens]
-        if isinstance(start_tokens, str):
-            start_tokens = [start_tokens] if start_tokens else []
-        if isinstance(hide_tokens, str):
-            hide_tokens = [hide_tokens] if hide_tokens else []
-        if isinstance(stop_tokens, str):
-            stop_tokens = [stop_tokens] if stop_tokens else []
+        tokens = _str_to_list(tokens)
+        start_tokens = _str_to_list(start_tokens)
+        hide_tokens = _str_to_list(hide_tokens)
+        stop_tokens = _str_to_list(stop_tokens)
 
         if not set(tokens).isdisjoint(set(stop_tokens)):
             raise ValueError("Input tokens and stop_tokens must be disjoint")
@@ -329,12 +334,8 @@ class ContentBlockElement(ContentElement):
         if begin is None:
             begin = []
         super().__init__(**kwargs)
-        self._begin_pending = begin
-        self._end_pending = end
-        self._begin_dispached: list[ContentElement] = []
-        self._end_dispached: list[ContentElement] = []
-        self._dispatched_begin: bool = False
-        self._dispatched_end: bool = False
+        self._begin_captures = begin
+        self._end_captures = end
 
     @property
     def _subelements(self) -> list[ContentElement]:
@@ -343,24 +344,26 @@ class ContentBlockElement(ContentElement):
     @property
     def begin(self) -> list[ContentElement]:
         "Begin elements"
-        if self._begin_pending:
-            if not self._dispatched_begin:
-                self._begin_dispached = dispatch_list(self._begin_pending, parent=self)
-                self._dispatched_begin = True
-            return self._begin_dispached
-        else:
-            return []
+        if not self._dispatched:
+            self._dispatch()
+        return self._begin
 
     @property
     def end(self) -> list[ContentElement]:
         "End elements"
-        if self._end_pending:
-            if not self._dispatched_end:
-                self._end_dispached = dispatch_list(self._end_pending, parent=self)
-                self._dispatched_end = True
-            return self._end_dispached
-        else:
-            return []
+        if not self._dispatched:
+            self._dispatch()
+        return self._end
+
+    def _dispatch(self, nested: bool = False):
+        super()._dispatch(nested)
+        self._begin: list[ContentElement] = _dispatch_list(self._begin_captures, parent=self)
+        self._end: list[ContentElement] = _dispatch_list(self._end_captures, parent=self)
+        if nested:
+            for item in self._begin:
+                item._dispatch(True)
+            for item in self._end:
+                item._dispatch(True)
 
     def to_dict(self, depth: int = -1, all_content: bool = False, **kwargs) -> dict:
         out_dict = super().to_dict(depth=depth, all_content=all_content, **kwargs)

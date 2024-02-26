@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from .cache import TextmateCache, init_cache
 from .elements import Capture, ContentElement
 from .exceptions import IncompatibleFileType
 from .handler import POS, ContentHandler
@@ -35,6 +36,7 @@ class LanguageParser(PatternsParser):
         self.token = grammar.get("scopeName", "myScope")
         self.repository = {}
         self.injections: list[dict] = []
+        self._cache: TextmateCache = init_cache()
 
         # Initalize grammars in repository
         for repo in gen_repositories(grammar):
@@ -82,20 +84,26 @@ class LanguageParser(PatternsParser):
 
     def parse_file(self, filePath: str | Path, **kwargs) -> Capture | ContentElement | None:
         """Parses an entire file with the current grammar"""
-        if type(filePath) != Path:
-            filePath = Path(filePath)
+        if not isinstance(filePath, Path):
+            filePath = Path(filePath).resolve()
 
         if filePath.suffix.split(".")[-1] not in self.file_types:
             raise IncompatibleFileType(extensions=self.file_types)
 
-        handler = ContentHandler.from_path(filePath)
-        if handler.source == "":
-            return None
+        if self._cache.cache_valid(filePath):
+            element = self._cache.load(filePath)
+        else:
+            handler = ContentHandler.from_path(filePath)
+            if handler.source == "":
+                return None
 
-        # Configure logger
-        LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+            # Configure logger
+            LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
+            element = self._parse_language(handler, **kwargs)  # type: ignore
 
-        return self._parse_language(handler, **kwargs)
+            if element is not None:
+                self._cache.save(filePath, element)
+        return element
 
     def parse_string(self, input: str, **kwargs):
         """Parses an input string"""
