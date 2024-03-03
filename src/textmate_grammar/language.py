@@ -28,6 +28,22 @@ class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
     def __init__(self, grammar: dict, **kwargs):
+        """
+        Initialize a Language object.
+
+        Args:
+            grammar (dict): The grammar definition for the language.
+            **kwargs: Additional keyword arguments.
+
+        Attributes:
+            name (str): The name of the language.
+            uuid (str): The UUID of the language.
+            file_types (list): The file types associated with the language.
+            token (str): The scope name of the language.
+            repository (dict): The repository of grammar rules for the language.
+            injections (list): The list of injection rules for the language.
+            _cache (TextmateCache): The cache object for the language.
+        """
         super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
 
         self.name = grammar.get("name", "")
@@ -38,8 +54,8 @@ class LanguageParser(PatternsParser):
         self.injections: list[dict] = []
         self._cache: TextmateCache = init_cache()
 
-        # Initalize grammars in repository
-        for repo in gen_repositories(grammar):
+        # Initialize grammars in repository
+        for repo in _gen_repositories(grammar):
             for key, parser_grammar in repo.items():
                 self.repository[key] = GrammarParser.initialize(
                     parser_grammar, key=key, language=self
@@ -83,7 +99,16 @@ class LanguageParser(PatternsParser):
         super()._initialize_repository()
 
     def parse_file(self, filePath: str | Path, **kwargs) -> Capture | ContentElement | None:
-        """Parses an entire file with the current grammar"""
+        """
+        Parses an entire file with the current grammar.
+
+        Args:
+            filePath (str | Path): The path to the file to be parsed.
+            **kwargs: Additional keyword arguments to be passed to the parser.
+
+        Returns:
+            Capture | ContentElement | None: The parsed element if successful, None otherwise.
+        """
         if not isinstance(filePath, Path):
             filePath = Path(filePath).resolve()
 
@@ -106,7 +131,16 @@ class LanguageParser(PatternsParser):
         return element
 
     def parse_string(self, input: str, **kwargs):
-        """Parses an input string"""
+        """
+        Parses an input string.
+
+        Args:
+            input (str): The input string to be parsed.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The result of parsing the input string.
+        """
         handler = ContentHandler(input)
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
@@ -125,16 +159,16 @@ class LanguageParser(PatternsParser):
         return super()._parse(handler, starting, find_one=False, **kwargs)
 
 
-def gen_repositories(grammar, key="repository"):
+def _gen_repositories(grammar, key="repository"):
     """Recursively gets all repositories from a grammar dictionary"""
     if hasattr(grammar, "items"):
         for k, v in grammar.items():
             if k == key:
                 yield v
             if isinstance(v, dict):
-                for result in gen_repositories(v, key):
+                for result in _gen_repositories(v, key):
                     yield result
             elif isinstance(v, list):
                 for d in v:
-                    for result in gen_repositories(d, key):
+                    for result in _gen_repositories(d, key):
                         yield result

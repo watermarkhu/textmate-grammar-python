@@ -14,22 +14,32 @@ def _path_to_key(path: Path) -> str:
 
 
 class TextmateCache(Protocol):
-    def cache_valid(self, filepath: Path) -> bool:
-        ...
+    """Interface for a Textmate cache."""
 
-    def load(self, filepath: Path) -> ContentElement:
-        ...
+    def cache_valid(self, filepath: Path) -> bool: ...
 
-    def save(self, filePath: Path, element: ContentElement) -> None:
-        ...
+    def load(self, filepath: Path) -> ContentElement: ...
+
+    def save(self, filePath: Path, element: ContentElement) -> None: ...
 
 
 class SimpleCache(TextmateCache):
+    """A simple cache implementation for storing content elements."""
+
     def __init__(self) -> None:
+        """Initialize the SimpleCache."""
         self._element_cache: dict[str, ContentElement] = dict()
         self._element_timestamp: dict[str, float] = dict()
 
     def cache_valid(self, filepath: Path) -> bool:
+        """Check if the cache is valid for the given filepath.
+
+        Args:
+            filepath (Path): The filepath to check.
+
+        Returns:
+            bool: True if the cache is valid, False otherwise.
+        """
         key = _path_to_key(filepath)
         if key not in self._element_cache:
             return False
@@ -37,10 +47,24 @@ class SimpleCache(TextmateCache):
         return timestamp == self._element_timestamp[key]
 
     def load(self, filepath: Path) -> ContentElement:
+        """Load the content element from the cache for the given filepath.
+
+        Args:
+            filepath (Path): The filepath to load the content element from.
+
+        Returns:
+            ContentElement: The loaded content element.
+        """
         key = _path_to_key(filepath)
         return self._element_cache[key]
 
     def save(self, filepath: Path, element: ContentElement) -> None:
+        """Save the content element to the cache for the given filepath.
+
+        Args:
+            filepath (Path): The filepath to save the content element to.
+            element (ContentElement): The content element to save.
+        """
         key = _path_to_key(filepath)
         self._element_cache[key] = element
         self._element_timestamp[key] = filepath.resolve().stat().st_mtime
@@ -48,6 +72,7 @@ class SimpleCache(TextmateCache):
 
 class ShelveCache(TextmateCache):
     def __init__(self) -> None:
+        """Initialize the ShelveCache."""
         import shelve
 
         database_path = CACHE_DIR / "textmate.db"
@@ -60,6 +85,14 @@ class ShelveCache(TextmateCache):
         atexit.register(exit)
 
     def cache_valid(self, filepath: Path) -> bool:
+        """Check if the cache is valid for the given filepath.
+
+        Args:
+            filepath (Path): The filepath to check.
+
+        Returns:
+            bool: True if the cache is valid, False otherwise.
+        """
         key = _path_to_key(filepath)
         if key not in self._database:
             return False
@@ -73,10 +106,24 @@ class ShelveCache(TextmateCache):
         return valid
 
     def load(self, filepath: Path) -> ContentElement:
+        """Load the content element from the cache for the given filepath.
+
+        Args:
+            filepath (Path): The path for the cached content element.
+
+        Returns:
+            ContentElement: The loaded content element.
+        """
         key = _path_to_key(filepath)
         return self._database[key][1]
 
     def save(self, filepath: Path, element: ContentElement) -> None:
+        """Save the content element to the cache for the given filepath.
+
+        Args:
+            filepath (Path): The filepath to save the content element to.
+            element (ContentElement): The content element to save.
+        """
         element._dispatch(nested=True)
         key = _path_to_key(filepath)
         timestamp = filepath.resolve().stat().st_mtime
@@ -87,6 +134,15 @@ CACHE: "TextmateCache" = SimpleCache()
 
 
 def init_cache(type: str = "simple") -> "TextmateCache":
+    """
+    Initialize the cache based on the given type.
+
+    Args:
+        type (str, optional): The type of cache to initialize. Defaults to "simple".
+
+    Returns:
+        TextmateCache: The initialized cache object.
+    """
     global CACHE
     match type:
         case "shelve":

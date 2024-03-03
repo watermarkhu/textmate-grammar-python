@@ -23,12 +23,11 @@ tox = "^4.11.4"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
 mypy = "^1.8.0"
+ruff = "^0.3.0"
 types-pyyaml = "^6.0.12.12"
 
 
-
 ##################################### ruff ##################################### 
-ruff = "^0.2.1"
 [tool.ruff]
 include = ["pyproject.toml", "src/textmate_grammar/**/*.py"]
 exclude = ["src/textmate_grammar/grammars/"]

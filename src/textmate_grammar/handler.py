@@ -11,7 +11,6 @@ POS = tuple[int, int]
 
 
 class ContentHandler:
-
     """The handler object targetted for parsing.
 
     To parse a string or file, it needs to be loaded into the ContentHandler object.
@@ -23,6 +22,21 @@ class ContentHandler:
     notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
     def __init__(self, source: str) -> None:
+        """
+        Initialize a new instance of the Handler class.
+
+        Args:
+            source (str): The source code to be processed.
+
+        Attributes:
+            source (str): The source code to be processed.
+            lines (List[str]): A list of lines in the source code, with a newline character at the end of each line.
+            line_lengths (List[int]): A list of lengths of each line in the source code.
+            anchor (int): The current position in the source code.
+
+        Returns:
+            None
+        """
         self.source = source
         self.lines = [line + "\n" for line in source.split("\n")]
         self.line_lengths = [len(line) for line in self.lines]
@@ -48,7 +62,15 @@ class ContentHandler:
             raise ImpossibleSpan
 
     def next(self, pos: POS, step: int = 1) -> POS:
-        """Returns the next position on the current handler"""
+        """Returns the next position on the current handler.
+
+        Args:
+            pos (tuple): The current position as a tuple (line, column).
+            step (int, optional): The number of steps to move forward. Defaults to 1.
+
+        Returns:
+            tuple: The next position as a tuple (line, column).
+        """
         if step > 1:
             pos = self.next(pos, step=step - 1)
         if pos[1] == self.line_lengths[pos[0]]:
@@ -60,7 +82,15 @@ class ContentHandler:
             return (pos[0], pos[1] + 1)
 
     def prev(self, pos: POS, step: int = 1) -> POS:
-        """Returns the previous position on the current handler."""
+        """Returns the previous position on the current handler.
+
+        Args:
+            pos (tuple): The current position as a tuple (line, column).
+            step (int, optional): The number of steps to go back. Defaults to 1.
+
+        Returns:
+            tuple: The previous position as a tuple (line, column).
+        """
         if step > 1:
             pos = self.prev(pos, step=step - 1)
         if pos[1] == 0:
@@ -72,7 +102,16 @@ class ContentHandler:
             return (pos[0], pos[1] - 1)
 
     def range(self, start: POS, close: POS) -> list[POS]:
-        """Returns the range of positions between start and close"""
+        """
+        Returns a list of positions between the start and close positions.
+
+        Parameters:
+            start (POS): The starting position.
+            close (POS): The closing position.
+
+        Returns:
+            list[POS]: A list of positions between the start and close positions.
+        """
         indices = []
         if start[0] == close[0]:
             for lp in range(start[1], close[1]):
@@ -88,13 +127,35 @@ class ContentHandler:
         return indices
 
     def chars(self, start: POS, close: POS) -> dict[POS, str]:
-        """Returns the source per position"""
+        """
+        Returns a dictionary mapping each position within the given range to the corresponding source character.
+
+        Args:
+            start (POS): The starting position of the range.
+            close (POS): The closing position of the range.
+
+        Returns:
+            dict[POS, str]: A dictionary mapping each position within the range to the corresponding source character.
+        """
         indices = self.range(start, close)
         return {pos: self.read(pos) for pos in indices}
 
     def read_pos(self, start_pos: POS, close_pos: POS, skip_newline: bool = True) -> str:
-        """Reads the content between the start and end positions."""
+        """Reads the content between the start and end positions.
 
+        Args:
+            start_pos (POS): The starting position of the content.
+            close_pos (POS): The closing position of the content.
+            skip_newline (bool, optional): Whether to skip the newline character at the end of the content.
+                Defaults to True.
+
+        Returns:
+            str: The content between the start and end positions.
+
+        Raises:
+            ImpossibleSpan: If the start position is greater than the close position.
+
+        """
         self._check_pos(start_pos)
         self._check_pos(close_pos)
         if start_pos > close_pos:
@@ -118,11 +179,35 @@ class ContentHandler:
         return readout
 
     def read_line(self, pos: POS) -> str:
+        """
+        Reads a line from the specified position and returns it.
+
+        Args:
+            pos (tuple[int, int]): The position of the line to read. The first element is the line number (0-based),
+                                    and the second element is the starting position within the line.
+
+        Returns:
+            str: The line starting from the specified position.
+
+        """
         line = self.lines[pos[0]]
         return line[pos[1] :]
 
     def read(self, start_pos: POS, length: int = 1, skip_newline: bool = True) -> str:
-        """Reads the content from start for a length"""
+        """Reads the content from start for a length.
+
+        Args:
+            start_pos (POS): The starting position to read from.
+            length (int, optional): The number of characters to read. Defaults to 1.
+            skip_newline (bool, optional): Whether to skip the newline character at the end of the read content. Defaults to True.
+
+        Returns:
+            str: The content read from the specified position.
+
+        Raises:
+            ImpossibleSpan: If the length is negative.
+
+        """
         self._check_pos(start_pos)
         if length < 0:
             raise ImpossibleSpan
@@ -160,15 +245,33 @@ class ContentHandler:
     ) -> tuple[Match | None, tuple[POS, POS] | None]:
         """Matches the stream against a capture group.
 
-        The stream is matched against the input pattern. If there are any capture groups,
-        each is then subsequently parsed by the inputted parsers. The number of parsers therefor
-        must match the number of capture groups of the expression, or there must be a single parser
-        and no capture groups.
+        Args:
+            pattern (Pattern): The regular expression pattern to match against the stream.
+            starting (POS): The starting position in the stream.
+            boundary (POS | None, optional): The boundary position in the stream. Defaults to None.
+            greedy (bool, optional): Determines if the matching should be greedy or not. Defaults to False.
+            **kwargs: Additional keyword arguments.
 
-        leading_chars:
-        - 0: none allowed
-        - 1: whitespace characters allowed
-        - 2: any character allowed
+        Returns:
+            tuple[Match | None, tuple[POS, POS] | None]: A tuple containing the matching result and the span of the match.
+
+        Raises:
+            None
+
+        Notes:
+            - The stream is matched against the input pattern. If there are any capture groups,
+              each is then subsequently parsed by the inputted parsers. The number of parsers therefore
+              must match the number of capture groups of the expression, or there must be a single parser
+              and no capture groups.
+            - The `greedy` parameter determines if the matching should be greedy or not. If set to True,
+              the matching will try to consume as much of the stream as possible. If set to False,
+              the matching will stop at the first match found.
+            - The `boundary` parameter can be used to specify a boundary position in the stream. If provided,
+              the matching will not go beyond this boundary position.
+            - The `leading_chars` parameter can be used to specify the type of leading characters allowed, with:
+                - `0`: none allowed
+                - `1`: whitespace characters allowed
+                - `2`: any character allowed
         """
 
         if pattern._pattern in ["\\z", "\\Z"]:
