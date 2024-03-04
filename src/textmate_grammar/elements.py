@@ -111,7 +111,6 @@ def _dispatch_list(
             elements.extend(captured_elements)
         elif item != parent:
             elements.append(item)
-    pending_elements = []
     return elements
 
 
@@ -154,7 +153,9 @@ class ContentElement:
         return self._children
 
     def _dispatch(self, nested: bool = False):
+        self._dispatched = True
         self._children: list[ContentElement] = _dispatch_list(self._children_captures, parent=self)
+        self._children_captures = []
         if nested:
             for child in self._children:
                 child._dispatch(True)
@@ -359,6 +360,7 @@ class ContentBlockElement(ContentElement):
         super()._dispatch(nested)
         self._begin: list[ContentElement] = _dispatch_list(self._begin_captures, parent=self)
         self._end: list[ContentElement] = _dispatch_list(self._end_captures, parent=self)
+        self._begin_captures, self._end_captures = [], []
         if nested:
             for item in self._begin:
                 item._dispatch(True)

@@ -127,6 +127,7 @@ class LanguageParser(PatternsParser):
             element = self._parse_language(handler, **kwargs)  # type: ignore
 
             if element is not None:
+                element._dispatch()
                 self._cache.save(filePath, element)
         return element
 
