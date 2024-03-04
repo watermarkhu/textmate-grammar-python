@@ -28,7 +28,7 @@ types-pyyaml = "^6.0.12.12"
 
 
 ##################################### ruff ##################################### 
-ruff = "^0.2.1"
+ruff = ">=0.2.1,<0.4.0"
 [tool.ruff]
 include = ["pyproject.toml", "src/textmate_grammar/**/*.py"]
 exclude = ["src/textmate_grammar/grammars/"]
