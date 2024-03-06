@@ -10,6 +10,7 @@ authors = ["Mark Shui Hu <watermarkhu@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/watermarkhu/textmate-grammar-python"
+documentation = "https://watermarkhu.nl/textmate-grammar-python"
 keywords = ["textmate", "tokenization"]
 packages = [{include = "textmate_grammar", from = "src"}]
 

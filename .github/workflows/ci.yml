@@ -6,8 +6,9 @@ on:
     branches:
       - main
     paths:
-      - '**.py'
-      - '**.yml'
+      - '.github/workflows/ci.yml'
+      - 'src/**.py'
+      - 'src/syntaxes/**'
       - 'test/**'
 
 jobs:
