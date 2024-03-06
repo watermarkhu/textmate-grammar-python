@@ -20,11 +20,8 @@ class TextmateCache(Protocol):
         """
         Check if the cache for the given filepath is valid.
 
-        Args:
-            filepath (Path): The path to the file.
-
-        Returns:
-            bool: True if the cache is valid, False otherwise.
+        :param filepath: The path to the file.
+        :return: True if the cache is valid, False otherwise.
         """
         ...
 
@@ -32,11 +29,8 @@ class TextmateCache(Protocol):
         """
         Load the content from the specified filepath.
 
-        Args:
-            filepath (Path): The path to the file to load.
-
-        Returns:
-            ContentElement: The loaded content element.
+        :param filepath: The path to the file to load.
+        :return: The loaded content element.
         """
         ...
 
@@ -44,12 +38,9 @@ class TextmateCache(Protocol):
         """
         Save the given content element to the specified file path.
 
-        Args:
-            filePath (Path): The file path where the content element should be saved.
-            element (ContentElement): The content element to be saved.
-
-        Returns:
-            None
+        :param filePath: The file path where the content element should be saved.
+        :param element: The content element to be saved.
+        :return: None
         """
         ...
 
@@ -65,11 +56,8 @@ class SimpleCache(TextmateCache):
     def cache_valid(self, filepath: Path) -> bool:
         """Check if the cache is valid for the given filepath.
 
-        Args:
-            filepath (Path): The filepath to check.
-
-        Returns:
-            bool: True if the cache is valid, False otherwise.
+        :param filepath: The filepath to check.
+        :return: True if the cache is valid, False otherwise.
         """
         key = _path_to_key(filepath)
         if key not in self._element_cache:
@@ -80,11 +68,8 @@ class SimpleCache(TextmateCache):
     def load(self, filepath: Path) -> ContentElement:
         """Load the content element from the cache for the given filepath.
 
-        Args:
-            filepath (Path): The filepath to load the content element from.
-
-        Returns:
-            ContentElement: The loaded content element.
+        :param filepath: The filepath to load the content element from.
+        :return: The loaded content element.
         """
         key = _path_to_key(filepath)
         return self._element_cache[key]
@@ -92,9 +77,9 @@ class SimpleCache(TextmateCache):
     def save(self, filepath: Path, element: ContentElement) -> None:
         """Save the content element to the cache for the given filepath.
 
-        Args:
-            filepath (Path): The filepath to save the content element to.
-            element (ContentElement): The content element to save.
+        :param filepath: The filepath to save the content element to.
+        :param element: The content element to save.
+        :return: None
         """
         key = _path_to_key(filepath)
         self._element_cache[key] = element
@@ -120,11 +105,8 @@ class ShelveCache(TextmateCache):
     def cache_valid(self, filepath: Path) -> bool:
         """Check if the cache is valid for the given filepath.
 
-        Args:
-            filepath (Path): The filepath to check.
-
-        Returns:
-            bool: True if the cache is valid, False otherwise.
+        :param filepath: The filepath to check.
+        :return: True if the cache is valid, False otherwise.
         """
         key = _path_to_key(filepath)
         if key not in self._database:
@@ -141,11 +123,8 @@ class ShelveCache(TextmateCache):
     def load(self, filepath: Path) -> ContentElement:
         """Load the content element from the cache for the given filepath.
 
-        Args:
-            filepath (Path): The path for the cached content element.
-
-        Returns:
-            ContentElement: The loaded content element.
+        :param filepath: The path for the cached content element.
+        :return: The loaded content element.
         """
         key = _path_to_key(filepath)
         return self._database[key][1]
@@ -153,9 +132,8 @@ class ShelveCache(TextmateCache):
     def save(self, filepath: Path, element: ContentElement) -> None:
         """Save the content element to the cache for the given filepath.
 
-        Args:
-            filepath (Path): The filepath to save the content element to.
-            element (ContentElement): The content element to save.
+        :param filepath: The filepath to save the content element to.
+        :param element: The content element to save.
         """
         element._dispatch(nested=True)
         key = _path_to_key(filepath)

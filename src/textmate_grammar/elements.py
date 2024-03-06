@@ -75,8 +75,7 @@ class Capture:
         This method iterates over the defined parsers for the capture group and dispatches the remaining parse
         based on the captured elements. It returns a list of captured elements or captures.
 
-        Returns:
-            A list of Capture or ContentElement objects representing the parsed elements.
+        :return: A list of Capture or ContentElement objects representing the parsed elements.
         """
         elements = []
         for group_id, parser in self.parsers.items():
@@ -142,7 +141,7 @@ def _str_to_list(input: str | list[str]) -> list[str]:
 
 
 class ContentElement:
-    """The base grammar element object."""
+    """The parsed grammar element."""
 
     def __init__(
         self,
@@ -155,12 +154,11 @@ class ContentElement:
         """
         Initialize a new instance of the Element class.
 
-        Args:
-            token (str): The token associated with the element.
-            grammar (dict): The grammar associated with the element.
-            content (str): The content associated with the element.
-            characters (dict[POS, str]): The characters associated with the element.
-            children (list[Capture | ContentElement] | None, optional): The children associated with the element. Defaults to None.
+        :param token: The token associated with the element.
+        :param grammar: The grammar associated with the element.
+        :param content: The content associated with the element.
+        :param characters: The characters associated with the element.
+        :param children: The children associated with the element. Defaults to None.
         """
         if children is None:
             children = []
@@ -192,11 +190,9 @@ class ContentElement:
         """
         Dispatches the content element and its children.
 
-        Args:
-            nested (bool): Indicates whether the dispatch is nested within another dispatch.
-
-        Returns:
-            None
+        :param nested: Indicates whether the dispatch is nested within another dispatch.
+        :type nested: bool
+        :return: None
         """
         self._dispatched = True
         self._children: list[ContentElement] = _dispatch_list(self._children_captures, parent=self)
@@ -226,23 +222,19 @@ class ContentElement:
         The find method will return a generator that globs though the element-tree, searching for the next
         subelement that matches the given token.
 
-        Args:
-            tokens: The tokens to search for. Can be a single token or a list of tokens.
-            start_tokens: The tokens that mark the start of the search. Can be a single token or a list of tokens.
-            hide_tokens: The tokens to hide from the search results. Can be a single token or a list of tokens.
-            stop_tokens: The tokens that mark the end of the search. Can be a single token or a list of tokens.
-            depth: The maximum depth to search. Defaults to -1 (unlimited depth).
-            attribute: The attribute name to access the subelements. Defaults to "_subelements".
-            stack: The stack of tokens encountered during the search. Defaults to None.
+        :param tokens: The tokens to search for. Can be a single token or a list of tokens.
+        :param start_tokens: The tokens that mark the start of the search. Can be a single token or a list of tokens.
+        :param hide_tokens: The tokens to hide from the search results. Can be a single token or a list of tokens.
+        :param stop_tokens: The tokens that mark the end of the search. Can be a single token or a list of tokens.
+        :param depth: The maximum depth to search. Defaults to -1 (unlimited depth).
+        :param attribute: The attribute name to access the subelements. Defaults to "_subelements".
+        :param stack: The stack of tokens encountered during the search. Defaults to None.
 
-        Yields:
-            A tuple containing the found content element and the stack of tokens encountered.
+        :yield: A tuple containing the found content element and the stack of tokens encountered.
 
-        Raises:
-            ValueError: If the input tokens and stop_tokens are not disjoint.
+        :raises ValueError: If the input tokens and stop_tokens are not disjoint.
 
-        Returns:
-            None: If no matching content elements are found.
+        :return: None if no matching content elements are found.
         """
         tokens = _str_to_list(tokens)
         start_tokens = _str_to_list(start_tokens)
@@ -302,16 +294,14 @@ class ContentElement:
         """
         Find all occurrences of the specified tokens within the content element.
 
-        Args:
-            tokens (str | list[str]): The tokens to search for.
-            start_tokens (str | list[str], optional): The tokens that must appear before the found tokens. Defaults to "".
-            hide_tokens (str | list[str], optional): The tokens that should be hidden from the search. Defaults to "".
-            stop_tokens (str | list[str], optional): The tokens that, if found, should stop the search. Defaults to "".
-            depth (int, optional): The maximum depth to search. Defaults to -1 (unlimited depth).
-            attribute (str, optional): The attribute to search within. Defaults to "_subelements".
+        :param tokens: The tokens to search for.
+        :param start_tokens: The tokens that must appear before the found tokens. Defaults to "".
+        :param hide_tokens: The tokens that should be hidden from the search. Defaults to "".
+        :param stop_tokens: The tokens that, if found, should stop the search. Defaults to "".
+        :param depth: The maximum depth to search. Defaults to -1 (unlimited depth).
+        :param attribute: The attribute to search within. Defaults to "_subelements".
 
-        Returns:
-            list[tuple[ContentElement, list[str]]]: A list of tuples containing the content element and the found tokens.
+        :return: A list of tuples containing the content element and the found tokens.
         """
         return list(
             self.find(
@@ -328,12 +318,10 @@ class ContentElement:
         """
         Converts the object to a dictionary.
 
-        Args:
-            depth (int, optional): The depth of the conversion. Defaults to -1.
-            all_content (bool, optional): Whether to include all content or only the top-level content. Defaults to False.
+        :param depth: The depth of the conversion. Defaults to -1.
+        :param all_content: Whether to include all content or only the top-level content. Defaults to False.
 
-        Returns:
-            dict: The converted dictionary representation of the object.
+        :return: The converted dictionary representation of the object.
         """
         out_dict = {"token": self.token}
         if all_content or not self.children:
@@ -350,11 +338,10 @@ class ContentElement:
         """
         Converts the object to a flattened array of tokens per index, similarly to vscode-textmate.
 
-        Returns:
-            A list of tuples representing the flattened tokens. Each tuple contains:
-            - A tuple representing the starting and ending index of the token.
-            - The content of the token.
-            - A list of keys associated with the token.
+        :return: A list of tuples representing the flattened tokens. Each tuple contains:
+             - A tuple representing the starting and ending index of the token.
+             - The content of the token.
+             - A list of keys associated with the token.
         """
         token_dict = self._token_by_index(defaultdict(list))
         tokens = []
@@ -376,16 +363,14 @@ class ContentElement:
         **kwargs,
     ) -> None:
         """
-        Prints the current object recursively by converting it to a dictionary or a flattend array.
+        Prints the current object recursively by converting it to a dictionary or a flattened array.
 
-        Args:
-            flatten (bool, optional): If True, flattens the object before printing. Defaults to False.
-            depth (int, optional): The maximum depth to print. Defaults to -1 (unlimited depth).
-            all_content (bool, optional): If True, includes all content in the printout. Defaults to False.
-            **kwargs: Additional keyword arguments to be passed to the pprint function.
+        :param flatten: If True, flattens the object before printing. Defaults to False.
+        :param depth: The maximum depth to print. Defaults to -1 (unlimited depth).
+        :param all_content: If True, includes all content in the printout. Defaults to False.
+        :param **kwargs: Additional keyword arguments to be passed to the pprint function.
 
-        Returns:
-            None
+        :return: None
         """
         if flatten:
             pprint(
@@ -408,12 +393,10 @@ class ContentElement:
         This method recursively tokenizes every index between the start and close positions of the element.
         It populates a dictionary, `token_dict`, with the tokens corresponding to each index.
 
-        Args:
-            token_dict (TOKEN_DICT | None): A dictionary to store the tokens. If None, a new dictionary is created.
-
-        Returns:
-            TOKEN_DICT: A dictionary containing the tokens for each index.
-
+        :param token_dict: A dictionary to store the tokens. If None, a new dictionary is created.
+        :type token_dict: dict | None
+        :return: A dictionary containing the tokens for each index.
+        :rtype: dict
         """
         if token_dict is None:
             token_dict = defaultdict(list)
@@ -449,13 +432,11 @@ class ContentBlockElement(ContentElement):
         """
         Initialize a new instance of the Element class.
 
-        Args:
-            begin (list[Capture | ContentElement] | None): A list of Capture or ContentElement objects representing the beginning captures of the element. Defaults to None.
-            end (list[Capture | ContentElement] | None): A list of Capture or ContentElement objects representing the ending captures of the element. Defaults to None.
-            **kwargs: Additional keyword arguments to be passed to the parent class constructor.
+        :param begin: A list of Capture or ContentElement objects representing the beginning captures of the element. Defaults to None.
+        :param end: A list of Capture or ContentElement objects representing the ending captures of the element. Defaults to None.
+        :param **kwargs: Additional keyword arguments to be passed to the parent class constructor.
 
-        Returns:
-            None
+        :return: None
         """
         if end is None:
             end = []
@@ -476,8 +457,7 @@ class ContentBlockElement(ContentElement):
 
         If the elements have not been dispatched yet, this method will dispatch them before returning.
 
-        Returns:
-            list[ContentElement]: The list of begin elements.
+        :return: The list of begin elements.
         """
         if not self._dispatched:
             self._dispatch()
@@ -490,8 +470,7 @@ class ContentBlockElement(ContentElement):
 
         If the elements have not been dispatched yet, this method will dispatch them before returning.
 
-        Returns:
-            list[ContentElement]: A list of end elements.
+        :return: A list of end elements.
         """
         if not self._dispatched:
             self._dispatch()
@@ -512,13 +491,11 @@ class ContentBlockElement(ContentElement):
         """
         Converts the element to a dictionary representation.
 
-        Args:
-            depth (int, optional): The depth of the conversion. Defaults to -1.
-            all_content (bool, optional): Whether to include all content. Defaults to False.
-            **kwargs: Additional keyword arguments.
+        :param depth: The depth of the conversion. Defaults to -1.
+        :param all_content: Whether to include all content. Defaults to False.
+        :param **kwargs: Additional keyword arguments.
 
-        Returns:
-            dict: The dictionary representation of the element.
+        :return: The dictionary representation of the element.
         """
         out_dict = super().to_dict(depth=depth, all_content=all_content, **kwargs)
         if self.begin:

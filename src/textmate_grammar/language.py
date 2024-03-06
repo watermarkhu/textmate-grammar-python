@@ -31,18 +31,16 @@ class LanguageParser(PatternsParser):
         """
         Initialize a Language object.
 
-        Args:
-            grammar (dict): The grammar definition for the language.
-            **kwargs: Additional keyword arguments.
+        :param grammar: The grammar definition for the language.
+        :param kwargs: Additional keyword arguments.
 
-        Attributes:
-            name (str): The name of the language.
-            uuid (str): The UUID of the language.
-            file_types (list): The file types associated with the language.
-            token (str): The scope name of the language.
-            repository (dict): The repository of grammar rules for the language.
-            injections (list): The list of injection rules for the language.
-            _cache (TextmateCache): The cache object for the language.
+        :ivar name: The name of the language.
+        :ivar uuid: The UUID of the language.
+        :ivar file_types: The file types associated with the language.
+        :ivar token: The scope name of the language.
+        :ivar repository: The repository of grammar rules for the language.
+        :ivar injections: The list of injection rules for the language.
+        :ivar _cache: The cache object for the language.
         """
         super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
 
@@ -102,12 +100,9 @@ class LanguageParser(PatternsParser):
         """
         Parses an entire file with the current grammar.
 
-        Args:
-            filePath (str | Path): The path to the file to be parsed.
-            **kwargs: Additional keyword arguments to be passed to the parser.
-
-        Returns:
-            Capture | ContentElement | None: The parsed element if successful, None otherwise.
+        :param filePath: The path to the file to be parsed.
+        :param kwargs: Additional keyword arguments to be passed to the parser.
+        :return: The parsed element if successful, None otherwise.
         """
         if not isinstance(filePath, Path):
             filePath = Path(filePath).resolve()
@@ -135,12 +130,9 @@ class LanguageParser(PatternsParser):
         """
         Parses an input string.
 
-        Args:
-            input (str): The input string to be parsed.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The result of parsing the input string.
+        :param input: The input string to be parsed.
+        :param kwargs: Additional keyword arguments.
+        :return: The result of parsing the input string.
         """
         handler = ContentHandler(input)
         # Configure logger

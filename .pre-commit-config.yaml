@@ -19,5 +19,6 @@ repos:
       exclude: |
         (?x)^(
             example.py|
-            test\/.*.py
+            test\/.*.py|
+            docs\/.*.py
         )$

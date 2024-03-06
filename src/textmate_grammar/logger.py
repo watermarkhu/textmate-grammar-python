@@ -44,11 +44,8 @@ class LogFormatter(logging.Formatter):
         """
         Formats the log record with the color-coded format based on the log level.
 
-        Args:
-            record (logging.LogRecord): The log record to be formatted.
-
-        Returns:
-            str: The formatted log message.
+        :param record: The log record to be formatted.
+        :return: The formatted log message.
         """
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
@@ -58,9 +55,6 @@ class LogFormatter(logging.Formatter):
 class Logger:
     """
     The logger object for the grammar parsers.
-
-    Attributes:
-        long_msg_div (str): The long message divider used in formatting.
     """
 
     long_msg_div = "\x1b[1;32m ... \x1b[0m"
@@ -97,14 +91,11 @@ class Logger:
         """
         Formats a logging message to the defined format.
 
-        Args:
-            message (str): The logging message to be formatted.
-            parser (Optional[GrammarParser], optional): The GrammarParser object associated with the message. Defaults to None.
-            position (tuple[int, int] | None, optional): The position tuple (line, column) associated with the message. Defaults to None.
-            depth (int, optional): The depth of the message in the logging hierarchy. Defaults to 0.
-
-        Returns:
-            str: The formatted logging message.
+        :param message: The logging message to be formatted.
+        :param parser: The GrammarParser object associated with the message. Defaults to None.
+        :param position: The position tuple (line, column) associated with the message. Defaults to None.
+        :param depth: The depth of the message in the logging hierarchy. Defaults to 0.
+        :return: The formatted logging message.
         """
         if position:
             msg_pos = "{:{ll}d}-{:{lp}d}".format(
