@@ -7,6 +7,7 @@ on:
       - main
     paths: 
       - 'docs/**'
+      - '.github/workflows/docs.yml'
 
 permissions:
   contents: write
@@ -30,9 +31,8 @@ jobs:
 
       - name: Sphinx build
         run: |
-          poetry shell
-          cd docs
-          make html
+          source $(poetry env info --path)/bin/activate
+          cd docs && make html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
