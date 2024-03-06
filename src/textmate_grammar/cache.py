@@ -102,6 +102,8 @@ class SimpleCache(TextmateCache):
 
 
 class ShelveCache(TextmateCache):
+    """A cache implementation using the shelve module."""
+
     def __init__(self) -> None:
         """Initialize the ShelveCache."""
         import shelve
@@ -168,11 +170,8 @@ def init_cache(type: str = "simple") -> "TextmateCache":
     """
     Initialize the cache based on the given type.
 
-    Args:
-        type (str, optional): The type of cache to initialize. Defaults to "simple".
-
-    Returns:
-        TextmateCache: The initialized cache object.
+    :param type: The type of cache to initialize. Defaults to "simple".
+    :return: The initialized cache object.
     """
     global CACHE
     match type:

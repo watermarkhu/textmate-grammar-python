@@ -33,22 +33,19 @@ class Capture:
         boundary: tuple[int, int],
         key: str = "",
         **kwargs,
-    ) -> None:
+    ):
         """
         Initialize a new instance of the Element class.
 
-        Args:
-            handler (ContentHandler): The content handler for the element.
-            pattern (Pattern): The pattern used for matching.
-            matching (Match): The match object.
-            parsers (dict[int, GrammarParser]): A dictionary of grammar parsers.
-            starting (tuple[int, int]): The starting position of the element.
-            boundary (tuple[int, int]): The boundary position of the element.
-            key (str, optional): The key for the element. Defaults to "".
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            None
+        :param handler: The content handler for the element.
+        :param pattern: The pattern used for matching.
+        :param matching: The match object.
+        :param parsers: A dictionary of grammar parsers.
+        :param starting: The starting position of the element.
+        :param boundary: The boundary position of the element.
+        :param key: The key for the element. Defaults to "".
+        :param **kwargs: Additional keyword arguments.
+        :returns: None
         """
         self.handler = handler
         self.pattern = pattern

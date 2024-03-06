@@ -65,8 +65,3 @@ Alternatively, with the keyword argument `flatten` the element is displayed as a
 ## TODO
 - Implement Begin/While pattern, required for other grammars.
 
-## Sources
-- [Textmate guide](https://www.apeth.com/nonblog/stories/textmatebundle.html)
-- [VSCode Syntax Highlighting guide](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide)
-- [vscode-textmate](https://github.com/microsoft/vscode-textmate)
-- [Macromates texmate](https://macromates.com/textmate/manual/)

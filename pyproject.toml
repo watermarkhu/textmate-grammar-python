@@ -25,7 +25,15 @@ pre-commit = "^3.6.0"
 mypy = "^1.8.0"
 ruff = "^0.3.0"
 types-pyyaml = "^6.0.12.12"
+poetry-bumpversion = "^0.3.2"
 
+[tool.poetry.group.doc.dependencies]
+sphinx = "^7.2.6"
+sphinx-autodoc2 = "^0.5.0"
+myst-parser = "^2.0.0"
+furo = "^2024.1.29"
+
+[tool.poetry_bumpversion.file."src/textmate_grammar/__init__.py"]
 
 ##################################### ruff ##################################### 
 [tool.ruff]
