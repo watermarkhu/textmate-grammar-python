@@ -3,7 +3,7 @@ from datetime import date
 # -- Project information -----------------------------------------------------
 
 project = "Texmate Grammar Python"
-version = "0.2.0"
+version = "0.3.0"
 copyright = f"{date.today().year}, Mark Shui Hu"
 author = "Mark Shui Hu"
 
