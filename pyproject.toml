@@ -39,6 +39,10 @@ furo = "^2024.1.29"
 
 [tool.poetry_bumpversion.file."src/textmate_grammar/__init__.py"]
 
+[tool.poetry_bumpversion.file."docs/conf.py"]
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
 [tool.ruff]
 include = ["pyproject.toml", "src/textmate_grammar/**/*.py"]
 exclude = ["src/textmate_grammar/grammars/"]
