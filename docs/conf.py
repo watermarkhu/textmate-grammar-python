@@ -1,11 +1,9 @@
 from datetime import date
 
-from textmate_grammar import __version__
-
 # -- Project information -----------------------------------------------------
 
 project = "Texmate Grammar Python"
-version = __version__
+version = "0.2.0"
 copyright = f"{date.today().year}, Mark Shui Hu"
 author = "Mark Shui Hu"
 
