@@ -16,11 +16,42 @@ def _path_to_key(path: Path) -> str:
 class TextmateCache(Protocol):
     """Interface for a Textmate cache."""
 
-    def cache_valid(self, filepath: Path) -> bool: ...
+    def cache_valid(self, filepath: Path) -> bool:
+        """
+        Check if the cache for the given filepath is valid.
 
-    def load(self, filepath: Path) -> ContentElement: ...
+        Args:
+            filepath (Path): The path to the file.
 
-    def save(self, filePath: Path, element: ContentElement) -> None: ...
+        Returns:
+            bool: True if the cache is valid, False otherwise.
+        """
+        ...
+
+    def load(self, filepath: Path) -> ContentElement:
+        """
+        Load the content from the specified filepath.
+
+        Args:
+            filepath (Path): The path to the file to load.
+
+        Returns:
+            ContentElement: The loaded content element.
+        """
+        ...
+
+    def save(self, filePath: Path, element: ContentElement) -> None:
+        """
+        Save the given content element to the specified file path.
+
+        Args:
+            filePath (Path): The file path where the content element should be saved.
+            element (ContentElement): The content element to be saved.
+
+        Returns:
+            None
+        """
+        ...
 
 
 class SimpleCache(TextmateCache):
