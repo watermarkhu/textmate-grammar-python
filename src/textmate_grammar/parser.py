@@ -19,7 +19,13 @@ class GrammarParser(ABC):
 
     @staticmethod
     def initialize(grammar: dict, **kwargs):
-        "Initializes the parser based on the grammar."
+        """
+        Initializes the parser based on the grammar.
+
+        :param grammar: The grammar to initialize the parser with.
+        :param kwargs: Additional keyword arguments.
+        :return: The initialized parser.
+        """
         if "include" in grammar:
             return grammar["include"]
         elif "match" in grammar:
@@ -41,6 +47,17 @@ class GrammarParser(ABC):
         is_capture: bool = False,
         **kwargs,
     ) -> None:
+        """
+        Initialize a Parser object.
+
+        :param grammar: The grammar dictionary.
+        :param language: The language parser object. Defaults to None.
+        :param key: The key for the parser. Defaults to "".
+        :param is_capture: Indicates if the parser is a capture. Defaults to False.
+        :param kwargs: Additional keyword arguments.
+
+        :return: None
+        """
         self.grammar = grammar
         self.language = language
         self.key = key
@@ -85,8 +102,13 @@ class GrammarParser(ABC):
     ) -> tuple[bool, list[Capture | ContentElement], tuple[int, int] | None]:
         """The abstract method which all parsers much implement
 
-        The _parse method is called by parse, which will additionally parse any nested Capture elements.
-        The _parse method should contain all the rules for the extended parser.
+        The ``_parse`` method is called by ``parse``, which will additionally parse any nested Capture elements.
+        The ``_parse`` method should contain all the rules for the extended parser.
+
+        :param handler: The content handler to handle the parsed elements.
+        :param starting: The starting position of the parsing.
+        :param kwargs: Additional keyword arguments.
+        :return: A tuple containing the parsing result, a list of parsed elements, and the ending position of the parsing.
         """
         pass
 
@@ -105,7 +127,19 @@ class GrammarParser(ABC):
         boundary: POS | None = None,
         **kwargs,
     ) -> tuple[bool, list[Capture | ContentElement], tuple[int, int] | None]:
-        """The method to parse a handler using the current grammar."""
+        """
+        The method to parse a handler using the current grammar.
+
+        :param handler: The ContentHandler object that will handle the parsed content.
+        :param starting: The starting position for parsing. Defaults to (0, 0).
+        :param boundary: The boundary position for parsing. Defaults to None.
+        :param **kwargs: Additional keyword arguments that can be passed to the parser.
+
+        :return: A tuple containing:
+            - parsed: A boolean indicating whether the parsing was successful.
+            - elements: A list of Capture or ContentElement objects representing the parsed content.
+            - span: A tuple containing the starting and ending positions of the parsed content, or None if parsing failed.
+        """
         if not self.initialized and self.language is not None:
             self.language._initialize_repository()
         parsed, elements, span = self._parse(handler, starting, boundary=boundary, **kwargs)
@@ -124,8 +158,17 @@ class GrammarParser(ABC):
         """Matches a pattern and its capture groups.
 
         Matches the pattern on the handler between the starting and boundary positions. If a pattern is matched,
-        its capture groups are initalized as Capture objects. These are only parsed after the full handler has been
+        its capture groups are initialized as Capture objects. These are only parsed after the full handler has been
         parsed. This occurs in GrammarParser.parse when calling parse_captures.
+
+        :param handler: The content handler to match the pattern on.
+        :param pattern: The pattern to match.
+        :param starting: The starting position for the match.
+        :param boundary: The boundary position for the match.
+        :param parsers: A dictionary of parsers.
+        :param parent_capture: The parent capture object.
+        :param kwargs: Additional keyword arguments.
+        :return: A tuple containing the span of the match, the matched string, and a list of capture objects or content elements.
         """
         if parsers is None:
             parsers = {}

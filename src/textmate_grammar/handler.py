@@ -11,7 +11,6 @@ POS = tuple[int, int]
 
 
 class ContentHandler:
-
     """The handler object targetted for parsing.
 
     To parse a string or file, it needs to be loaded into the ContentHandler object.
@@ -23,6 +22,17 @@ class ContentHandler:
     notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
     def __init__(self, source: str) -> None:
+        """
+        Initialize a new instance of the Handler class.
+
+        :param source: The source code to be processed.
+        :type source: str
+
+        :ivar source: The source code to be processed.
+        :ivar lines: A list of lines in the source code, with a newline character at the end of each line.
+        :ivar line_lengths: A list of lengths of each line in the source code.
+        :ivar anchor: The current position in the source code.
+        """
         self.source = source
         self.lines = [line + "\n" for line in source.split("\n")]
         self.line_lengths = [len(line) for line in self.lines]
@@ -48,7 +58,12 @@ class ContentHandler:
             raise ImpossibleSpan
 
     def next(self, pos: POS, step: int = 1) -> POS:
-        """Returns the next position on the current handler"""
+        """Returns the next position on the current handler.
+
+        :param pos: The current position as a tuple (line, column).
+        :param step: The number of steps to move forward. Defaults to 1.
+        :return: The next position as a tuple (line, column).
+        """
         if step > 1:
             pos = self.next(pos, step=step - 1)
         if pos[1] == self.line_lengths[pos[0]]:
@@ -60,7 +75,12 @@ class ContentHandler:
             return (pos[0], pos[1] + 1)
 
     def prev(self, pos: POS, step: int = 1) -> POS:
-        """Returns the previous position on the current handler."""
+        """Returns the previous position on the current handler.
+
+        :param pos: The current position as a tuple (line, column).
+        :param step: The number of steps to go back. Defaults to 1.
+        :return: The previous position as a tuple (line, column).
+        """
         if step > 1:
             pos = self.prev(pos, step=step - 1)
         if pos[1] == 0:
@@ -72,7 +92,13 @@ class ContentHandler:
             return (pos[0], pos[1] - 1)
 
     def range(self, start: POS, close: POS) -> list[POS]:
-        """Returns the range of positions between start and close"""
+        """
+        Returns a list of positions between the start and close positions.
+
+        :param start: The starting position.
+        :param close: The closing position.
+        :return: A list of positions between the start and close positions.
+        """
         indices = []
         if start[0] == close[0]:
             for lp in range(start[1], close[1]):
@@ -88,13 +114,25 @@ class ContentHandler:
         return indices
 
     def chars(self, start: POS, close: POS) -> dict[POS, str]:
-        """Returns the source per position"""
+        """
+        Returns a dictionary mapping each position within the given range to the corresponding source character.
+
+        :param start: The starting position of the range.
+        :param close: The closing position of the range.
+        :return: A dictionary mapping each position within the range to the corresponding source character.
+        """
         indices = self.range(start, close)
         return {pos: self.read(pos) for pos in indices}
 
     def read_pos(self, start_pos: POS, close_pos: POS, skip_newline: bool = True) -> str:
-        """Reads the content between the start and end positions."""
+        """Reads the content between the start and end positions.
 
+        :param start_pos: The starting position of the content.
+        :param close_pos: The closing position of the content.
+        :param skip_newline: Whether to skip the newline character at the end of the content.
+        :return: The content between the start and end positions.
+        :raises ImpossibleSpan: If the start position is greater than the close position.
+        """
         self._check_pos(start_pos)
         self._check_pos(close_pos)
         if start_pos > close_pos:
@@ -118,11 +156,25 @@ class ContentHandler:
         return readout
 
     def read_line(self, pos: POS) -> str:
+        """
+        Reads a line from the specified position and returns it.
+
+        :param pos: The position of the line to read. The first element is the line number (0-based),
+                and the second element is the starting position within the line.
+        :return: The line starting from the specified position.
+        """
         line = self.lines[pos[0]]
         return line[pos[1] :]
 
     def read(self, start_pos: POS, length: int = 1, skip_newline: bool = True) -> str:
-        """Reads the content from start for a length"""
+        """Reads the content from start for a length.
+
+        :param start_pos: The starting position to read from.
+        :param length: The number of characters to read. Defaults to 1.
+        :param skip_newline: Whether to skip the newline character at the end of the read content. Defaults to True.
+        :return: The content read from the specified position.
+        :raises ImpossibleSpan: If the length is negative.
+        """
         self._check_pos(start_pos)
         if length < 0:
             raise ImpossibleSpan
@@ -160,15 +212,28 @@ class ContentHandler:
     ) -> tuple[Match | None, tuple[POS, POS] | None]:
         """Matches the stream against a capture group.
 
-        The stream is matched against the input pattern. If there are any capture groups,
-        each is then subsequently parsed by the inputted parsers. The number of parsers therefor
-        must match the number of capture groups of the expression, or there must be a single parser
-        and no capture groups.
+        :param pattern: The regular expression pattern to match against the stream.
+        :param starting: The starting position in the stream.
+        :param boundary: The boundary position in the stream. Defaults to None.
+        :param greedy: Determines if the matching should be greedy or not. Defaults to False.
+        :param kwargs: Additional keyword arguments.
 
-        leading_chars:
-        - 0: none allowed
-        - 1: whitespace characters allowed
-        - 2: any character allowed
+        :return: A tuple containing the matching result and the span of the match.
+
+        .. note::
+            - The stream is matched against the input pattern. If there are any capture groups,
+              each is then subsequently parsed by the inputted parsers. The number of parsers therefore
+              must match the number of capture groups of the expression, or there must be a single parser
+              and no capture groups.
+            - The `greedy` parameter determines if the matching should be greedy or not. If set to True,
+              the matching will try to consume as much of the stream as possible. If set to False,
+              the matching will stop at the first match found.
+            - The `boundary` parameter can be used to specify a boundary position in the stream. If provided,
+              the matching will not go beyond this boundary position.
+            - The `leading_chars` parameter can be used to specify the type of leading characters allowed, with:
+                - `0`: none allowed
+                - `1`: whitespace characters allowed
+                - `2`: any character allowed.
         """
 
         if pattern._pattern in ["\\z", "\\Z"]:

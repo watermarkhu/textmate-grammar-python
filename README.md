@@ -9,7 +9,7 @@
 
 # textmate-grammar-python
 
-An interpreter for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format. 
+A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format. 
 
 
 ## Usage
@@ -65,8 +65,3 @@ Alternatively, with the keyword argument `flatten` the element is displayed as a
 ## TODO
 - Implement Begin/While pattern, required for other grammars.
 
-## Sources
-- [Textmate guide](https://www.apeth.com/nonblog/stories/textmatebundle.html)
-- [VSCode Syntax Highlighting guide](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide)
-- [vscode-textmate](https://github.com/microsoft/vscode-textmate)
-- [Macromates texmate](https://macromates.com/textmate/manual/)

@@ -20,6 +20,10 @@ def track_depth(func):
 
 
 class LogFormatter(logging.Formatter):
+    """
+    A custom log formatter that formats log records with color-coded messages.
+    """
+
     green = "\x1b[32;32m"
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
@@ -37,13 +41,21 @@ class LogFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        """
+        Formats the log record with the color-coded format based on the log level.
+
+        :param record: The log record to be formatted.
+        :return: The formatted log message.
+        """
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
 
 class Logger:
-    """The logger object for the grammar parsers."""
+    """
+    The logger object for the grammar parsers.
+    """
 
     long_msg_div = "\x1b[1;32m ... \x1b[0m"
 
@@ -51,7 +63,7 @@ class Logger:
         self.id = None
         self.max_token_length = 50
         self.line_decimals = 3
-        self.position_decimials = 3
+        self.position_decimals = 3
         self.scope = "UNKNOWN"
         self.logger = logging.getLogger("textmate_grammar")
         channel = logging.StreamHandler()
@@ -61,11 +73,11 @@ class Logger:
     def configure(self, parser: "GrammarParser", height: int, width: int, **kwargs) -> None:
         """Configures the logger to a specific grammar and content length"""
         self.line_decimals = len(str(height))
-        self.position_decimials = len(str(width))
+        self.position_decimals = len(str(width))
         id = parser.token if parser.token else parser.key
         if self.id != id:
             self.id = id
-            tokens = gen_all_tokens(parser.grammar)
+            tokens = _gen_all_tokens(parser.grammar)
             self.max_token_length = max(len(token) for token in tokens)
             self.scope = parser.token
 
@@ -76,13 +88,21 @@ class Logger:
         position: tuple[int, int] | None = None,
         depth: int = 0,
     ) -> str:
-        "Formats a logging message to the defined format"
+        """
+        Formats a logging message to the defined format.
+
+        :param message: The logging message to be formatted.
+        :param parser: The GrammarParser object associated with the message. Defaults to None.
+        :param position: The position tuple (line, column) associated with the message. Defaults to None.
+        :param depth: The depth of the message in the logging hierarchy. Defaults to 0.
+        :return: The formatted logging message.
+        """
         if position:
             msg_pos = "{:{ll}d}-{:{lp}d}".format(
-                *position, ll=self.line_decimals, lp=self.position_decimials
+                *position, ll=self.line_decimals, lp=self.position_decimals
             ).replace(" ", "0")
         else:
-            msg_pos = "." * (self.line_decimals + self.position_decimials + 1)
+            msg_pos = "." * (self.line_decimals + self.position_decimals + 1)
 
         if parser:
             parser_id = parser.token if parser.token else parser.key
@@ -131,7 +151,7 @@ class Logger:
         self.logger.critical(message)
 
 
-def gen_all_tokens(grammar: dict, items: list[str] | None = None) -> list[str]:
+def _gen_all_tokens(grammar: dict, items: list[str] | None = None) -> list[str]:
     if items is None:
         items = []
     for key, value in grammar.items():
@@ -139,9 +159,9 @@ def gen_all_tokens(grammar: dict, items: list[str] | None = None) -> list[str]:
             items.append(value)
         elif isinstance(value, list):
             for nested_grammar in (item for item in value if isinstance(item, dict)):
-                gen_all_tokens(nested_grammar, items)
+                _gen_all_tokens(nested_grammar, items)
         elif isinstance(value, dict):
-            gen_all_tokens(value, items)
+            _gen_all_tokens(value, items)
     return items
 
 

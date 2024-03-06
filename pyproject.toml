@@ -1,8 +1,11 @@
-##################################### poetry ##################################### 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "textmate-grammar-python"
 version = "0.2.0"
-description = "An interpreter for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format."
+description = "A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python."
 authors = ["Mark Shui Hu <watermarkhu@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -23,12 +26,18 @@ tox = "^4.11.4"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
 mypy = "^1.8.0"
+ruff = "^0.3.0"
 types-pyyaml = "^6.0.12.12"
+poetry-bumpversion = "^0.3.2"
 
+[tool.poetry.group.doc.dependencies]
+sphinx = "^7.2.6"
+sphinx-autodoc2 = "^0.5.0"
+myst-parser = "^2.0.0"
+furo = "^2024.1.29"
 
+[tool.poetry_bumpversion.file."src/textmate_grammar/__init__.py"]
 
-##################################### ruff ##################################### 
-ruff = "^0.2.1"
 [tool.ruff]
 include = ["pyproject.toml", "src/textmate_grammar/**/*.py"]
 exclude = ["src/textmate_grammar/grammars/"]
@@ -47,12 +56,34 @@ line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
-##################################### mypy ##################################### 
 [tool.mypy]
 ignore_missing_imports = true
-exclude = ["test/*", "example.py"]
+exclude = ["test/*", "docs/*", "example.py"]
 
-##################################### build ##################################### 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    isolated_build = true
+
+    [testenv]
+    skip_install = true
+    allowlist_externals = poetry
+    commands =
+        poetry run pytest test/unit
+
+    [testenv:mypy]
+    skip_install = true
+    allowlist_externals = mypy
+    commands = 
+        mypy .
+
+    [testenv:regression]
+    skip_install = true
+    allowlist_externals = poetry, bash, sudo
+    platform = linux
+    change_dir = {tox_root}/test/regression
+    commands_pre =
+        bash install.sh
+    commands =
+        poetry run pytest .
+"""
