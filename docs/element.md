@@ -2,7 +2,7 @@
 
 The [`parse_file`](#textmate_grammar.language.LanguageParser.parse_file) and [`parse_string`](#textmate_grammar.language.LanguageParser.parse_string) methods of the [`LanguageParser`](#textmate_grammar.language.LanguageParser) both return either `None` if the content could not be parsed, or a [`ContentElement`](#textmate_grammar.elements.ContentElement) or [`ContentBlockElement`](#textmate_grammar.elements.ContentBlockElement) if parsing was successful.
 
-```mermaid
+```{mermaid}
 classDiagram
     direction LR
     class ContentElement{
@@ -60,7 +60,7 @@ This representation is more akin to the output of [vscode-textmate](https://gith
 To find specific descendent elements, instead of indexing manually through the `children` (or `begin` and `end`) attribute, use the provided methods [`find`](#textmate_grammar.elements.ContentElement.find), which yields the found descendent elements one by one, and [`findall`](#textmate_grammar.elements.ContentElement.findall), which returns all descendents as a list.
 
 
-```mermaid
+```{mermaid}
 flowchart LR
     style root stroke-width:0,fill:#F94144
     style ca stroke-width:0,fill:#577590
