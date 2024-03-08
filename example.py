@@ -1,16 +1,19 @@
 import logging
 from pathlib import Path
+from pprint import pprint
 
-from textmate_grammar.cache import init_cache
 from textmate_grammar.grammars import matlab
 from textmate_grammar.language import LanguageParser
+from textmate_grammar.utils.cache import init_cache
 
 # Initialize shelved cache
 init_cache("shelve")
 
-# Initialize language parser
+# Enable debug logging
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
+
+# Initialize language parser
 parser = LanguageParser(matlab.GRAMMAR)
 
 # Parse file
@@ -19,3 +22,7 @@ element = parser.parse_file(filePath)
 
 # Print element
 element.print()
+
+# Find all enum members
+enum_members = element.findall('variable.other.enummember.matlab')
+pprint(enum_members)

@@ -43,7 +43,7 @@ For instructions on running the unit and regression tests see [CONTRIBUTING.md](
 
 
 ## Usage
-Before tokenization is possible, a `LanguageParser` needs to be initialized using a loaded grammar. 
+Before tokenization is possible, a [`LanguageParser`](#textmate_grammar.language.LanguageParser) needs to be initialized using a loaded grammar. 
 
 ```python
 from textmate_grammar.language import LanguageParser
@@ -51,9 +51,9 @@ from textmate_grammar.grammars import matlab
 parser = LanguageParser(matlab.GRAMMAR)
 ```
 
-After this, one can either choose to call [`parser.parsing_string`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](https://github.com/watermarkhu/textmate-grammar-python/blob/main/example.py). 
+After this, one can either choose to call [`parser.parsing_string`](#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](../example.py). 
 
-The parsed `element` object can be displayed directly by calling the [`print`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.elements.html#textmate_grammar.elements.ContentElement.print) method. By default the element is printed as an element tree in a dictionary format. 
+The parsed `element` object can be displayed directly by calling the [`print`](#textmate_grammar.elements.ContentElement.print) method. By default the element is printed as an element tree in a dictionary format. 
 
 ```python
 >>> element = parser.parse_string("value = num2str(10);")
@@ -71,22 +71,6 @@ The parsed `element` object can be displayed directly by calling the [`print`](h
               {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}]}
 
 ```
-Alternatively, with the keyword argument `flatten` the element is displayed as a list per unique token. Here the first item in the list is the starting position (line, column) of the unique tokenized element. 
-
-```python
->>> element.print(flatten=True)
-
-[[(0, 0), 'value', ['source.matlab', 'meta.assignment.variable.single.matlab', 'variable.other.readwrite.matlab']],
- [(0, 5), ' ', ['source.matlab']],
- [(0, 6), '=', ['source.matlab', 'keyword.operator.assignment.matlab']],
- [(0, 7), ' ', ['source.matlab']],
- [(0, 8), 'num2str', ['source.matlab', 'meta.function-call.parens.matlab', 'entity.name.function.matlab']],
- [(0, 15), '(', ['source.matlab', 'meta.function-call.parens.matlab', 'punctuation.section.parens.begin.matlab']],
- [(0, 16), '10', ['source.matlab', 'meta.function-call.parens.matlab', 'constant.numeric.decimal.matlab']],
- [(0, 18), ')', ['source.matlab', 'meta.function-call.parens.matlab', 'punctuation.section.parens.end.matlab']],
- [(0, 19), ';', ['source.matlab', 'punctuation.terminator.semicolon.matlab']]]
-```
-
 
 
 ```{toctree}

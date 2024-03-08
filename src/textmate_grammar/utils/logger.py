@@ -3,7 +3,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .parser import GrammarParser
+    from ..parser import GrammarParser
 
 
 MAX_LENGTH = 79

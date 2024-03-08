@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 import onigurumacffi as re
 
 from .elements import Capture, ContentBlockElement, ContentElement
-from .exceptions import IncludedParserNotFound
-from .handler import POS, ContentHandler, Pattern
-from .logger import LOGGER, track_depth
+from .utils.exceptions import IncludedParserNotFound
+from .utils.handler import POS, ContentHandler, Pattern
+from .utils.logger import LOGGER, track_depth
 
 if TYPE_CHECKING:
     from .language import LanguageParser
@@ -62,11 +62,17 @@ class GrammarParser(ABC):
         self.language = language
         self.key = key
         self.token = grammar.get("name", "")
-        self.comment = grammar.get("comment", "")
-        self.disabled = grammar.get("disabled", False)
         self.is_capture = is_capture
         self.initialized = False
         self.anchored = False
+
+    @property
+    def comment(self) -> str:
+        return self.grammar.get("comment", "")
+
+    @property
+    def disabled(self) -> bool:
+        return self.grammar.get("disabled", False)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:<{self.key}>"
