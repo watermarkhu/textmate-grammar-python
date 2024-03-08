@@ -5,15 +5,35 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![Python versions](https://img.shields.io/pypi/pyversions/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
 [![CI/CD](https://github.com/watermarkhu/textmate-grammar-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/watermarkhu/textmate-grammar-python/blob/main/.github/workflows/ci.yml)
-
+[![readthedocs](https://readthedocs.org/projects/textmate-grammar-python/badge/?version=latest)](https://textmate-grammar-python.readthedocs.io)
 
 # textmate-grammar-python
 
-A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python. TextMate grammars use the oniguruma dialect (https://github.com/kkos/oniguruma). Supports loading grammar files from JSON, PLIST, or YAML format. 
+A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python. 
 
+Textmate grammars are made for [vscode-texmate](https://github.com/microsoft/vscode-textmate), allowing for syntax highlighting in VSCode after tokenization. This presents textmate-grammar-python with a large list of potentially supported languages. 
+
+```mermaid
+flowchart TD
+    A[grammar file] 
+    Z[code]
+    B("`vscode-textmate **js**`")
+    C("`textmate-grammar-**python**`")
+    D[tokens]
+
+    click C "https://github.com/microsoft/vscode-textmate"
+    
+    Z --> B
+    Z --> C
+    A -.-> B --> D
+    A -.-> C --> D
+```
 
 ## Usage
-Install the module using `pip install textmate-grammar-python`.
+Install the module with:
+```bash
+pip install textmate-grammar-python
+```
 
 Before tokenization is possible, a `LanguageParser` needs to be initialized using a loaded grammar. 
 
@@ -23,9 +43,9 @@ from textmate_grammar.grammars import matlab
 parser = LanguageParser(matlab.GRAMMAR)
 ```
 
-After this, one can either choose to call `parser.parsing_string` to parse a input string directly, or call `parser.parse_file` with the path to the appropiate source file as the first argument, such as the the example `example.py`. 
+After this, one can either choose to call [`parser.parsing_string`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](https://github.com/watermarkhu/textmate-grammar-python/blob/main/example.py). 
 
-The parsed `element` object can be displayed directly by calling the `print` method. By default the element is printed as an element tree in a dictionary format. 
+The parsed `element` object can be displayed directly by calling the [`print`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.elements.html#textmate_grammar.elements.ContentElement.print) method. By default the element is printed as an element tree in a dictionary format. 
 
 ```python
 >>> element = parser.parse_string("value = num2str(10);")
@@ -59,9 +79,7 @@ Alternatively, with the keyword argument `flatten` the element is displayed as a
  [(0, 19), ';', ['source.matlab', 'punctuation.terminator.semicolon.matlab']]]
 ```
 
-## Supported Languages
-- [MATLAB](https://github.com/mathworks/MATLAB-Language-grammar)
+## Information
 
-## TODO
-- Implement Begin/While pattern, required for other grammars.
-
+- For further information, please checkout the [documentation](https://textmate-grammar-python.readthedocs.io/en/latest/). 
+- To setup an environment for development, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md)

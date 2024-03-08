@@ -6,8 +6,8 @@ from itertools import groupby
 from pprint import pprint
 from typing import TYPE_CHECKING, Generator
 
-from .handler import POS, ContentHandler, Match, Pattern
-from .logger import LOGGER
+from .utils.handler import POS, ContentHandler, Match, Pattern
+from .utils.logger import LOGGER
 
 if TYPE_CHECKING:
     from .parser import GrammarParser
@@ -194,6 +194,8 @@ class ContentElement:
         :type nested: bool
         :return: None
         """
+        if self._dispatched:
+            return
         self._dispatched = True
         self._children: list[ContentElement] = _dispatch_list(self._children_captures, parent=self)
         self._children_captures = []
@@ -206,7 +208,7 @@ class ContentElement:
             return False
         return bool(self.grammar == other.grammar and self.characters == other.characters)
 
-    def find(
+    def _find(
         self,
         tokens: str | list[str],
         start_tokens: str | list[str] = "",
@@ -216,26 +218,6 @@ class ContentElement:
         attribute: str = "_subelements",
         stack: list[str] | None = None,
     ) -> Generator[tuple[ContentElement, list[str]], None, None]:
-        """
-        Find content elements based on the given criteria.
-
-        The find method will return a generator that globs though the element-tree, searching for the next
-        subelement that matches the given token.
-
-        :param tokens: The tokens to search for. Can be a single token or a list of tokens.
-        :param start_tokens: The tokens that mark the start of the search. Can be a single token or a list of tokens.
-        :param hide_tokens: The tokens to hide from the search results. Can be a single token or a list of tokens.
-        :param stop_tokens: The tokens that mark the end of the search. Can be a single token or a list of tokens.
-        :param depth: The maximum depth to search. Defaults to -1 (unlimited depth).
-        :param attribute: The attribute name to access the subelements. Defaults to "_subelements".
-        :param stack: The stack of tokens encountered during the search. Defaults to None.
-
-        :yield: A tuple containing the found content element and the stack of tokens encountered.
-
-        :raises ValueError: If the input tokens and stop_tokens are not disjoint.
-
-        :return: None if no matching content elements are found.
-        """
         tokens = _str_to_list(tokens)
         start_tokens = _str_to_list(start_tokens)
         hide_tokens = _str_to_list(hide_tokens)
@@ -271,7 +253,7 @@ class ContentElement:
                 ):
                     yield child, [e for e in stack]
                 if depth:
-                    nested_generator = child.find(
+                    nested_generator = child._find(
                         tokens,
                         start_tokens=start_tokens,
                         hide_tokens=hide_tokens,
@@ -281,6 +263,43 @@ class ContentElement:
                     )
                     yield from nested_generator
         return None
+
+    def find(
+        self,
+        tokens: str | list[str],
+        start_tokens: str | list[str] = "",
+        hide_tokens: str | list[str] = "",
+        stop_tokens: str | list[str] = "",
+        depth: int = -1,
+        attribute: str = "_subelements",
+    ) -> Generator[tuple[ContentElement, list[str]], None, None]:
+        """
+        Find content elements based on the given criteria.
+
+        The find method will return a generator that globs though the element-tree, searching for the next
+        subelement that matches the given token.
+
+        :param tokens: The tokens to search for. Can be a single token or a list of tokens.
+        :param start_tokens: The tokens that mark the start of the search. Can be a single token or a list of tokens.
+        :param hide_tokens: The tokens to hide from the search results. Can be a single token or a list of tokens.
+        :param stop_tokens: The tokens that mark the end of the search. Can be a single token or a list of tokens.
+        :param depth: The maximum depth to search. Defaults to -1 (unlimited depth).
+        :param attribute: The attribute name to access the subelements. Defaults to "_subelements".
+
+        :yield: A tuple containing the found content element and the stack of tokens encountered.
+
+        :raises ValueError: If the input tokens and stop_tokens are not disjoint.
+
+        :return: None if no matching content elements are found.
+        """
+        return self._find(
+            tokens,
+            start_tokens=start_tokens,
+            hide_tokens=hide_tokens,
+            stop_tokens=stop_tokens,
+            depth=depth,
+            attribute=attribute,
+        )
 
     def findall(
         self,
@@ -304,7 +323,7 @@ class ContentElement:
         :return: A list of tuples containing the content element and the found tokens.
         """
         return list(
-            self.find(
+            self._find(
                 tokens,
                 start_tokens=start_tokens,
                 hide_tokens=hide_tokens,
@@ -425,6 +444,7 @@ class ContentBlockElement(ContentElement):
 
     def __init__(
         self,
+        *args,
         begin: list[Capture | ContentElement] | None = None,
         end: list[Capture | ContentElement] | None = None,
         **kwargs,
@@ -442,7 +462,7 @@ class ContentBlockElement(ContentElement):
             end = []
         if begin is None:
             begin = []
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._begin_captures = begin
         self._end_captures = end
 
@@ -477,6 +497,8 @@ class ContentBlockElement(ContentElement):
         return self._end
 
     def _dispatch(self, nested: bool = False):
+        if self._dispatched:
+            return
         super()._dispatch(nested)
         self._begin: list[ContentElement] = _dispatch_list(self._begin_captures, parent=self)
         self._end: list[ContentElement] = _dispatch_list(self._end_captures, parent=self)

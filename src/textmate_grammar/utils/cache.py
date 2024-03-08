@@ -3,7 +3,7 @@ from pathlib import Path
 from pickle import UnpicklingError
 from typing import Protocol
 
-from .elements import ContentElement
+from ..elements import ContentElement
 
 CACHE_DIR = (Path() / ".textmate_cache").resolve()
 CACHE_DIR.mkdir(parents=True, exist_ok=True)

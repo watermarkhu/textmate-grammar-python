@@ -1,0 +1,45 @@
+name: documentation
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths: 
+      - 'src/**.py'
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v3
+
+      - name: Install dependencies
+        run: |
+          poetry install --without test,dev
+
+      - name: Sphinx build
+        run: |
+          source $(poetry env info --path)/bin/activate
+          cd docs && make html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          force_orphan: true

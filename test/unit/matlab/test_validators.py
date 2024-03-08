@@ -1,8 +1,8 @@
 import pytest
-from textmate_grammar.handler import ContentHandler
+from textmate_grammar.utils.handler import ContentHandler
+
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
 from . import parser as matlabParser
-
 
 parser = matlabParser.repository["validators"]
 

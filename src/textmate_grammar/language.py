@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from .cache import TextmateCache, init_cache
 from .elements import Capture, ContentElement
-from .exceptions import IncompatibleFileType
-from .handler import POS, ContentHandler
-from .logger import LOGGER
 from .parser import GrammarParser, PatternsParser
+from .utils.cache import TextmateCache, init_cache
+from .utils.exceptions import IncompatibleFileType
+from .utils.handler import POS, ContentHandler
+from .utils.logger import LOGGER
 
 LANGUAGE_PARSERS = {}
 
@@ -96,7 +96,7 @@ class LanguageParser(PatternsParser):
 
         super()._initialize_repository()
 
-    def parse_file(self, filePath: str | Path, **kwargs) -> Capture | ContentElement | None:
+    def parse_file(self, filePath: str | Path, **kwargs) -> ContentElement | None:
         """
         Parses an entire file with the current grammar.
 
@@ -122,11 +122,10 @@ class LanguageParser(PatternsParser):
             element = self._parse_language(handler, **kwargs)  # type: ignore
 
             if element is not None:
-                element._dispatch(nested=True)
                 self._cache.save(filePath, element)
         return element
 
-    def parse_string(self, input: str, **kwargs):
+    def parse_string(self, input: str, **kwargs) -> ContentElement | None:
         """
         Parses an input string.
 
@@ -137,13 +136,22 @@ class LanguageParser(PatternsParser):
         handler = ContentHandler(input)
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
-        return self._parse_language(handler, **kwargs)
 
-    def _parse_language(self, handler: ContentHandler, **kwargs) -> Capture | ContentElement | None:
+        element = self._parse_language(handler, **kwargs)
+
+        return element
+
+    def _parse_language(self, handler: ContentHandler, **kwargs) -> ContentElement | None:
         """Parses the current stream with the language scope."""
 
         parsed, elements, _ = self.parse(handler, (0, 0), **kwargs)
-        return elements[0] if parsed else None
+
+        if parsed:
+            element = elements[0]
+            element._dispatch(nested=True)  # type: ignore
+        else:
+            element = None
+        return element  # type: ignore
 
     def _parse(
         self, handler: ContentHandler, starting: POS, **kwargs
