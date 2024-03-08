@@ -55,5 +55,47 @@ This representation is more akin to the output of [vscode-textmate](https://gith
  [(0, 19), ';', ['source.matlab', 'punctuation.terminator.semicolon.matlab']]]
 ```
 
+## Accessing descendent elements
+
+To find specific descendent elements, instead of indexing manually through the `children` (or `begin` and `end`) attribute, use the provided methods [`find`](#textmate_grammar.elements.ContentElement.find), which yields the found descendent elements one by one, and [`findall`](#textmate_grammar.elements.ContentElement.findall), which returns all descendents as a list.
 
 
+```mermaid
+flowchart LR
+    style root stroke-width:0,fill:#F94144
+    style ca stroke-width:0,fill:#577590
+    style cb stroke-width:0,fill:#F3722C
+    style cc stroke-width:0,fill:#1372fC
+    classDef gca stroke-width:0,fill:#43AA8B
+    classDef gcb stroke-width:0,fill:#D65780
+    root[root]
+    ca[child.a]
+    cb[child.b]
+    cc[child.c]
+    gcaa["grandchild.a (a)"]:::gca
+    gcab["grandchild.b (a)"]:::gcb
+    gcba["grandchild.a (b)"]:::gca
+    gcbb["grandchild.b (b)"]:::gcb
+    gcca["grandchild.a (c)"]:::gca
+    gccb["grandchild.b (c)"]:::gcb
+    root ----|0| ca
+    root ----|1| cb
+    root ----|2| cc
+    ca ----|0| gcaa
+    ca ----|1| gcab
+    cb ----|0| gcba
+    cb ----|1| gcbb
+    cc ----|0| gcca
+    cc ----|1| gccb
+```
+
+For example, for an example element tree above, the table below shows the possible return values of `findall` on the root element with different criteria. 
+
+| Input | Output | 
+| ----- | ------ |
+| `root.findall(tokens='grandchild.a')` | grandchild.a (a, b, c) |
+| `root.findall(tokens='grandchild.a', depth=1)` |  |
+| `root.findall(tokens='grandchild.a', start_tokens='child.b')` | grandchild.a (b,c) |
+| `root.findall(tokens='grandchild.a', stop_tokens='child.c')` | grandchild.a (a,b) |
+| `root.findall(tokens=['child.a', 'child.b'])` | child.a, child.b |
+| `root.findall(tokens='*', hide_tokens='child.c', depth=1)` | child.a, child.b |
