@@ -13,22 +13,6 @@ A lexer and tokenizer for grammar files as defined by TextMate and used in VSCod
 
 Textmate grammars are made for [vscode-texmate](https://github.com/microsoft/vscode-textmate), allowing for syntax highlighting in VSCode after tokenization. This presents textmate-grammar-python with a large list of potentially supported languages. 
 
-```mermaid
-flowchart TD
-    A[grammar file] 
-    Z[code]
-    B("`vscode-textmate **js**`")
-    C("`textmate-grammar-**python**`")
-    D[tokens]
-
-    click C "https://github.com/microsoft/vscode-textmate"
-    
-    Z --> B
-    Z --> C
-    A -.-> B --> D
-    A -.-> C --> D
-```
-
 ## Usage
 Install the module with:
 ```bash
