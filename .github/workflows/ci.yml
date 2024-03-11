@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/ci.yml'
+      - 'pyproject.toml'
       - 'src/**.py'
       - 'src/syntaxes/**'
       - 'test/**'
