@@ -1,6 +1,6 @@
 name: "CI"
 
-on: 
+on:
   workflow_dispatch:
   pull_request:
     branches:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version:  ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,13 +37,13 @@ jobs:
 
       - name: Test with pytest
         run: |
-          poetry run pytest -v test/unit 
-  
+          poetry run pytest -v test/unit
+
   regression-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
         node-version: [20]
 
     steps:
@@ -55,7 +55,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      
+
       - name: Install node dependencies
         run: |
           mkdir test/regression/node_root
@@ -77,4 +77,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          poetry run pytest -v test/regression 
+          poetry run pytest -v test/regression
