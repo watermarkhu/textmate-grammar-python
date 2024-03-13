@@ -28,4 +28,4 @@ repos:
     hooks:
     - id: poetry-check
     - id: poetry-export
-      args: ["--dev", "-f", "requirements.txt", "-o", "docs/requirements.txt", "--only", "doc"]
+      args: ["-f", "requirements.txt", "-o", "docs/requirements.txt", "--only", "doc"]
