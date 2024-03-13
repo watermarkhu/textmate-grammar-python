@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/ci.yml'
       - 'pyproject.toml'
+      - 'poetry.lock'
       - 'src/**.py'
       - 'src/syntaxes/**'
       - 'test/**'
