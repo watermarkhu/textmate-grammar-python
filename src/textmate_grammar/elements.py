@@ -130,6 +130,8 @@ def _dispatch_list(
             elements.extend(captured_elements)
         elif item != parent:
             elements.append(item)
+    for element in elements:
+        element.parent = parent
     return elements
 
 
@@ -168,6 +170,7 @@ class ContentElement:
         self.characters = characters
         self._children_captures = children
         self._dispatched: bool = False
+        self.parent: ContentElement | None = None
 
     @property
     def _subelements(self) -> list[ContentElement]:
