@@ -1,0 +1,147 @@
+:py:mod:`textmate_grammar.utils.cache`
+======================================
+
+.. py:module:: textmate_grammar.utils.cache
+
+.. autodoc2-docstring:: textmate_grammar.utils.cache
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`TextmateCache <textmate_grammar.utils.cache.TextmateCache>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.TextmateCache
+          :summary:
+   * - :py:obj:`SimpleCache <textmate_grammar.utils.cache.SimpleCache>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache
+          :summary:
+   * - :py:obj:`ShelveCache <textmate_grammar.utils.cache.ShelveCache>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`init_cache <textmate_grammar.utils.cache.init_cache>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.init_cache
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`CACHE_DIR <textmate_grammar.utils.cache.CACHE_DIR>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.CACHE_DIR
+          :summary:
+   * - :py:obj:`CACHE <textmate_grammar.utils.cache.CACHE>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.cache.CACHE
+          :summary:
+
+API
+~~~
+
+.. py:data:: CACHE_DIR
+   :canonical: textmate_grammar.utils.cache.CACHE_DIR
+   :value: 'resolve(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.CACHE_DIR
+
+.. py:class:: TextmateCache
+   :canonical: textmate_grammar.utils.cache.TextmateCache
+
+   Bases: :py:obj:`typing.Protocol`
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.TextmateCache
+
+   .. py:method:: cache_valid(filepath: pathlib.Path) -> bool
+      :canonical: textmate_grammar.utils.cache.TextmateCache.cache_valid
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.TextmateCache.cache_valid
+
+   .. py:method:: load(filepath: pathlib.Path) -> textmate_grammar.elements.ContentElement
+      :canonical: textmate_grammar.utils.cache.TextmateCache.load
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.TextmateCache.load
+
+   .. py:method:: save(filePath: pathlib.Path, element: textmate_grammar.elements.ContentElement) -> None
+      :canonical: textmate_grammar.utils.cache.TextmateCache.save
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.TextmateCache.save
+
+.. py:class:: SimpleCache()
+   :canonical: textmate_grammar.utils.cache.SimpleCache
+
+   Bases: :py:obj:`textmate_grammar.utils.cache.TextmateCache`
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache.__init__
+
+   .. py:method:: cache_valid(filepath: pathlib.Path) -> bool
+      :canonical: textmate_grammar.utils.cache.SimpleCache.cache_valid
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache.cache_valid
+
+   .. py:method:: load(filepath: pathlib.Path) -> textmate_grammar.elements.ContentElement
+      :canonical: textmate_grammar.utils.cache.SimpleCache.load
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache.load
+
+   .. py:method:: save(filepath: pathlib.Path, element: textmate_grammar.elements.ContentElement) -> None
+      :canonical: textmate_grammar.utils.cache.SimpleCache.save
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.SimpleCache.save
+
+.. py:class:: ShelveCache()
+   :canonical: textmate_grammar.utils.cache.ShelveCache
+
+   Bases: :py:obj:`textmate_grammar.utils.cache.TextmateCache`
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache.__init__
+
+   .. py:method:: cache_valid(filepath: pathlib.Path) -> bool
+      :canonical: textmate_grammar.utils.cache.ShelveCache.cache_valid
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache.cache_valid
+
+   .. py:method:: load(filepath: pathlib.Path) -> textmate_grammar.elements.ContentElement
+      :canonical: textmate_grammar.utils.cache.ShelveCache.load
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache.load
+
+   .. py:method:: save(filepath: pathlib.Path, element: textmate_grammar.elements.ContentElement) -> None
+      :canonical: textmate_grammar.utils.cache.ShelveCache.save
+
+      .. autodoc2-docstring:: textmate_grammar.utils.cache.ShelveCache.save
+
+.. py:data:: CACHE
+   :canonical: textmate_grammar.utils.cache.CACHE
+   :type: textmate_grammar.utils.cache.TextmateCache
+   :value: 'SimpleCache(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.CACHE
+
+.. py:function:: init_cache(type: str = 'simple') -> textmate_grammar.utils.cache.TextmateCache
+   :canonical: textmate_grammar.utils.cache.init_cache
+
+   .. autodoc2-docstring:: textmate_grammar.utils.cache.init_cache

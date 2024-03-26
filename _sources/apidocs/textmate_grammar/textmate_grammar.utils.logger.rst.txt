@@ -1,0 +1,183 @@
+:py:mod:`textmate_grammar.utils.logger`
+=======================================
+
+.. py:module:: textmate_grammar.utils.logger
+
+.. autodoc2-docstring:: textmate_grammar.utils.logger
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`LogFormatter <textmate_grammar.utils.logger.LogFormatter>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter
+          :summary:
+   * - :py:obj:`Logger <textmate_grammar.utils.logger.Logger>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`track_depth <textmate_grammar.utils.logger.track_depth>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.logger.track_depth
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`MAX_LENGTH <textmate_grammar.utils.logger.MAX_LENGTH>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.logger.MAX_LENGTH
+          :summary:
+   * - :py:obj:`LOGGER <textmate_grammar.utils.logger.LOGGER>`
+     - .. autodoc2-docstring:: textmate_grammar.utils.logger.LOGGER
+          :summary:
+
+API
+~~~
+
+.. py:data:: MAX_LENGTH
+   :canonical: textmate_grammar.utils.logger.MAX_LENGTH
+   :value: 79
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.MAX_LENGTH
+
+.. py:function:: track_depth(func)
+   :canonical: textmate_grammar.utils.logger.track_depth
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.track_depth
+
+.. py:class:: LogFormatter(fmt=None, datefmt=None, style='%', validate=True, *, defaults=None)
+   :canonical: textmate_grammar.utils.logger.LogFormatter
+
+   Bases: :py:obj:`logging.Formatter`
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.__init__
+
+   .. py:attribute:: green
+      :canonical: textmate_grammar.utils.logger.LogFormatter.green
+      :value: '\x1b[32;32m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.green
+
+   .. py:attribute:: grey
+      :canonical: textmate_grammar.utils.logger.LogFormatter.grey
+      :value: '\x1b[38;20m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.grey
+
+   .. py:attribute:: yellow
+      :canonical: textmate_grammar.utils.logger.LogFormatter.yellow
+      :value: '\x1b[33;20m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.yellow
+
+   .. py:attribute:: red
+      :canonical: textmate_grammar.utils.logger.LogFormatter.red
+      :value: '\x1b[31;20m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.red
+
+   .. py:attribute:: bold_red
+      :canonical: textmate_grammar.utils.logger.LogFormatter.bold_red
+      :value: '\x1b[31;1m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.bold_red
+
+   .. py:attribute:: reset
+      :canonical: textmate_grammar.utils.logger.LogFormatter.reset
+      :value: '\x1b[0m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.reset
+
+   .. py:attribute:: format_string
+      :canonical: textmate_grammar.utils.logger.LogFormatter.format_string
+      :value: '%(name)s:%(message)s'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.format_string
+
+   .. py:attribute:: FORMATS
+      :canonical: textmate_grammar.utils.logger.LogFormatter.FORMATS
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.FORMATS
+
+   .. py:method:: format(record)
+      :canonical: textmate_grammar.utils.logger.LogFormatter.format
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.LogFormatter.format
+
+.. py:class:: Logger(**kwargs)
+   :canonical: textmate_grammar.utils.logger.Logger
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.__init__
+
+   .. py:attribute:: long_msg_div
+      :canonical: textmate_grammar.utils.logger.Logger.long_msg_div
+      :value: '\x1b[1;32m ... \x1b[0m'
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.long_msg_div
+
+   .. py:method:: configure(parser: textmate_grammar.parser.GrammarParser, height: int, width: int, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.configure
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.configure
+
+   .. py:method:: format_message(message: str, parser: textmate_grammar.parser.GrammarParser | None = None, position: tuple[int, int] | None = None, depth: int = 0) -> str
+      :canonical: textmate_grammar.utils.logger.Logger.format_message
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.format_message
+
+   .. py:method:: debug(*args, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.debug
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.debug
+
+   .. py:method:: info(*args, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.info
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.info
+
+   .. py:method:: warning(*args, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.warning
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.warning
+
+   .. py:method:: error(*args, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.error
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.error
+
+   .. py:method:: critical(*args, **kwargs) -> None
+      :canonical: textmate_grammar.utils.logger.Logger.critical
+
+      .. autodoc2-docstring:: textmate_grammar.utils.logger.Logger.critical
+
+.. py:data:: LOGGER
+   :canonical: textmate_grammar.utils.logger.LOGGER
+   :value: 'Logger(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.utils.logger.LOGGER
