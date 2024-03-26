@@ -1,7 +1,7 @@
 import pytest
 
-from . import parser
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
+from . import parser
 
 test_vector = {}
 

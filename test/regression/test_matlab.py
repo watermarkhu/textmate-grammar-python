@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
-import pytest
 from pathlib import Path
 
+import pytest
 from textmate_grammar.grammars import matlab
 from textmate_grammar.language import LanguageParser
 
