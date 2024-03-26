@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 from functools import wraps
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..parser import GrammarParser
@@ -70,7 +72,7 @@ class Logger:
         channel.setFormatter(LogFormatter())
         self.logger.addHandler(channel)
 
-    def configure(self, parser: "GrammarParser", height: int, width: int, **kwargs) -> None:
+    def configure(self, parser: GrammarParser, height: int, width: int, **kwargs) -> None:
         """Configures the logger to a specific grammar and content length"""
         self.line_decimals = len(str(height))
         self.position_decimals = len(str(width))
@@ -84,7 +86,7 @@ class Logger:
     def format_message(
         self,
         message: str,
-        parser: Optional["GrammarParser"] = None,
+        parser: GrammarParser | None = None,
         position: tuple[int, int] | None = None,
         depth: int = 0,
     ) -> str:

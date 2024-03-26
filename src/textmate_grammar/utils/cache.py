@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import atexit
 from pathlib import Path
 from pickle import UnpicklingError
@@ -141,10 +143,10 @@ class ShelveCache(TextmateCache):
         self._database[key] = (timestamp, element)
 
 
-CACHE: "TextmateCache" = SimpleCache()
+CACHE: TextmateCache = SimpleCache()
 
 
-def init_cache(type: str = "simple") -> "TextmateCache":
+def init_cache(type: str = "simple") -> TextmateCache:
     """
     Initialize the cache based on the given type.
 
@@ -152,9 +154,10 @@ def init_cache(type: str = "simple") -> "TextmateCache":
     :return: The initialized cache object.
     """
     global CACHE
-    match type:
-        case "shelve":
-            CACHE = ShelveCache()
-        case "simple":
-            CACHE = SimpleCache()
+    if type == "shelve":
+        CACHE = ShelveCache()
+    elif type == "simple":
+        CACHE = SimpleCache()
+    else:
+        raise NotImplementedError(f"Cache type {type} not implemented.")
     return CACHE

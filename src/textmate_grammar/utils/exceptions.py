@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class IncludedParserNotFound(Exception):
     """Exception raised when an included parser is not found in the store."""
 

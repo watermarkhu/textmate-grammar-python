@@ -1,4 +1,5 @@
 import pytest
+
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
 from . import parser
 
