@@ -154,9 +154,10 @@ def init_cache(type: str = "simple") -> TextmateCache:
     :return: The initialized cache object.
     """
     global CACHE
-    match type:
-        case "shelve":
-            CACHE = ShelveCache()
-        case "simple":
-            CACHE = SimpleCache()
+    if type == "shelve":
+        CACHE = ShelveCache()
+    elif type == "simple":
+        CACHE = SimpleCache()
+    else:
+        raise NotImplementedError(f"Cache type {type} not implemented.")
     return CACHE
