@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import plistlib
 from pathlib import Path
 
