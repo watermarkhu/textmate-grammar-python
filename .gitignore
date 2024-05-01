@@ -165,3 +165,7 @@ cython_debug/
 
 # Textemate cache
 .textmate_cache/
+
+# Rye lock-files
+requirements.lock
+requirements-dev.lock

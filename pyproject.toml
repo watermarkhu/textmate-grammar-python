@@ -1,3 +1,7 @@
+[project]
+name = "textmate-grammar-python"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -13,6 +17,9 @@ repository = "https://github.com/watermarkhu/textmate-grammar-python"
 documentation = "https://textmate-grammar-python.readthedocs.io"
 keywords = ["textmate", "tokenization"]
 packages = [{include = "textmate_grammar", from = "src"}]
+
+[tool.rye]
+managed = true
 
 [tool.poetry.dependencies]
 python = "^3.9"
