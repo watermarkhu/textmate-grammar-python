@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .elements import Capture, ContentElement
 from .parser import GrammarParser, PatternsParser
@@ -8,6 +9,9 @@ from .utils.cache import TextmateCache, init_cache
 from .utils.exceptions import IncompatibleFileType
 from .utils.handler import POS, ContentHandler
 from .utils.logger import LOGGER
+
+if TYPE_CHECKING:
+    from .grammars import BasePreProcessor
 
 LANGUAGE_PARSERS = {}
 
@@ -29,11 +33,19 @@ class DummyParser(GrammarParser):
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
-    def __init__(self, grammar: dict, **kwargs):
+    def __init__(
+            self, 
+            grammar: dict, 
+            pre_processor: BasePreProcessor | None = None, 
+            **kwargs
+        ):
         """
         Initialize a Language object.
 
         :param grammar: The grammar definition for the language.
+        :type grammar: dict
+        :param pre_processor: A pre-processor to use on the input string of the parser
+        :type pre_processor: BasePreProcessor
         :param kwargs: Additional keyword arguments.
 
         :ivar name: The name of the language.
@@ -46,6 +58,7 @@ class LanguageParser(PatternsParser):
         """
         super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
 
+        self.pre_processor = pre_processor      
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
@@ -115,7 +128,8 @@ class LanguageParser(PatternsParser):
         if self._cache.cache_valid(filePath):
             element = self._cache.load(filePath)
         else:
-            handler = ContentHandler.from_path(filePath)
+            
+            handler = ContentHandler.from_path(filePath, pre_processor=self.pre_processor, **kwargs)
             if handler.source == "":
                 return None
 
@@ -135,8 +149,8 @@ class LanguageParser(PatternsParser):
         :param kwargs: Additional keyword arguments.
         :return: The result of parsing the input string.
         """
-        handler = ContentHandler(input)
-        # Configure logger
+        handler = ContentHandler(input, pre_processor=self.pre_processor, **kwargs)
+        # Configure loggerf
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
         element = self._parse_language(handler, **kwargs)

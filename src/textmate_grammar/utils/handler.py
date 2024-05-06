@@ -8,6 +8,7 @@ from onigurumacffi import compile
 
 from .exceptions import FileNotFound, ImpossibleSpan
 from .logger import LOGGER
+from ..grammars import BasePreProcessor
 
 POS = tuple[int, int]
 
@@ -23,25 +24,32 @@ class ContentHandler:
 
     notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
-    def __init__(self, source: str) -> None:
+    def __init__(self, content: str, pre_processor: BasePreProcessor | None = None) -> None:
         """
         Initialize a new instance of the Handler class.
 
-        :param source: The source code to be processed.
-        :type source: str
+        :param content: The source code to be processed.
+        :type content: str
+        :param pre_processor: A pre-processor to use on the input string of the parser
+        :type pre_processor: BasePreProcessor
 
-        :ivar source: The source code to be processed.
+        :ivar content: The source code to be processed.
         :ivar lines: A list of lines in the source code, with a newline character at the end of each line.
         :ivar line_lengths: A list of lengths of each line in the source code.
         :ivar anchor: The current position in the source code.
         """
-        self.source = source
-        self.lines = [line + "\n" for line in source.split("\n")]
+        content = content.replace("\r\n", "\n").replace("\r", "\n")
+
+        if pre_processor:
+            content = pre_processor.process(content)
+
+        self.content = content
+        self.lines = [line + "\n" for line in content.split("\n")]
         self.line_lengths = [len(line) for line in self.lines]
         self.anchor: int = 0
 
     @classmethod
-    def from_path(cls, file_path: Path):
+    def from_path(cls, file_path: Path, **kwargs) -> ContentHandler:
         """Loads a file from a path"""
 
         if not file_path.exists():
@@ -50,10 +58,8 @@ class ContentHandler:
         # Open file and replace Windows/Mac line endings
         with open(file_path) as file:
             content = file.read()
-        content = content.replace("\r\n", "\n")
-        content = content.replace("\r", "\n")
 
-        return cls(content)
+        return cls(content, **kwargs)
 
     def _check_pos(self, pos: POS):
         if pos[0] > len(self.lines) or pos[1] > self.line_lengths[pos[0]]:
