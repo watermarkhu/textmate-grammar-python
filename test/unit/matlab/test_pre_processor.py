@@ -6,7 +6,7 @@ from textmate_grammar.grammars import matlab
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 
-processor = matlab.PreProcessor()
+processor = matlab.RemoveLineContinationsPreProcessor()
 
 def test_preprocessor():
 
@@ -23,4 +23,3 @@ def test_preprocessor():
 
     result = processor.process(input_string)
     assert result == output_string, "Incorrect pre-processed string"
-    

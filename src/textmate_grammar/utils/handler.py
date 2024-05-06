@@ -6,9 +6,9 @@ from onigurumacffi import _Match as Match
 from onigurumacffi import _Pattern as Pattern
 from onigurumacffi import compile
 
+from ..grammars import BasePreProcessor
 from .exceptions import FileNotFound, ImpossibleSpan
 from .logger import LOGGER
-from ..grammars import BasePreProcessor
 
 POS = tuple[int, int]
 

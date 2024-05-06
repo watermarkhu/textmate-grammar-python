@@ -21,19 +21,19 @@ tmLanguageYAML = Path(__file__).parent / "grammar.yaml"
 
 
 if tmLanguageFile.exists():
-    with open(tmLanguageFile, "rb") as file:
-        GRAMMAR = plistlib.load(file, fmt=plistlib.FMT_XML)
-    with open(tmLanguageYAML, "w") as f:
-        f.write(yaml.dump(GRAMMAR, indent=2))
+    with open(tmLanguageFile, "rb") as tmFile:
+        GRAMMAR = plistlib.load(tmFile, fmt=plistlib.FMT_XML)
+    with open(tmLanguageYAML, "w") as ymlFile:
+        ymlFile.write(yaml.dump(GRAMMAR, indent=2))
 else:
-    with open(tmLanguageYAML) as file:
+    with open(tmLanguageYAML) as ymlFile:
         try:
-            GRAMMAR = yaml.load(file.read(), Loader=yaml.CLoader)
+            GRAMMAR = yaml.load(ymlFile.read(), Loader=yaml.CLoader)
         except ImportError:
-            GRAMMAR = yaml.load(file.read(), Loader=yaml.Loader)
+            GRAMMAR = yaml.load(ymlFile.read(), Loader=yaml.Loader)
 
 
-class PreProcessor(BasePreProcessor):
+class RemoveLineContinationsPreProcessor(BasePreProcessor):
     """The pre-processor for the MATLAB language."""
 
     def process(self, input: str) -> str:

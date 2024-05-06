@@ -33,12 +33,7 @@ class DummyParser(GrammarParser):
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
-    def __init__(
-            self, 
-            grammar: dict, 
-            pre_processor: BasePreProcessor | None = None, 
-            **kwargs
-        ):
+    def __init__(self, grammar: dict, pre_processor: BasePreProcessor | None = None, **kwargs):
         """
         Initialize a Language object.
 
@@ -58,7 +53,7 @@ class LanguageParser(PatternsParser):
         """
         super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
 
-        self.pre_processor = pre_processor      
+        self.pre_processor = pre_processor
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
@@ -128,9 +123,8 @@ class LanguageParser(PatternsParser):
         if self._cache.cache_valid(filePath):
             element = self._cache.load(filePath)
         else:
-            
             handler = ContentHandler.from_path(filePath, pre_processor=self.pre_processor, **kwargs)
-            if handler.source == "":
+            if handler.content == "":
                 return None
 
             # Configure logger
@@ -150,7 +144,8 @@ class LanguageParser(PatternsParser):
         :return: The result of parsing the input string.
         """
         handler = ContentHandler(input, pre_processor=self.pre_processor, **kwargs)
-        # Configure loggerf
+
+        # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 
         element = self._parse_language(handler, **kwargs)
