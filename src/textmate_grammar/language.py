@@ -4,14 +4,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .elements import Capture, ContentElement
+from .grammars import LanguageGrammar
 from .parser import GrammarParser, PatternsParser
 from .utils.cache import TextmateCache, init_cache
 from .utils.exceptions import IncompatibleFileType
 from .utils.handler import POS, ContentHandler
 from .utils.logger import LOGGER
-
-if TYPE_CHECKING:
-    from .grammars import BasePreProcessor
 
 LANGUAGE_PARSERS = {}
 
@@ -33,12 +31,12 @@ class DummyParser(GrammarParser):
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
-    def __init__(self, grammar: dict, pre_processor: BasePreProcessor | None = None, **kwargs):
+    def __init__(self, language_grammar: LanguageGrammar, **kwargs):
         """
         Initialize a Language object.
 
         :param grammar: The grammar definition for the language.
-        :type grammar: dict
+        :type grammar: LanguageGrammar
         :param pre_processor: A pre-processor to use on the input string of the parser
         :type pre_processor: BasePreProcessor
         :param kwargs: Additional keyword arguments.
@@ -51,9 +49,14 @@ class LanguageParser(PatternsParser):
         :ivar injections: The list of injection rules for the language.
         :ivar _cache: The cache object for the language.
         """
-        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
+        self.pre_processor = language_grammar.pre_process
 
-        self.pre_processor = pre_processor
+        grammar = language_grammar.grammar
+
+        super().__init__(
+            grammar, key=grammar.get("name", "myLanguage"), language_parser=self, **kwargs
+        )
+
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
         self.file_types = grammar.get("fileTypes", [])
@@ -66,7 +69,7 @@ class LanguageParser(PatternsParser):
         for repo in _gen_repositories(grammar):
             for key, parser_grammar in repo.items():
                 self.repository[key] = GrammarParser.initialize(
-                    parser_grammar, key=key, language=self
+                    parser_grammar, key=key, language_parser=self
                 )
 
         # Update language parser store
@@ -96,7 +99,7 @@ class LanguageParser(PatternsParser):
             injected_parser = GrammarParser.initialize(
                 injected_grammar,
                 key=f"{target_string}.injection",
-                language=target_language,
+                language_parser=target_language,
             )
             injected_parser._initialize_repository()
 

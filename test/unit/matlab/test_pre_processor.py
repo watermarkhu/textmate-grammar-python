@@ -1,12 +1,13 @@
 import logging
 
-from textmate_grammar.grammars import matlab
+from textmate_grammar.grammars.matlab import MatlabGrammar
+
+matlab_grammar = MatlabGrammar(remove_line_continuations=True)
 
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 
-processor = matlab.RemoveLineContinationsPreProcessor()
 
 def test_preprocessor():
 
@@ -21,5 +22,5 @@ def test_preprocessor():
 
     output_string = "function [outputArg1,outputArg2]= myFunction(inputArg1, inputArg2)\nend\n"
 
-    result = processor.process(input_string)
+    result = matlab_grammar.pre_process(input_string)
     assert result == output_string, "Incorrect pre-processed string"

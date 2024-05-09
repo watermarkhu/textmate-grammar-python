@@ -1,7 +1,22 @@
-from typing import Protocol
+from abc import ABC
 
 
-class BasePreProcessor(Protocol):
+class LanguageGrammar(ABC):
+    """
+    Base class for language grammars.
+    """
 
-    def process(self, input: str) -> str:
-        ...
+    def __init__(self):
+        self.grammar = {}
+
+    def __call__(self) -> dict:
+        """
+        Returns the grammar as a dictionary.
+        """
+        return self.grammar
+
+    def pre_process(self, input: str) -> str:
+        """
+        Pre-processes the input string before parsing.
+        """
+        return input

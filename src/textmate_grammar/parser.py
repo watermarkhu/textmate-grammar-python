@@ -42,7 +42,7 @@ class GrammarParser(ABC):
     def __init__(
         self,
         grammar: dict,
-        language: LanguageParser | None = None,
+        language_parser: LanguageParser | None = None,
         key: str = "",
         is_capture: bool = False,
         **kwargs,
@@ -59,7 +59,7 @@ class GrammarParser(ABC):
         :return: None
         """
         self.grammar = grammar
-        self.language = language
+        self.language_parser = language_parser
         self.key = key
         self.token = grammar.get("name", "")
         self.is_capture = is_capture
@@ -83,21 +83,21 @@ class GrammarParser(ABC):
         if key in grammar:
             for group_id, pattern in grammar[key].items():
                 captures[int(group_id)] = self.initialize(
-                    pattern, language=self.language, is_capture=True
+                    pattern, language_parser=self.language_parser, is_capture=True
                 )
         return captures
 
     def _find_include(self, key: str, **kwargs) -> GrammarParser:
         """Find the included grammars and during repository initialization"""
-        if not self.language:
+        if not self.language_parser:
             raise IncludedParserNotFound(key)
 
         if key in ["$self", "$base"]:  # TODO there is a difference between these
-            return self.language
+            return self.language_parser
         elif key[0] == "#":
-            return self.language.repository.get(key[1:], None)
+            return self.language_parser.repository.get(key[1:], None)
         else:
-            return self.language._find_include_scopes(key)
+            return self.language_parser._find_include_scopes(key)
 
     @abstractmethod
     def _parse(
@@ -146,8 +146,8 @@ class GrammarParser(ABC):
             - elements: A list of Capture or ContentElement objects representing the parsed content.
             - span: A tuple containing the starting and ending positions of the parsed content, or None if parsing failed.
         """
-        if not self.initialized and self.language is not None:
-            self.language._initialize_repository()
+        if not self.initialized and self.language_parser is not None:
+            self.language_parser._initialize_repository()
         parsed, elements, span = self._parse(handler, starting, boundary=boundary, **kwargs)
         return parsed, elements, span
 
@@ -325,7 +325,7 @@ class ParserHasPatterns(GrammarParser, ABC):
     def __init__(self, grammar: dict, **kwargs) -> None:
         super().__init__(grammar, **kwargs)
         self.patterns = [
-            self.initialize(pattern, language=self.language)
+            self.initialize(pattern, language_parser=self.language_parser)
             for pattern in grammar.get("patterns", [])
         ]
 
@@ -347,7 +347,7 @@ class ParserHasPatterns(GrammarParser, ABC):
             self.patterns[parser_index : parser_index + 1] = parser.patterns
 
         # Injection grammars
-        for exception_scopes, injection_pattern in self.language.injections:
+        for exception_scopes, injection_pattern in self.language_parser.injections:
             if self.token:
                 if self.token.split(".")[0] not in exception_scopes:
                     self.patterns.append(injection_pattern)
@@ -442,7 +442,7 @@ class PatternsParser(ParserHasPatterns):
                         current,
                         kwargs.get("depth", 0),
                     )
-                elif self != self.language:
+                elif self != self.language_parser:
                     break
                 else:
                     remainder = handler.read_line(current)

@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Callable
 
 from onigurumacffi import _Match as Match
 from onigurumacffi import _Pattern as Pattern
 from onigurumacffi import compile
 
-from ..grammars import BasePreProcessor
 from .exceptions import FileNotFound, ImpossibleSpan
 from .logger import LOGGER
 
 POS = tuple[int, int]
+
+
+def _dummy_pre_processor(input: str) -> str:
+    return input
 
 
 class ContentHandler:
@@ -24,7 +28,7 @@ class ContentHandler:
 
     notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
-    def __init__(self, content: str, pre_processor: BasePreProcessor | None = None) -> None:
+    def __init__(self, content: str, pre_processor: Callable = _dummy_pre_processor) -> None:
         """
         Initialize a new instance of the Handler class.
 
@@ -38,13 +42,10 @@ class ContentHandler:
         :ivar line_lengths: A list of lengths of each line in the source code.
         :ivar anchor: The current position in the source code.
         """
-        content = content.replace("\r\n", "\n").replace("\r", "\n")
+        prepared_content = pre_processor(content.replace("\r\n", "\n").replace("\r", "\n"))
 
-        if pre_processor:
-            content = pre_processor.process(content)
-
-        self.content = content
-        self.lines = [line + "\n" for line in content.split("\n")]
+        self.content = prepared_content
+        self.lines = [line + "\n" for line in prepared_content.split("\n")]
         self.line_lengths = [len(line) for line in self.lines]
         self.anchor: int = 0
 
