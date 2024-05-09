@@ -35,7 +35,7 @@ jobs:
         uses: abatilo/actions-poetry@v3
 
       - name: Install the project dependencies
-        run: poetry install --without dev
+        run: poetry install --without dev,doc
 
       - name: Test with pytest
         run: |
@@ -75,7 +75,7 @@ jobs:
         uses: abatilo/actions-poetry@v3
 
       - name: Install the project dependencies
-        run: poetry install --without dev
+        run: poetry install --without dev,doc
 
       - name: Test with pytest
         run: |
