@@ -23,8 +23,8 @@ Before tokenization is possible, a `LanguageParser` needs to be initialized usin
 
 ```python
 from textmate_grammar.language import LanguageParser
-from textmate_grammar.grammars import matlab
-parser = LanguageParser(matlab.GRAMMAR)
+from textmate_grammar.grammars.matlab import MatlabGrammar
+parser = LanguageParser(MatlabGrammar())
 ```
 
 After this, one can either choose to call [`parser.parsing_string`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](https://github.com/watermarkhu/textmate-grammar-python/blob/main/example.py). 

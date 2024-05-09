@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .elements import Capture, ContentElement
+from .grammars import LanguageGrammar
 from .parser import GrammarParser, PatternsParser
 from .utils.cache import TextmateCache, init_cache
 from .utils.exceptions import IncompatibleFileType
@@ -29,11 +31,14 @@ class DummyParser(GrammarParser):
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
-    def __init__(self, grammar: dict, **kwargs):
+    def __init__(self, language_grammar: LanguageGrammar, **kwargs):
         """
         Initialize a Language object.
 
         :param grammar: The grammar definition for the language.
+        :type grammar: LanguageGrammar
+        :param pre_processor: A pre-processor to use on the input string of the parser
+        :type pre_processor: BasePreProcessor
         :param kwargs: Additional keyword arguments.
 
         :ivar name: The name of the language.
@@ -44,7 +49,13 @@ class LanguageParser(PatternsParser):
         :ivar injections: The list of injection rules for the language.
         :ivar _cache: The cache object for the language.
         """
-        super().__init__(grammar, key=grammar.get("name", "myLanguage"), language=self, **kwargs)
+        self.pre_processor = language_grammar.pre_process
+
+        grammar = language_grammar.grammar
+
+        super().__init__(
+            grammar, key=grammar.get("name", "myLanguage"), language_parser=self, **kwargs
+        )
 
         self.name = grammar.get("name", "")
         self.uuid = grammar.get("uuid", "")
@@ -58,7 +69,7 @@ class LanguageParser(PatternsParser):
         for repo in _gen_repositories(grammar):
             for key, parser_grammar in repo.items():
                 self.repository[key] = GrammarParser.initialize(
-                    parser_grammar, key=key, language=self
+                    parser_grammar, key=key, language_parser=self
                 )
 
         # Update language parser store
@@ -88,7 +99,7 @@ class LanguageParser(PatternsParser):
             injected_parser = GrammarParser.initialize(
                 injected_grammar,
                 key=f"{target_string}.injection",
-                language=target_language,
+                language_parser=target_language,
             )
             injected_parser._initialize_repository()
 
@@ -115,8 +126,8 @@ class LanguageParser(PatternsParser):
         if self._cache.cache_valid(filePath):
             element = self._cache.load(filePath)
         else:
-            handler = ContentHandler.from_path(filePath)
-            if handler.source == "":
+            handler = ContentHandler.from_path(filePath, pre_processor=self.pre_processor, **kwargs)
+            if handler.content == "":
                 return None
 
             # Configure logger
@@ -135,7 +146,8 @@ class LanguageParser(PatternsParser):
         :param kwargs: Additional keyword arguments.
         :return: The result of parsing the input string.
         """
-        handler = ContentHandler(input)
+        handler = ContentHandler(input, pre_processor=self.pre_processor, **kwargs)
+
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))
 

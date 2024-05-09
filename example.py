@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from pprint import pprint
 
-from textmate_grammar.grammars import matlab
+from textmate_grammar.grammars.matlab import MatlabGrammar
 from textmate_grammar.language import LanguageParser
 from textmate_grammar.utils.cache import init_cache
 
@@ -14,7 +14,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 
 # Initialize language parser
-parser = LanguageParser(matlab.GRAMMAR)
+parser = LanguageParser(MatlabGrammar())
 
 # Parse file
 filePath = Path(__file__).parent / "syntaxes" / "matlab" / "AnEnum.m"
