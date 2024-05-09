@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 import onigurumacffi as re
 
 from .elements import Capture, ContentBlockElement, ContentElement
+from .handler import POS, ContentHandler, Pattern
 from .utils.exceptions import IncludedParserNotFound
-from .utils.handler import POS, ContentHandler, Pattern
 from .utils.logger import LOGGER, track_depth
 
 if TYPE_CHECKING:
-    from .language import LanguageParser
+    from .parsers.base import LanguageParser
 
 
 class GrammarParser(ABC):

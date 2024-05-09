@@ -6,7 +6,7 @@ from itertools import groupby
 from pprint import pprint
 from typing import TYPE_CHECKING, Generator
 
-from .utils.handler import POS, ContentHandler, Match, Pattern
+from .handler import POS, ContentHandler, Match, Pattern
 from .utils.logger import LOGGER
 
 if TYPE_CHECKING:

@@ -1,8 +1,8 @@
 import logging
 
-from textmate_grammar.grammars.matlab import MatlabGrammar
+from textmate_grammar.parsers.matlab import MatlabParser
 
-matlab_grammar = MatlabGrammar(remove_line_continuations=True)
+parser = MatlabParser(remove_line_continuations=True)
 
 
 logging.getLogger().setLevel(logging.DEBUG)
@@ -22,5 +22,5 @@ def test_preprocessor():
 
     output_string = "function [outputArg1,outputArg2]= myFunction(inputArg1, inputArg2)\nend\n"
 
-    result = matlab_grammar.pre_process(input_string)
+    result = parser.pre_process(input_string)
     assert result == output_string, "Incorrect pre-processed string"

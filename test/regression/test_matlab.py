@@ -4,14 +4,13 @@ import logging
 from pathlib import Path
 
 import pytest
-from textmate_grammar.grammars.matlab import MatlabGrammar
-from textmate_grammar.language import LanguageParser
+from textmate_grammar.parsers.matlab import MatlabParser
 
 from . import MODULE_ROOT, RegressionTestClass
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
-parser = LanguageParser(MatlabGrammar())
+parser = MatlabParser()
 
 test_files = (
     [

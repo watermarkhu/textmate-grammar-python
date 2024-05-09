@@ -11,7 +11,7 @@ from itertools import groupby
 from pathlib import Path
 
 import textmate_grammar
-from textmate_grammar.language import LanguageParser
+from textmate_grammar.parsers.base import LanguageParser
 
 MODULE_ROOT = Path(textmate_grammar.__path__[0])
 INDEX = MODULE_ROOT.parents[1] / "test" / "regression" / "node_root" / "index.js"
