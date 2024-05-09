@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-from .elements import Capture, ContentElement
-from .grammars import LanguageGrammar
-from .parser import GrammarParser, PatternsParser
-from .utils.cache import TextmateCache, init_cache
-from .utils.exceptions import IncompatibleFileType
-from .utils.handler import POS, ContentHandler
-from .utils.logger import LOGGER
+from ..elements import Capture, ContentElement
+from ..handler import POS, ContentHandler
+from ..parser import GrammarParser, PatternsParser
+from ..utils.cache import TextmateCache, init_cache
+from ..utils.exceptions import IncompatibleFileType
+from ..utils.logger import LOGGER
 
 LANGUAGE_PARSERS = {}
 
@@ -31,12 +29,12 @@ class DummyParser(GrammarParser):
 class LanguageParser(PatternsParser):
     """The parser of a language grammar."""
 
-    def __init__(self, language_grammar: LanguageGrammar, **kwargs):
+    def __init__(self, grammar: dict, **kwargs):
         """
         Initialize a Language object.
 
         :param grammar: The grammar definition for the language.
-        :type grammar: LanguageGrammar
+        :type grammar: dict
         :param pre_processor: A pre-processor to use on the input string of the parser
         :type pre_processor: BasePreProcessor
         :param kwargs: Additional keyword arguments.
@@ -49,9 +47,6 @@ class LanguageParser(PatternsParser):
         :ivar injections: The list of injection rules for the language.
         :ivar _cache: The cache object for the language.
         """
-        self.pre_processor = language_grammar.pre_process
-
-        grammar = language_grammar.grammar
 
         super().__init__(
             grammar, key=grammar.get("name", "myLanguage"), language_parser=self, **kwargs
@@ -77,6 +72,14 @@ class LanguageParser(PatternsParser):
         LANGUAGE_PARSERS[language_name] = self
 
         self._initialize_repository()
+
+    def pre_process(self, input: str) -> str:
+        """
+        Pre-processes the input string before parsing.
+
+        This method can be overloaded in language specific parsers with custom pre-processing logic.
+        """
+        return input
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}:{self.key}"
@@ -126,7 +129,7 @@ class LanguageParser(PatternsParser):
         if self._cache.cache_valid(filePath):
             element = self._cache.load(filePath)
         else:
-            handler = ContentHandler.from_path(filePath, pre_processor=self.pre_processor, **kwargs)
+            handler = ContentHandler.from_path(filePath, pre_processor=self.pre_process, **kwargs)
             if handler.content == "":
                 return None
 
@@ -146,7 +149,7 @@ class LanguageParser(PatternsParser):
         :param kwargs: Additional keyword arguments.
         :return: The result of parsing the input string.
         """
-        handler = ContentHandler(input, pre_processor=self.pre_processor, **kwargs)
+        handler = ContentHandler(input, pre_processor=self.pre_process, **kwargs)
 
         # Configure logger
         LOGGER.configure(self, height=len(handler.lines), width=max(handler.line_lengths))

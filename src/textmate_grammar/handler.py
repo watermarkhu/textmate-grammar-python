@@ -7,8 +7,8 @@ from onigurumacffi import _Match as Match
 from onigurumacffi import _Pattern as Pattern
 from onigurumacffi import compile
 
-from .exceptions import FileNotFound, ImpossibleSpan
-from .logger import LOGGER
+from .utils.exceptions import FileNotFound, ImpossibleSpan
+from .utils.logger import LOGGER
 
 POS = tuple[int, int]
 
@@ -28,7 +28,9 @@ class ContentHandler:
 
     notLookForwardEOL = compile(r"(?<!\(\?=[^\(]*)\$")
 
-    def __init__(self, content: str, pre_processor: Callable = _dummy_pre_processor) -> None:
+    def __init__(
+        self, content: str, pre_processor: Callable[[str], str] = _dummy_pre_processor
+    ) -> None:
         """
         Initialize a new instance of the Handler class.
 

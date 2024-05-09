@@ -1,8 +1,7 @@
 import logging
 
-from textmate_grammar.grammars.matlab import MatlabGrammar
-from textmate_grammar.language import LanguageParser
+from textmate_grammar.parsers.matlab import MatlabParser
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger("textmate_grammar").setLevel(logging.INFO)
-parser = LanguageParser(MatlabGrammar())
+parser = MatlabParser()

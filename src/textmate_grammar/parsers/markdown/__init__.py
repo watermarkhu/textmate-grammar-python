@@ -5,25 +5,23 @@ from pathlib import Path
 
 import yaml
 
-from .. import LanguageGrammar
+from ..base import LanguageParser
 
-class MarkdownGrammar(LanguageGrammar):
 
-    def __init__(self):
-
+class MarkdownParser(LanguageParser):
+    def __init__(self, **kwargs):
         tmLanguageFile = (
             Path(__file__).parents[3] / "syntaxes" / "markdown" / "markdown.tmLanguage.base.yaml"
         )
         tmLanguageYAML = Path(__file__).parent / "grammar.yaml"
-
 
         if tmLanguageFile.exists():
             shutil.copyfile(tmLanguageFile, tmLanguageYAML)
 
         with open(tmLanguageYAML) as file:
             try:
-                self.grammar = yaml.load(file.read(), Loader=yaml.CLoader)
+                grammar = yaml.load(file.read(), Loader=yaml.CLoader)
             except ImportError:
-                self.grammar = yaml.load(file.read(), Loader=yaml.Loader)
-    
-    
+                grammar = yaml.load(file.read(), Loader=yaml.Loader)
+
+        super().__init__(grammar, **kwargs)
