@@ -22,12 +22,12 @@ jobs:
         uses: abatilo/actions-poetry@v3
         
       - name: Install the project dependencies
-        run: poetry install --without dev,test,
+        run: poetry install --without dev,test
 
       - name: configure PyPi token
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: poetry config pypi-token.pypi "$SUPER_SECRET"
+        run: poetry config pypi-token.pypi "$PYPI_TOKEN"
 
       - name: Release to PyPi
         run: poetry publish --build
