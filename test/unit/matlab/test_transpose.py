@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 conjugate_transpose_test_vector = {}
 
@@ -78,7 +77,7 @@ transpose_test_vector = {
 
 
 @pytest.mark.parametrize("check,expected", conjugate_transpose_test_vector.items())
-def test_conjugate_transpose(check, expected):
+def test_conjugate_transpose(parser, check, expected):
     """Test conjugate transpose"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
@@ -86,7 +85,7 @@ def test_conjugate_transpose(check, expected):
 
 
 @pytest.mark.parametrize("check,expected", transpose_test_vector.items())
-def test_transpose(check, expected):
+def test_transpose(parser, check, expected):
     """Test transpose"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

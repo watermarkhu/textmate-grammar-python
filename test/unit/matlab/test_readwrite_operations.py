@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -73,7 +72,7 @@ test_vector["variable.function(argument)"] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_readwrite_operation(check, expected):
+def test_readwrite_operation(parser, check, expected):
     """Test read/write operations"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

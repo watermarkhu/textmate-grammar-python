@@ -60,6 +60,8 @@ class MatlabParser(LanguageParser):
         """
         Removes line continuations from the input text.
         """
+        if "..." not in input:
+            return input
         output = ""
         for split in input.split("..."):
             matching = re.search(r"\n[\t\f\v ]*", split)

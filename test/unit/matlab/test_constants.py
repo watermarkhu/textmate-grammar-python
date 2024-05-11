@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 
 @pytest.mark.parametrize(
@@ -18,7 +17,7 @@ from . import parser
         "pi",
     ],
 )
-def test_numeric(check):
+def test_numeric(parser, check):
     """Test constant numeric"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
@@ -26,7 +25,7 @@ def test_numeric(check):
 
 
 @pytest.mark.parametrize("check", ["NaN", "nan", "NaT", "nat"])
-def test_value_representations(check):
+def test_value_representations(parser, check):
     """Test constant value representations"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
@@ -34,7 +33,7 @@ def test_value_representations(check):
 
 
 @pytest.mark.parametrize("check", ["on", "off", "false", "true"])
-def test_binary(check):
+def test_binary(parser, check):
     """Test constant binary"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

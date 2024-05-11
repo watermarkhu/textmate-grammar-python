@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -41,7 +40,7 @@ test_vector["import module.submodule.*"] = {  # import with wildcard
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_imports(check, expected):
+def test_imports(parser, check, expected):
     """Test imports"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

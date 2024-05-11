@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -46,7 +45,7 @@ test_vector["%{\nThis is a comment\nmultiple\n %}"] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_comment(check, expected):
+def test_comment(parser, check, expected):
     """Test comment"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
