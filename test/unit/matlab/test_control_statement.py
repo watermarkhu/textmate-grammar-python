@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -22,7 +21,7 @@ test_vector["return"] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_control_statement(check, expected):
+def test_control_statement(parser, check, expected):
     """Test control statement"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

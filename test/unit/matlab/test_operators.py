@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -63,7 +62,7 @@ test_vector["[1:2]"] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_control_statement(check, expected):
+def test_control_statement(parser, check, expected):
     """Test operator control statements"""
     element = parser.parse_string(check)
     if expected:
@@ -77,7 +76,7 @@ def test_control_statement(check, expected):
     "check",
     ["a+b", "a-b", "a*b", "a.*b", "a/b", "a./b", "a\\b", "a.\\b", "a^b", "a.^b"],
 )
-def test_arithmetic(check):
+def test_arithmetic(parser, check):
     """Test arithmatic operators"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
@@ -87,7 +86,7 @@ def test_arithmetic(check):
 
 
 @pytest.mark.parametrize("check", ["a==b", "a~=b", "a&b", "a&&b", "a|b", "a||b"])
-def test_logical(check):
+def test_logical(parser, check):
     """Test logical operators"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH
@@ -95,7 +94,7 @@ def test_logical(check):
 
 
 @pytest.mark.parametrize("check", ["a>b", "a>=b", "a<b", "a<=b"])
-def test_comparative(check):
+def test_comparative(parser, check):
     """Test comparative operators"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

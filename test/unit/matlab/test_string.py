@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -33,7 +32,7 @@ test_vector[r'"This %.3f ""is"" %% a \\ string\n"'] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_string(check, expected):
+def test_string(parser, check, expected):
     "Test strings"
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

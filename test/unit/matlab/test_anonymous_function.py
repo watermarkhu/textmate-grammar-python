@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -194,7 +193,7 @@ test_vector["@(x,... comment\n   y)... comment \n   x... more comment\n   .^2+y"
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_anonymous_function(check, expected):
+def test_anonymous_function(parser, check, expected):
     """Test anonymous function"""
     element = parser.parse_string(check)
     assert element, MSG_NO_MATCH

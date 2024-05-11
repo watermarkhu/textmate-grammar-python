@@ -1,7 +1,6 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 test_vector = {}
 
@@ -23,7 +22,7 @@ test_vector["   persistent variable"] = {
 
 
 @pytest.mark.parametrize("check,expected", test_vector.items())
-def test_global_persistent(check, expected):
+def test_global_persistent(parser, check, expected):
     """Test global persistent"""
     element = parser.parse_string(check)
     assert element is not None, MSG_NO_MATCH

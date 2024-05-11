@@ -1,13 +1,12 @@
 import pytest
 
 from ...unit import MSG_NO_MATCH, MSG_NOT_PARSED
-from . import parser
 
 
 @pytest.mark.parametrize(
     "check", ["1", ".1", "1.1", ".1e1", "1.1e1", "1e1", "1i", "1j", "1e2j"]
 )
-def test_decimal(check):
+def test_decimal(parser, check):
     """Test numbers decimal"""
     element = parser.parse_string(check)
     assert element, MSG_NOT_PARSED
@@ -34,7 +33,7 @@ def test_decimal(check):
         "0xFu64",
     ],
 )
-def test_hex(check):
+def test_hex(parser, check):
     """Test numbers hex"""
     element = parser.parse_string(check)
     assert element, MSG_NOT_PARSED
@@ -60,7 +59,7 @@ def test_hex(check):
         "0b1u64",
     ],
 )
-def test_binary(check):
+def test_binary(parser, check):
     """Test numbers binary"""
     element = parser.parse_string(check)
     element.children[0].flatten()
