@@ -34,7 +34,7 @@ tox = "^4.11.4"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
 mypy = "^1.8.0"
-ruff = "^0.3.0"
+ruff = ">=0.3,<0.5"
 types-pyyaml = "^6.0.12.12"
 poetry-bumpversion = "^0.3.2"
 
