@@ -41,7 +41,7 @@ poetry-bumpversion = "^0.3.2"
 [tool.poetry.group.doc.dependencies]
 sphinx = "^7.2.6"
 sphinx-autodoc2 = "^0.5.0"
-myst-parser = "^2.0.0"
+myst-parser = ">=2,<4"
 furo = "^2024.1.29"
 sphinxcontrib-mermaid = "^0.9.2"
 
