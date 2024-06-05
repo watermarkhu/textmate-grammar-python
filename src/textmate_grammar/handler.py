@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+import charset_normalizer as charset
 from onigurumacffi import _Match as Match
 from onigurumacffi import _Pattern as Pattern
 from onigurumacffi import compile
@@ -44,6 +45,7 @@ class ContentHandler:
         :ivar line_lengths: A list of lengths of each line in the source code.
         :ivar anchor: The current position in the source code.
         """
+        # Proprocess the content, replace all newline characters with \n
         prepared_content = pre_processor(content.replace("\r\n", "\n").replace("\r", "\n"))
 
         self.content = prepared_content
@@ -58,9 +60,8 @@ class ContentHandler:
         if not file_path.exists():
             raise FileNotFound(str(file_path))
 
-        # Open file and replace Windows/Mac line endings
-        with open(file_path) as file:
-            content = file.read()
+        # Open file with best guess encoding from charset_normalizer
+        content = str(charset.from_path(file_path).best())
 
         return cls(content, **kwargs)
 
