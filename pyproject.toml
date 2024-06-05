@@ -8,7 +8,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "textmate-grammar-python"
-version = "0.5.3"
+version = "0.6.0"
 description = "A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python."
 authors = ["Mark Shui Hu <watermarkhu@gmail.com>"]
 license = "MIT"
@@ -25,6 +25,7 @@ managed = true
 python = "^3.9"
 onigurumacffi = "^1.3.0"
 PyYAML = "^6.0.1"
+charset-normalizer = "^3.3.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.3.1,<9.0.0"
