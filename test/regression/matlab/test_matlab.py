@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 import pytest
 from textmate_grammar.parsers.matlab import MatlabParser
 
-from . import MODULE_ROOT, RegressionTestClass
+from .. import MODULE_ROOT, RegressionTestClass
 
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 parser = MatlabParser()
 
 test_files = (
@@ -27,8 +24,10 @@ test_files = (
     ]
     + [str(test) for test in (MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / "test").glob("*.m")]
     + [
-        str(Path(__file__).parent.resolve() / "matlab" / (file + ".m"))
+        str(Path(__file__).parent.resolve() / "src" / (file + ".m"))
         for file in ["test_multiple_inheritance_ml"]
+    ] + [
+        str(f) for f in (Path(__file__).parent.resolve() / "src" / "OpenTelemetry-Matlab").glob("**/*.m")
     ]
 )
 

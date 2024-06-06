@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import os
 import platform
 import re
@@ -15,9 +14,6 @@ from textmate_grammar.parsers.base import LanguageParser
 
 MODULE_ROOT = Path(textmate_grammar.__path__[0])
 INDEX = MODULE_ROOT.parents[1] / "test" / "regression" / "node_root" / "index.js"
-
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger("textmate_grammar").setLevel(logging.INFO)
 
 if platform.system() != "Linux":
     warnings.warn(f"Regression tests on {os.name} is not supported", stacklevel=1)

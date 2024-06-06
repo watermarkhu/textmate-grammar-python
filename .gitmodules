@@ -4,3 +4,6 @@
 [submodule "vscode-markdown-tm-grammar"]
 	path = syntaxes/markdown
 	url = https://github.com/microsoft/vscode-markdown-tm-grammar
+[submodule "test/regression/matlab/src/OpenTelemetry-Matlab"]
+	path = test/regression/matlab/src/OpenTelemetry-Matlab
+	url = https://github.com/mathworks/OpenTelemetry-Matlab
