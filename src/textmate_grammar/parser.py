@@ -600,8 +600,6 @@ class BeginEndParser(ParserHasPatterns):
                     handler, current, boundary=boundary, greedy=False, **kwargs
                 )
                 if parsed:
-                    if parser == self:
-                        apply_end_pattern_last = True
                     LOGGER.debug(
                         f"{self.__class__.__name__} found pattern (no ws)",
                         self,

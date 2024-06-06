@@ -32,7 +32,6 @@ test_files = (
 )
 
 
-@pytest.mark.parametrize("source", test_files)
 class TestMatlabRegression(RegressionTestClass):
     """The regression test class for MATLAB."""
 
@@ -42,6 +41,7 @@ class TestMatlabRegression(RegressionTestClass):
     def parser(self):
         return parser
 
+    @pytest.mark.parametrize("source", test_files, ids=test_files)
     def test(self, source: Path | str):
         py_tokens = self.parse_python(source)
         node_tokens = self.parse_node(source)
