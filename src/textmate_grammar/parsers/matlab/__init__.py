@@ -25,7 +25,7 @@ class MatlabParser(LanguageParser):
         self._rlc = remove_line_continuations
 
         tmLanguageFile = (
-            Path(__file__).parents[3]
+            Path(__file__).parents[4]
             / "syntaxes"
             / "matlab"
             / "Matlab.tmbundle"

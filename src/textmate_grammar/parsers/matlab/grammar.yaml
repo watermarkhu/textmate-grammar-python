@@ -646,7 +646,7 @@ repository:
         - match: \*
           name: variable.language.wildcard.matlab
     comment: Import statement
-    match: \b(import)\b[^\S\n]+([a-zA-Z0-9.\*]*)[^\S\n]*(?=;|%|$)
+    match: '[^\S\r\n]*\b(import)\b[^\S\n]+([a-zA-Z0-9.\*]*)[^\S\n]*(?=;|%|$)'
     name: meta.import.matlab
   indexing_by_expression:
     begin: ([a-zA-Z][a-zA-Z0-9_]*)\s*(\.)(\()
