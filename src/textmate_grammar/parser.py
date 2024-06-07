@@ -230,7 +230,9 @@ class TokenParser(GrammarParser):
                 token=self.token,
                 grammar=self.grammar,
                 content=content,
-                characters=handler.chars(starting, boundary),
+                start_pos=starting,
+                close_pos=boundary,
+                handler=handler,
             )
         ]
         handler.anchor = boundary[1]
@@ -254,10 +256,10 @@ class MatchParser(GrammarParser):
             self.anchored = True
 
     def __repr__(self) -> str:
+        identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
         if self.token:
-            return f"{self.__class__.__name__}:{self.token}"
+            return f"{self.__class__.__name__}:{self.token}<{identifier}>"
         else:
-            identifier = self.key if self.key else "_".join(self.comment.lower().split(" "))
             return f"{self.__class__.__name__}:<{identifier}>"
 
     def _initialize_repository(self, **kwargs) -> None:
@@ -311,7 +313,9 @@ class MatchParser(GrammarParser):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    characters=handler.chars(*span),
+                    start_pos=span[0],
+                    close_pos=span[1],
+                    handler=handler,
                     children=captures,
                 )
             ]
@@ -351,7 +355,7 @@ class ParserHasPatterns(GrammarParser, ABC):
             if self.token:
                 if self.token.split(".")[0] not in exception_scopes:
                     self.patterns.append(injection_pattern)
-            elif self.is_capture:
+            elif self.is_capture or isinstance(self, BeginEndParser):
                 self.patterns.append(injection_pattern)
 
 
@@ -489,7 +493,9 @@ class PatternsParser(ParserHasPatterns):
                     token=self.token,
                     grammar=self.grammar,
                     content=handler.read_pos(starting, boundary),
-                    characters=handler.chars(starting, boundary),
+                    start_pos=starting,
+                    close_pos=boundary,
+                    handler=handler,
                     children=elements,
                 )
             ]
@@ -840,7 +846,9 @@ class BeginEndParser(ParserHasPatterns):
                     token=self.token,
                     grammar=self.grammar,
                     content=content,
-                    characters=handler.chars(start, closing),
+                    start_pos=start,
+                    close_pos=closing,
+                    handler=handler,
                     children=mid_elements,
                     begin=begin_elements,
                     end=end_elements,

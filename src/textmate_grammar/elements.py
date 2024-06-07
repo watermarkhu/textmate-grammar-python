@@ -150,7 +150,9 @@ class ContentElement:
         token: str,
         grammar: dict,
         content: str,
-        characters: dict[POS, str],
+        start_pos: POS,
+        close_pos: POS,
+        handler: ContentHandler,
         children: list[Capture | ContentElement] | None = None,
     ) -> None:
         """
@@ -159,18 +161,29 @@ class ContentElement:
         :param token: The token associated with the element.
         :param grammar: The grammar associated with the element.
         :param content: The content associated with the element.
-        :param characters: The characters associated with the element.
+        :param start: The starting position of the element.
+        :param end: The ending position of the element.
+        :param handler: The content handler for the element.
         :param children: The children associated with the element. Defaults to None.
         """
         if children is None:
             children = []
-        self.token = token
-        self.grammar = grammar
-        self.content = content
-        self.characters = characters
+
+        (self.token, self.grammar, self.content) = (token, grammar, content)
+        (self._start, self._close, self._handler) = (start_pos, close_pos, handler)
         self._children_captures = children
+
         self._dispatched: bool = False
         self.parent: ContentElement | None = None
+
+    @property
+    def characters(self) -> dict[POS, str]:
+        """
+        Returns the characters of the element.
+
+        :return: A dictionary of characters associated with the element.
+        """
+        return self._handler.chars(self._start, self._close)
 
     @property
     def _subelements(self) -> list[ContentElement]:
@@ -366,13 +379,14 @@ class ContentElement:
              - A list of keys associated with the token.
         """
         token_dict = self._token_by_index(defaultdict(list))
+        characters = self.characters
         tokens = []
         for (_, key), group in groupby(sorted(token_dict.items()), lambda x: (x[0][0], x[1])):
             group_tokens = list(group)
             starting = group_tokens[0][0]
             content = ""
             for pos, _ in group_tokens:
-                content += self.characters[pos]
+                content += characters[pos]
             if content:
                 tokens.append((starting, content, key))
         return tokens
@@ -422,7 +436,9 @@ class ContentElement:
         """
         if token_dict is None:
             token_dict = defaultdict(list)
-        for pos in self.characters:
+
+        characters = self.characters
+        for pos in characters:
             token_dict[pos].append(self.token)
 
         # Tokenize child elements

@@ -11,7 +11,7 @@ parser = MatlabParser()
 
 test_files = (
     [
-        str(MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / (file + ".m"))
+        MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / (file + ".m")
         for file in [
             "Account",
             "AnEnum",
@@ -22,13 +22,8 @@ test_files = (
             "PropertyValidation",
         ]
     ]
-    + [str(test) for test in (MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / "test").glob("*.m")]
-    + [
-        str(Path(__file__).parent.resolve() / "src" / (file + ".m"))
-        for file in ["test_multiple_inheritance_ml"]
-    ] + [
-        str(f) for f in (Path(__file__).parent.resolve() / "src" / "OpenTelemetry-Matlab").glob("**/*.m")
-    ]
+    + list((MODULE_ROOT.parents[1] / "syntaxes" / "matlab" / "test").glob("*.m"))
+    + list((Path(__file__).parent.resolve() / "src" / "OpenTelemetry-Matlab").glob("**/*.m"))
 )
 
 
@@ -41,8 +36,12 @@ class TestMatlabRegression(RegressionTestClass):
     def parser(self):
         return parser
 
-    @pytest.mark.parametrize("source", test_files, ids=test_files)
+    @pytest.mark.parametrize("source", test_files, ids=[f.stem for f in test_files])
     def test(self, source: Path | str):
         py_tokens = self.parse_python(source)
         node_tokens = self.parse_node(source)
+        
+        dn = sorted(set(node_tokens.keys()).difference(set(py_tokens.keys())))
+        dp = sorted(set(py_tokens.keys()).difference(set(node_tokens.keys())))
+        element = parser.parse_file(source)
         assert py_tokens == node_tokens
