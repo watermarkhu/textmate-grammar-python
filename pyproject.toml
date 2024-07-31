@@ -1,14 +1,13 @@
 [project]
 name = "textmate-grammar-python"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "textmate-grammar-python"
-version = "0.6.0"
+version = "0.6.1"
 description = "A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python."
 authors = ["Mark Shui Hu <watermarkhu@gmail.com>"]
 license = "MIT"
@@ -34,15 +33,16 @@ tox = "^4.11.4"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
-mypy = "^1.8.0"
-ruff = "^0.3.0"
+mypy = "^1.10.0"
+ruff = "^0.5.0"
 types-pyyaml = "^6.0.12.12"
+poetry-plugin-export = "^1.8.0"
 poetry-bumpversion = "^0.3.2"
 
 [tool.poetry.group.doc.dependencies]
 sphinx = "^7.2.6"
 sphinx-autodoc2 = "^0.5.0"
-myst-parser = "^2.0.0"
+myst-parser = "^3.0.0"
 furo = "^2024.1.29"
 sphinxcontrib-mermaid = "^0.9.2"
 
