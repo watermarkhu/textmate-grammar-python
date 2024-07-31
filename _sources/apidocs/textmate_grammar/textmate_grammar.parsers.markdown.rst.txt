@@ -1,0 +1,28 @@
+:py:mod:`textmate_grammar.parsers.markdown`
+===========================================
+
+.. py:module:: textmate_grammar.parsers.markdown
+
+.. autodoc2-docstring:: textmate_grammar.parsers.markdown
+   :allowtitles:
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`MarkdownParser <textmate_grammar.parsers.markdown.MarkdownParser>`
+     -
+
+API
+~~~
+
+.. py:class:: MarkdownParser(**kwargs)
+   :canonical: textmate_grammar.parsers.markdown.MarkdownParser
+
+   Bases: :py:obj:`textmate_grammar.parsers.base.LanguageParser`

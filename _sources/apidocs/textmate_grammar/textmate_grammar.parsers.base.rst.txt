@@ -1,0 +1,81 @@
+:py:mod:`textmate_grammar.parsers.base`
+=======================================
+
+.. py:module:: textmate_grammar.parsers.base
+
+.. autodoc2-docstring:: textmate_grammar.parsers.base
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`DummyParser <textmate_grammar.parsers.base.DummyParser>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.base.DummyParser
+          :summary:
+   * - :py:obj:`LanguageParser <textmate_grammar.parsers.base.LanguageParser>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`LANGUAGE_PARSERS <textmate_grammar.parsers.base.LANGUAGE_PARSERS>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.base.LANGUAGE_PARSERS
+          :summary:
+
+API
+~~~
+
+.. py:data:: LANGUAGE_PARSERS
+   :canonical: textmate_grammar.parsers.base.LANGUAGE_PARSERS
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.base.LANGUAGE_PARSERS
+
+.. py:class:: DummyParser()
+   :canonical: textmate_grammar.parsers.base.DummyParser
+
+   Bases: :py:obj:`textmate_grammar.parser.GrammarParser`
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.base.DummyParser
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.base.DummyParser.__init__
+
+.. py:class:: LanguageParser(grammar: dict, **kwargs)
+   :canonical: textmate_grammar.parsers.base.LanguageParser
+
+   Bases: :py:obj:`textmate_grammar.parser.PatternsParser`
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser.__init__
+
+   .. py:method:: pre_process(input: str) -> str
+      :canonical: textmate_grammar.parsers.base.LanguageParser.pre_process
+
+      .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser.pre_process
+
+   .. py:method:: parse_file(filePath: str | pathlib.Path, **kwargs) -> textmate_grammar.elements.ContentElement | None
+      :canonical: textmate_grammar.parsers.base.LanguageParser.parse_file
+
+      .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser.parse_file
+
+   .. py:method:: parse_string(input: str, **kwargs) -> textmate_grammar.elements.ContentElement | None
+      :canonical: textmate_grammar.parsers.base.LanguageParser.parse_string
+
+      .. autodoc2-docstring:: textmate_grammar.parsers.base.LanguageParser.parse_string

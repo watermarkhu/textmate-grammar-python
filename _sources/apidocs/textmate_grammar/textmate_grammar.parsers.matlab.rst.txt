@@ -1,0 +1,40 @@
+:py:mod:`textmate_grammar.parsers.matlab`
+=========================================
+
+.. py:module:: textmate_grammar.parsers.matlab
+
+.. autodoc2-docstring:: textmate_grammar.parsers.matlab
+   :allowtitles:
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`MatlabParser <textmate_grammar.parsers.matlab.MatlabParser>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.matlab.MatlabParser
+          :summary:
+
+API
+~~~
+
+.. py:class:: MatlabParser(remove_line_continuations: bool = False, **kwargs)
+   :canonical: textmate_grammar.parsers.matlab.MatlabParser
+
+   Bases: :py:obj:`textmate_grammar.parsers.base.LanguageParser`
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.matlab.MatlabParser
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.matlab.MatlabParser.__init__
+
+   .. py:method:: pre_process(input: str) -> str
+      :canonical: textmate_grammar.parsers.matlab.MatlabParser.pre_process
+
+      .. autodoc2-docstring:: textmate_grammar.parsers.matlab.MatlabParser.pre_process
