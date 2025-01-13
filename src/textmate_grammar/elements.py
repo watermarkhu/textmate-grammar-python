@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from abc import ABC
 from collections import defaultdict
+from collections.abc import Generator
 from itertools import groupby
 from pprint import pprint
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
 
 from .handler import POS, ContentHandler, Match, Pattern
 from .utils.logger import LOGGER
