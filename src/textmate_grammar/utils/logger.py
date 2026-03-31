@@ -114,7 +114,7 @@ class Logger:
         else:
             msg_id = "." * self.max_token_length
 
-        vb_message = f"{'|'*(depth-1)}{'-'*bool(depth)}{message}"
+        vb_message = f"{'|' * (depth - 1)}{'-' * bool(depth)}{message}"
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])
