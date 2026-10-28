@@ -62,7 +62,7 @@ class Logger:
     long_msg_div = "\x1b[1;32m ... \x1b[0m"
 
     def __init__(self, **kwargs) -> None:
-        self.id = None
+        self.id: str | None = None
         self.max_token_length = 50
         self.line_decimals = 3
         self.position_decimals = 3
@@ -114,7 +114,7 @@ class Logger:
         else:
             msg_id = "." * self.max_token_length
 
-        vb_message = f"{'|'*(depth-1)}{'-'*bool(depth)}{message}"
+        vb_message = f"{'|' * (depth - 1)}{'-' * bool(depth)}{message}"
 
         if len(vb_message) > MAX_LENGTH:
             half_length = min([(MAX_LENGTH - 6) // 2, (len(vb_message) - 6) // 2])

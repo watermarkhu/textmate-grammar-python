@@ -95,7 +95,10 @@ class GrammarParser(ABC):
         if key in ["$self", "$base"]:  # TODO there is a difference between these
             return self.language_parser
         elif key[0] == "#":
-            return self.language_parser.repository.get(key[1:], None)
+            parser = self.language_parser.repository.get(key[1:], None)
+            if parser is not None:
+                return parser
+            raise IncludedParserNotFound(key)
         else:
             return self.language_parser._find_include_scopes(key)
 

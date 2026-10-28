@@ -96,7 +96,8 @@ class ShelveCache(TextmateCache):
         import shelve
 
         database_path = CACHE_DIR / "textmate.db"
-        self._database = shelve.open(str(database_path))
+        # Long-lived handle closed via atexit, not a with-block
+        self._database = shelve.open(str(database_path))  # noqa: SIM115
 
         def exit():
             self._database.sync()

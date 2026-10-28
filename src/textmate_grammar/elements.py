@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from abc import ABC
 from collections import defaultdict
+from collections.abc import Generator
 from itertools import groupby
 from pprint import pprint
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
 
 from .handler import POS, ContentHandler, Match, Pattern
 from .utils.logger import LOGGER
@@ -345,7 +346,7 @@ class ContentElement:
 
         :return: The converted dictionary representation of the object.
         """
-        out_dict = {"token": self.token}
+        out_dict: dict = {"token": self.token}
         if all_content or not self.children:
             out_dict["content"] = self.content
         if self.children:

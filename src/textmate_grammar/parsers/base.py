@@ -9,7 +9,7 @@ from ..utils.cache import TextmateCache, init_cache
 from ..utils.exceptions import IncompatibleFileType
 from ..utils.logger import LOGGER
 
-LANGUAGE_PARSERS = {}
+LANGUAGE_PARSERS: dict[str, GrammarParser] = {}
 
 
 class DummyParser(GrammarParser):
