@@ -160,6 +160,14 @@ def new_markdown_adapter() -> NewEngineAdapter:
     return NewEngineAdapter(markdown_spec.grammar)
 
 
+@cache
+def new_vendored_adapter(language: str) -> NewEngineAdapter:
+    """New engine wired to a third-party grammar declared in the differential corpus."""
+    from .corpus import CORPUS_LANGUAGES
+
+    return NewEngineAdapter(CORPUS_LANGUAGES[language].grammar)
+
+
 def get_adapter(language: str, engine: str = "legacy") -> LegacyAdapter | NewEngineAdapter:
     """Return an adapter; omitted ``engine`` preserves the legacy harness default."""
     if engine == "new":
@@ -167,6 +175,8 @@ def get_adapter(language: str, engine: str = "legacy") -> LegacyAdapter | NewEng
             return new_matlab_adapter()
         if language == "markdown":
             return new_markdown_adapter()
+        if language in {"python", "typescript"}:
+            return new_vendored_adapter(language)
         raise KeyError(f"No new-engine adapter registered for language {language!r}")
     if engine != "legacy":
         raise ValueError(f"Unknown engine {engine!r}")

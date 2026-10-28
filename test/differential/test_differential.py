@@ -1,8 +1,8 @@
 """Differential tests: the legacy python tokenizer vs the vscode-textmate node oracle.
 
-For every corpus entry (see ``corpus.py``; task 6 grows it), the node oracle
-(``node oracle.js <grammar-file> <text-file>``) and the legacy engine adapter are run, and
-their token records are compared exactly. On a mismatch the test fails with the first
+For every original baseline corpus entry (see ``corpus.py``; task 6 grows the new-engine corpus),
+the node oracle (``node oracle.js <grammar-file> <text-file>``) and the legacy engine adapter are
+run, and their token records are compared exactly. On a mismatch the test fails with the first
 divergent token, its stream index, both records and their +/-3 surrounding records.
 
 The comparison happens on *merged* token streams: the legacy engine's ``flatten()`` merges
@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from .corpus import CORPUS_LANGUAGES, corpus
+from .corpus import CORPUS_LANGUAGES, legacy_corpus
 from .engine_adapter import TokenRecord, get_adapter
 
 TEST_ROOT = Path(__file__).resolve().parent
@@ -139,7 +139,7 @@ def compare(oracle: list[TokenRecord], adapter: list[TokenRecord]) -> None:
 
 
 @pytest.mark.skipif(not oracle_available(), reason=ORACLE_REASON)
-@pytest.mark.parametrize("entry", corpus(), ids=lambda entry: entry.id)
+@pytest.mark.parametrize("entry", legacy_corpus(), ids=lambda entry: entry.id)
 class TestDifferential:
     """Token-stream parity per (grammar, corpus file) pair."""
 
@@ -162,7 +162,7 @@ class TestDifferential:
 
         text = entry.load_text()
         try:
-            legacy_adapter = get_adapter(entry.language)
+            legacy_adapter = get_adapter(entry.language, engine="legacy")
             records = legacy_adapter.tokenize(text)
         except Exception as error:
             pytest.fail(

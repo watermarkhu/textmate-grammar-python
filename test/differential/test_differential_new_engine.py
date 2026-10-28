@@ -16,7 +16,7 @@ from .test_differential import ORACLE_REASON, ORACLE_SCRIPT, compare, oracle_ava
 @pytest.mark.skipif(not oracle_available(), reason=ORACLE_REASON)
 @pytest.mark.parametrize("entry", corpus(), ids=lambda entry: entry.id)
 def test_new_engine_tokenization_parity(entry: CorpusEntry, tmp_path: Path) -> None:
-    """Compare every MATLAB and markdown corpus file against vscode-textmate."""
+    """Compare every corpus file against vscode-textmate using the new engine."""
     oracle_input = tmp_path / f"oracle_{entry.path.name}"
     text = entry.load_text()
     oracle_input.write_text(text, encoding="utf-8", newline="\n")
