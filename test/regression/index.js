@@ -34,7 +34,21 @@ const registry = new vsctm.Registry({
 });
 
 const scope = process.argv[2];
-const file = process.argv[3]
+const file = process.argv[3];
+const jsonl = process.argv.slice(4).includes('--format=jsonl');
+
+function stateScopes(ruleStack) {
+    const scopes = [];
+    for (let stack = ruleStack; stack; stack = stack.parent) {
+        const scopeName = (stack.nameScopesList && stack.nameScopesList.scopeName) ||
+            (stack.contentNameScopesList && stack.contentNameScopesList.scopeName) ||
+            undefined;
+        if (scopeName) {
+            scopes.unshift(scopeName);
+        }
+    }
+    return scopes;
+}
 
 // Load the JavaScript grammar and any other grammars included by it async.
 registry.loadGrammar(scope).then(grammar => {
@@ -46,11 +60,28 @@ registry.loadGrammar(scope).then(grammar => {
         // console.log(`\nTokenizing line: ${line}`);
         for (let j = 0; j < lineTokens.tokens.length; j++) {
             const token = lineTokens.tokens[j];
-            console.log(`${i}-${token.startIndex}` +
-                `:${token.scopes.join('|')}` +
-                `:${line.substring(token.startIndex, token.endIndex)}`
-            );
+            if (jsonl) {
+                console.log(JSON.stringify({
+                    type: 'token',
+                    line: i,
+                    start: token.startIndex,
+                    end: token.endIndex,
+                    scopes: token.scopes,
+                    content: line.substring(token.startIndex, token.endIndex)
+                }));
+            } else {
+                console.log(`${i}-${token.startIndex}` +
+                    `:${token.scopes.join('|')}` +
+                    `:${line.substring(token.startIndex, token.endIndex)}`
+                );
+            }
         }
         ruleStack = lineTokens.ruleStack;
+    }
+    if (jsonl) {
+        console.log(JSON.stringify({
+            type: 'state',
+            scopes: stateScopes(ruleStack)
+        }));
     }
 });

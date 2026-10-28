@@ -1,0 +1,12 @@
+{
+  "name": "textmate-grammar-regression",
+  "version": "1.0.0",
+  "description": "Pinned node oracle dependencies for the vscode-textmate regression tests",
+  "private": true,
+  "dependencies": {
+    "oniguruma": "7.2.3",
+    "typescript": "7.0.2",
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.3.2"
+  }
+}
