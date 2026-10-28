@@ -53,18 +53,31 @@ class RegistryOptions(TypedDict, total=False):
     onig_lib: IOnigLib
     load_grammar: Callable[[str], IRawGrammar | None]
     get_injections: Callable[[str], Sequence[str] | None]
+    onigLib: IOnigLib
+    loadGrammar: Callable[[str], IRawGrammar | None]
+    getInjections: Callable[[str], Sequence[str] | None]
 
 
 GrammarFactory = Callable[[ILocation | None, IRawGrammar], TokenizerLike]
 
 
-def _unimplemented_grammar_factory(
-    location: ILocation | None, raw_grammar: IRawGrammar
-) -> TokenizerLike:
-    del location, raw_grammar
-    raise NotImplementedError(
-        "Grammar construction is not landed yet; pass grammar_factory from task 3b/5"
-    )
+def _default_grammar_factory(
+    registry: SyncRegistry, onig_lib: IOnigLib
+) -> GrammarFactory:
+    """Build a tokenizer using the registry as its included-grammar repository."""
+    from .tokenize import Grammar
+
+    def create(location: ILocation | None, raw_grammar: IRawGrammar) -> TokenizerLike:
+        del location
+        return Grammar(
+            str(raw_grammar["scopeName"]),
+            raw_grammar,
+            initial_language=0,
+            grammar_repository=registry,
+            onig_lib=onig_lib,
+        )
+
+    return create
 
 
 @dataclass(frozen=True)
@@ -324,6 +337,11 @@ class SyncRegistry:
         if injection_scope_names is not None:
             self._injection_grammars[scope_name] = list(injection_scope_names)
 
+    def addGrammar(
+        self, grammar: IRawGrammar, injection_scope_names: Sequence[str] | None = None
+    ) -> None:  # noqa: N802
+        self.register_grammar(grammar, injection_scope_names)
+
     def lookup(self, scope_name: str) -> IRawGrammar | None:
         return self._raw_grammars.get(scope_name)
 
@@ -356,17 +374,21 @@ class SyncRegistry:
     def grammar_for_scope_name(
         self,
         scope_name: str,
-        grammar_factory: GrammarFactory = _unimplemented_grammar_factory,
+        grammar_factory: GrammarFactory | None = None,
     ) -> TokenizerLike | None:
         if scope_name not in self._grammars:
             raw_grammar = self._raw_grammars.get(scope_name)
             if raw_grammar is None:
                 return None
             location = raw_grammar.get(LOCATION_KEY)
-            self._grammars[scope_name] = grammar_factory(
+            factory = grammar_factory or _default_grammar_factory(self, self.onig_lib)
+            self._grammars[scope_name] = factory(
                 cast(ILocation | None, location), raw_grammar
             )
         return self._grammars[scope_name]
+
+    def grammarForScopeName(self, scope_name: str) -> TokenizerLike | None:  # noqa: N802
+        return self.grammar_for_scope_name(scope_name)
 
 
 class Registry:
@@ -376,11 +398,15 @@ class Registry:
         self,
         options: RegistryOptions,
         *,
-        grammar_factory: GrammarFactory = _unimplemented_grammar_factory,
+        grammar_factory: GrammarFactory | None = None,
     ) -> None:
         self._options = options
-        self._grammar_factory = grammar_factory
-        self._sync_registry = SyncRegistry(options.get("onig_lib", DEFAULT_ONIG_LIB))
+        onig_lib = options.get("onig_lib", options.get("onigLib", DEFAULT_ONIG_LIB))
+        self._sync_registry = SyncRegistry(onig_lib)
+        self._using_default_factory = grammar_factory is None
+        self._grammar_factory = grammar_factory or _default_grammar_factory(
+            self._sync_registry, onig_lib
+        )
         self._ensure_grammar_cache: dict[str, bool] = {}
 
     @property
@@ -403,12 +429,12 @@ class Registry:
         # Mark first, matching upstream's promise cache and ensuring one call even
         # for missing grammars. Re-entrant loaders are not part of the sync API.
         self._ensure_grammar_cache[scope_name] = True
-        loader = self._options.get("load_grammar")
+        loader = self._options.get("load_grammar", self._options.get("loadGrammar"))
         if loader is None:
             return
         grammar = loader(scope_name)
         if grammar is not None:
-            get_injections = self._options.get("get_injections")
+            get_injections = self._options.get("get_injections", self._options.get("getInjections"))
             injections = get_injections(scope_name) if get_injections is not None else None
             self._sync_registry.register_grammar(grammar, injections)
 
@@ -424,3 +450,33 @@ class Registry:
     def load_grammar(self, initial_scope_name: str) -> TokenizerLike | None:
         """Load a grammar and every referenced grammar before constructing it."""
         return self._load_grammar(initial_scope_name)
+
+    def loadGrammar(self, initial_scope_name: str) -> TokenizerLike | None:  # noqa: N802
+        """vscode-textmate spelling of :meth:`load_grammar`."""
+        return self.load_grammar(initial_scope_name)
+
+    def addGrammar(
+        self, raw_grammar: IRawGrammar, injections: Sequence[str] = (), initial_language: int = 0,
+        embedded_languages: Mapping[str, int] | None = None,
+    ) -> TokenizerLike:
+        """Register and construct a grammar, matching upstream's convenience method."""
+        self.register_grammar(raw_grammar, injections)
+        scope_name = str(raw_grammar["scopeName"])
+        grammar = self._sync_registry._grammars.get(scope_name)
+        if grammar is None and self._using_default_factory:
+            from .tokenize import Grammar
+
+            grammar = Grammar(
+                scope_name,
+                raw_grammar,
+                initial_language=initial_language,
+                embedded_languages=embedded_languages,
+                grammar_repository=self._sync_registry,
+                onig_lib=self._sync_registry.onig_lib,
+            )
+            self._sync_registry._grammars[scope_name] = grammar
+        elif grammar is None:
+            grammar = self._sync_registry.grammar_for_scope_name(scope_name, self._grammar_factory)
+        if grammar is None:
+            raise ValueError(f"No grammar provided for <{raw_grammar['scopeName']}>")
+        return grammar
