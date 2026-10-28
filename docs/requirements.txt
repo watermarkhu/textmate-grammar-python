@@ -313,9 +313,15 @@ jinja2==3.1.6 \
     # via
     #   myst-parser
     #   sphinx
-markdown-it-py==3.0.0 \
+markdown-it-py==3.0.0 ; python_full_version < '3.11' \
     --hash=sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1 \
     --hash=sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
+markdown-it-py==4.2.0 ; python_full_version >= '3.11' \
+    --hash=sha256:04a21681d6fbb623de53f6f364d352309d4094dd4194040a10fd51833e418d49 \
+    --hash=sha256:9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -465,9 +471,12 @@ mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
     # via markdown-it-py
-myst-parser==3.0.1 \
+myst-parser==3.0.1 ; python_full_version < '3.11' \
     --hash=sha256:6457aaa33a5d474aca678b8ead9b3dc298e89c68e67012e73146ea6fd54babf1 \
     --hash=sha256:88f0cb406cb363b077d176b51c476f62d60604d68a8dcdf4832e080441301a87
+myst-parser==5.1.0 ; python_full_version >= '3.11' \
+    --hash=sha256:9c91c52b3cdb4d94a6506e4fab4e2f296c7623a0da0dcbe6de1565c3dad67a8a \
+    --hash=sha256:ab69322dc6719dcc7f296479dbb70181b66df6ed315064f92dbc85c0e1bf2f02
 onigurumacffi==1.5.0 \
     --hash=sha256:3aabcd932605f0a385c612ff22daa97acfa57e78add53bb4a173f281a3b9cf1f \
     --hash=sha256:6dda67bcbfe5ec8f819506befaa8542f7bc4dd89304dfae31810bf4f15dc2205 \
@@ -561,6 +570,14 @@ requests==2.34.2 \
     --hash=sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0 \
     --hash=sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed
     # via sphinx
+roman-numerals==4.1.0 ; python_full_version >= '3.11' \
+    --hash=sha256:1af8b147eb1405d5839e78aeb93131690495fe9da5c91856cb33ad55a7f1e5b2 \
+    --hash=sha256:647ba99caddc2cc1e55a51e4360689115551bf4476d90e8162cf8c345fe233c7
+    # via roman-numerals-py
+roman-numerals-py==4.1.0 ; python_full_version >= '3.11' \
+    --hash=sha256:553114c1167141c1283a51743759723ecd05604a1b6b507225e91dc1a6df0780 \
+    --hash=sha256:f5d7b2b4ca52dd855ef7ab8eb3590f428c0b1ea480736ce32b01fef2a5f8daf9
+    # via sphinx
 snowballstemmer==3.1.1 \
     --hash=sha256:7e207fa178741da09cdee59d3ecec3827ad5f92b1fc5c9ff3755b639f71f5752 \
     --hash=sha256:e07bbc54a0d798fe6010a12398422e62a8bfbba95c394fd0956ef58cb4d3e260
@@ -573,9 +590,16 @@ soupsieve==3.0.4 ; python_full_version >= '3.11.5' \
     --hash=sha256:8412826614f9c632227067d0985aeb9f584bd15efc852955430e097a9fe7afbf \
     --hash=sha256:924fab84ae21604c19e175e1f39815eb6fa83ba23836e09e9de180925e5bc4c0
     # via beautifulsoup4
-sphinx==7.4.7 \
+sphinx==7.4.7 ; python_full_version < '3.11' \
     --hash=sha256:242f92a7ea7e6c5b406fdc2615413890ba9f699114a9c09192d7dfead2ee9cfe \
     --hash=sha256:c2419e2135d11f1951cd994d6eb18a1835bd8fdd8429f9ca375dc1f3281bd239
+    # via
+    #   furo
+    #   myst-parser
+    #   sphinx-basic-ng
+sphinx==8.2.3 ; python_full_version >= '3.11' \
+    --hash=sha256:398ad29dee7f63a75888314e9424d40f52ce5a6a87ae88e7071e80af296ec348 \
+    --hash=sha256:4405915165f13521d875a8c29c8970800a0141c14cc5416a38feca4ea5d9b9c3
     # via
     #   furo
     #   myst-parser
