@@ -6,8 +6,10 @@ on:
     branches:
       - main
     paths:
-      - 'src/**.py'
+      - 'src/**'
       - 'docs/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/docs.yml'
 
 permissions:

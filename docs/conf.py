@@ -2,8 +2,8 @@ from datetime import date
 
 # -- Project information -----------------------------------------------------
 
-project = "Texmate Grammar Python"
-version = "0.6.1"
+project = "TextMate Grammar Python"
+version = "0.7.0"
 copyright = f"{date.today().year}, Mark Shui Hu"
 author = "Mark Shui Hu"
 
@@ -26,7 +26,7 @@ myst_enable_extensions = ["fieldlist", "deflist"]
 # -- HTML output -------------------------------------------------
 
 html_theme = "furo"
-html_title = "Texmate Grammar Python"
+html_title = "TextMate Grammar Python"
 html_theme_options = {
     "top_of_page_button": "edit",
     "source_repository": "https://github.com/watermarkhu/textmate-grammar-python/",
@@ -52,4 +52,3 @@ html_theme_options = {
 
 autodoc2_packages = ["../src/textmate_grammar"]
 autodoc2_hidden_objects = ["dunder", "private", "inherited"]
-

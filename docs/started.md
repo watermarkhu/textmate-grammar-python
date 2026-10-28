@@ -1,49 +1,31 @@
 # Getting started
 
-Install the module with:
+Install the package with:
+
 ```bash
 pip install textmate-grammar-python
 ```
 
-Or, for development purposes, clone the repository and install locally with [poetry](https://python-poetry.org/), and setup [pre-commit](https://pre-commit.com/) such that code is linted and formatted with [Ruff](https://docs.astral.sh/ruff/) and checked with [mypy](https://mypy-lang.org/).
+It requires Python 3.10 or newer. For development setup and test instructions, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md).
 
-```bash
-pip install poetry
-git clone https://github.com/watermarkhu/textmate-grammar-python
-cd textmate-grammar-python
-poetry install
-pre-commit install
-```
-For instructions on running the unit and regression tests see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md)
+## Tokenize with a grammar
 
-
-# Usage
-Before tokenization is possible, a [`LanguageParser`](#textmate_grammar.language.LanguageParser) needs to be initialized using a loaded grammar. 
+The API follows vscode-textmate's `Registry` and stateful line-tokenization model. Load the grammar, tokenize each line, and carry the returned `ruleStack` forward:
 
 ```python
-from textmate_grammar.language import LanguageParser
-from textmate_grammar.grammars import matlab
-parser = LanguageParser(matlab.GRAMMAR)
+from pathlib import Path
+
+from textmate_grammar import INITIAL, Registry, parseRawGrammar
+
+path = Path("MATLAB.tmLanguage")
+raw = parseRawGrammar(path.read_text(), str(path))
+registry = Registry({"loadGrammar": lambda scope: raw if scope == "source.matlab" else None})
+grammar = registry.loadGrammar("source.matlab")
+state = INITIAL
+for line in Path("example.m").read_text().splitlines():
+    result = grammar.tokenizeLine(line, state)
+    state = result.ruleStack
+    print(result.tokens)
 ```
 
-After this, one can either choose to call [`parser.parsing_string`](#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](../example.py). 
-
-The parsed `element` object can be displayed directly by calling the [`print`](#textmate_grammar.elements.ContentElement.print) method. By default the element is printed as an element tree in a dictionary format. 
-
-```python
->>> element = parser.parse_string("value = num2str(10);")
->>> element.print()
-
-{'token': 'source.matlab',
- 'children': [{'token': 'meta.assignment.variable.single.matlab', 
-               'children': [{'token': 'variable.other.readwrite.matlab', 'content': 'value'}]},
-              {'token': 'keyword.operator.assignment.matlab', 'content': '='},
-              {'token': 'meta.function-call.parens.matlab',
-               'begin': [{'token': 'entity.name.function.matlab', 'content': 'num2str'},
-                         {'token': 'punctuation.section.parens.begin.matlab', 'content': '('}],
-               'end': [{'token': 'punctuation.section.parens.end.matlab', 'content': ')'}],
-               'children': [{'token': 'constant.numeric.decimal.matlab', 'content': '10'}]},
-              {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}]}
-
-```
-
+`textmate_grammar.parsers.matlab` and `textmate_grammar.parsers.markdown` provide helpers for the bundled grammars. See [Tokens and state](tokenization.md) for the result shape.

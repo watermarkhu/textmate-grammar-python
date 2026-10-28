@@ -35,11 +35,11 @@ leniency lies in JS ``parseFloat``-style number tokens (``1-2`` parses as
 from __future__ import annotations
 
 import json
-import os
 import re
 from enum import IntEnum
 from typing import Any, TypedDict
 
+from .debug import DebugFlags
 from .plist import _js_parse_float, _text_of, _units_of
 
 __all__ = [
@@ -163,10 +163,8 @@ def _js_number_to_string(value: float) -> str:
 # parseRawGrammar.ts
 # ---------------------------------------------------------------------------
 
-#: Stand-in for upstream ``DebugFlags.InDebugMode`` (``debug.ts``): read from
-#: the environment once at import, exactly like upstream. Task 7 (optional
-#: ``engine/debug.py`` port) should move this constant there.
-IN_DEBUG_MODE = bool(os.environ.get("VSCODE_TEXTMATE_DEBUG"))
+#: Compatibility alias for upstream ``DebugFlags.InDebugMode``.
+IN_DEBUG_MODE = DebugFlags.is_in_debug_mode()
 
 
 def parse_raw_grammar(content: str, file_path: str | None = None) -> Any:

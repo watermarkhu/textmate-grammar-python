@@ -9,17 +9,17 @@
 
 # textmate-grammar-python
 
-A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python. 
+A Python port of the [vscode-textmate](https://github.com/microsoft/vscode-textmate) grammar tokenization engine. It loads TextMate grammars and tokenizes source one line at a time, carrying the rule stack between lines.
 
-TextMate grammars are made for [vscode-textmate](https://github.com/microsoft/vscode-textmate), allowing for syntax highlighting in VS Code after tokenization. This presents textmate-grammar-python with a large list of potentially supported languages.
+The `textmate_grammar.engine` modules port the rule model, scope matcher, grammar loading and registry, and stateful tokenization loop. A differential suite compares token boundaries and scope paths against the real vscode-textmate 9.3.2 Node oracle across a 50-case MATLAB, Markdown, Python, and TypeScript corpus.
 
 ## Usage
-Install the module with:
+Requires Python 3.10 or newer. Install with:
 ```bash
 pip install textmate-grammar-python
 ```
 
-The public API follows vscode-textmate's registry and line-tokenization model. A registry loads raw grammar data by scope name, and the returned grammar carries a state stack from line to line:
+The public API follows vscode-textmate's registry and line-tokenization model. A registry loads raw grammar data by scope name; pass each line's returned `ruleStack` into the next call:
 
 ```python
 from pathlib import Path
@@ -37,11 +37,11 @@ for line in Path("example.m").read_text().splitlines():
     print(result.tokens)  # each token has startIndex, endIndex, and scopes
 ```
 
-Language helpers are also available via `textmate_grammar.parsers.matlab` and `.markdown` for the bundled grammars.
+The bundled MATLAB and Markdown grammar helpers are also available from `textmate_grammar.parsers.matlab` and `textmate_grammar.parsers.markdown`.
 
 ## Migrating from 0.6.x
 
-The old `LanguageParser` / `ContentElement` tree API has been removed without compatibility shims. Use the vscode-textmate-shaped `Registry`, `parseRawGrammar`, `Grammar.tokenizeLine`, `IToken` tokens, and `ruleStack` state API instead; this is a breaking change in the 0.x series.
+This 0.7.0 release is breaking within the 0.x series. The old `LanguageParser` / `ContentElement` tree API (including `parse_file`, `parse_string`, and `flatten`) is removed without compatibility shims. Replace it with `Registry`, `parseRawGrammar`, `Grammar.tokenizeLine`, `IToken` tokens, and the `ruleStack` state API shown above.
 
 ## Information
 
