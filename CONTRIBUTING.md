@@ -1,8 +1,8 @@
-Use [uv](https://docs.astral.sh/uv/) to install the project and test dependencies. Install [pre-commit](https://pre-commit.com/) to run Ruff and mypy checks automatically:
+Use [uv](https://docs.astral.sh/uv/) to install the project and development tools. Install [prek](https://prek.j178.dev/) to run the project checks automatically:
 
 ```bash
-uv sync --group test
-uv run pre-commit install
+uv sync --group dev --group test
+uv run prek install
 ```
 
 Run the unit tests with:
@@ -19,4 +19,4 @@ git submodule update --init
 uv run pytest -q test/differential
 ```
 
-Run the full checks with `uv run ruff check src/` and `uv run mypy .`. For the documentation build, install the doc group (`uv sync --no-dev --group doc`) and run `uv run make -C docs html`.
+Run the full checks with `uv run ruff check src/`, `uv run ruff format --check src/`, and `uv run ty check src/`. For the documentation build, install the doc group (`uv sync --no-dev --group doc`) and run `uv run make -C docs html`.

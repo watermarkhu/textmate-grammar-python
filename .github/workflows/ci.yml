@@ -7,13 +7,35 @@ on:
       - main
     paths:
       - '.github/workflows/ci.yml'
-      - '.pre-commit-config.yaml'
+      - 'prek.toml'
       - 'pyproject.toml'
       - 'uv.lock'
       - 'src/**'
       - 'test/**'
 
 jobs:
+
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          version: "latest"
+
+      - name: Install development tools
+        run: uv sync --python 3.12
+
+      - name: Ruff lint
+        run: uv run ruff check src/
+
+      - name: Ruff format
+        run: uv run ruff format --check src/
+
+      - name: Type check
+        run: uv run ty check src/
 
   unit-test:
 

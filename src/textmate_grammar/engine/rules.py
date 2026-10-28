@@ -29,7 +29,7 @@ import os
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from .oniglib import IOnigCaptureIndex
 from .regexsource import (
@@ -166,7 +166,7 @@ class RuleRegistry(IRuleFactoryHelper):
         running — upstream yields ``undefined`` there, and the only reader that
         can act on it treats non-``None`` like ``undefined`` (see
         ``RuleFactory.compile_patterns``)."""
-        return self._rule_id2desc[rule_id]  # type: ignore[return-value]
+        return cast(Rule, self._rule_id2desc[rule_id])
 
     def get_external_grammar(
         self, scope_name: str, repository: IRawRepositoryDict | None
@@ -606,7 +606,9 @@ class BeginWhileRule(Rule):
                 self._while.clone() if self._while.has_back_references else self._while
             )
         if self._while.has_back_references:
-            self._cachedCompiledWhilePatterns.set_source(0, endRegexSource if endRegexSource else "")
+            self._cachedCompiledWhilePatterns.set_source(
+                0, endRegexSource if endRegexSource else ""
+            )
         return self._cachedCompiledWhilePatterns
 
     def compileWhile(self, grammar: IRuleFactoryHelper, endRegexSource: str | None) -> CompiledRule:  # noqa: N802
@@ -824,9 +826,9 @@ class RuleFactory:
 
                         if external_grammar:
                             if external_grammar_include:
-                                external_included_rule = (external_grammar.get("repository") or {}).get(
-                                    external_grammar_include
-                                )
+                                external_included_rule = (
+                                    external_grammar.get("repository") or {}
+                                ).get(external_grammar_include)
                                 if external_included_rule:
                                     rule_id = RuleFactory.get_compiled_rule_id(
                                         external_included_rule,
@@ -871,7 +873,9 @@ class RuleFactory:
         )
 
 
-def create_rule(desc: IRawRuleDict, helper: IRuleFactoryHelper, repository: IRawRepositoryDict) -> int:
+def create_rule(
+    desc: IRawRuleDict, helper: IRuleFactoryHelper, repository: IRawRepositoryDict
+) -> int:
     """Mirror of ``RuleFactory.getCompiledRuleId`` (task-card spelling); prefer
     :meth:`RuleFactory.get_compiled_rule_id`."""
     return RuleFactory.get_compiled_rule_id(desc, helper, repository)

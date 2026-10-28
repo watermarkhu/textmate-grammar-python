@@ -32,9 +32,9 @@ test = [
     "pytest-icdiff>=0.8,<0.10",
 ]
 dev = [
-    "pre-commit>=3.6.0,<5.0.0",
-    "mypy>=1.10.0,<2.0.0",
-    "ruff>=0.5.0,<0.17.0",
+    "prek==0.5.7",
+    "ruff==0.17.3",
+    "ty==0.0.94",
     "types-pyyaml>=6.0.12.12,<7.0.0",
 ]
 doc = [
@@ -75,6 +75,8 @@ line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
-[tool.mypy]
-ignore_missing_imports = true
-exclude = ["test/*", "docs/*", "example.py"]
+[tool.ty.environment]
+python-version = "3.10"
+
+[tool.ty.src]
+include = ["src"]

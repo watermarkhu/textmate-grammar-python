@@ -1,0 +1,76 @@
+# Configuration for prek (https://prek.j178.dev).
+#:schema https://www.schemastore.org/prek.json
+
+fail_fast = false
+
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+exclude = '^(src/textmate_grammar/parsers/(matlab/MATLAB\.tmLanguage|markdown/markdown\.tmLanguage)|test/differential/corpus/|test/unit/engine/data/markdown\.tmLanguage\.json)'
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+exclude = '^(src/textmate_grammar/parsers/(matlab/MATLAB\.tmLanguage|markdown/markdown\.tmLanguage)|test/differential/corpus/|test/unit/engine/data/markdown\.tmLanguage\.json)'
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "check-added-large-files"
+args = ["--maxkb=1024"]
+
+[[repos.hooks]]
+id = "check-case-conflict"
+
+[[repos.hooks]]
+id = "check-illegal-windows-names"
+
+[[repos.hooks]]
+id = "check-json"
+exclude = '^\.vscode/'
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-yaml"
+
+[[repos.hooks]]
+id = "check-xml"
+
+[[repos.hooks]]
+id = "detect-private-key"
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "ruff check"
+entry = "uv run ruff check src/"
+language = "system"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "ruff format"
+entry = "uv run ruff format --check src/"
+language = "system"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "ty-check"
+name = "ty check"
+entry = "uv run ty check src/"
+language = "system"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "uv-export-doc-requirements"
+name = "export doc requirements from uv.lock"
+entry = "uv export --no-emit-project --no-dev --group doc --format requirements-txt -o docs/requirements.txt"
+language = "system"
+files = '^(pyproject\.toml|uv\.lock)$'
+pass_filenames = false

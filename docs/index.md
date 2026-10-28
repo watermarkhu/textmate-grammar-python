@@ -19,7 +19,7 @@ flowchart LR
     click O "https://github.com/microsoft/vscode-textmate"
 ```
 
-## Index 
+## Index
 
 ```{toctree}
 :maxdepth: 2

@@ -37,7 +37,7 @@ from __future__ import annotations
 import json
 import re
 from enum import IntEnum
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 from .debug import DebugFlags
 from .plist import _js_parse_float, _text_of, _units_of
@@ -75,9 +75,7 @@ class ILocation(TypedDict):
 
 #: ``ILocatable`` upstream: objects produced by the debug-mode parsers may carry
 #: an extra ``$vscodeTextmateLocation`` entry.
-ILocatable = TypedDict(
-    "ILocatable", {"$vscodeTextmateLocation": ILocation}, total=False
-)
+ILocatable = TypedDict("ILocatable", {"$vscodeTextmateLocation": ILocation}, total=False)
 
 #: ``IRawCapturesMap & ILocatable`` upstream: maps capture ids (``"1"``, ...)
 #: to raw rules, plus the optional location entry.
@@ -148,6 +146,7 @@ def value_as_string(value: Any) -> str:
 
 
 def _js_number_to_string(value: float) -> str:
+    value = float(value)
     if value != value:  # nan
         return "NaN"
     if value == float("inf"):
@@ -558,9 +557,7 @@ def next_json_token(stream_state: JSONStreamState, out_token: _JSONToken) -> boo
     out_token.length = pos - out_token.offset
     if out_token.value is None:
         # substr semantics: clamped slice
-        out_token.value = _text_of(
-            source[out_token.offset : out_token.offset + out_token.length]
-        )
+        out_token.value = _text_of(source[out_token.offset : out_token.offset + out_token.length])
 
     stream_state.pos = pos
     stream_state.line = line
@@ -602,7 +599,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
         return _do_fail(stream_state, msg)
 
     while next_json_token(stream_state, token):
-
         if state is _JSONState.ROOT_STATE:
             if cur is not None:
                 fail("too many constructs in root")
@@ -625,7 +621,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("unexpected token in root")
 
         if state is _JSONState.DICT_STATE_COMMA:
-
             if token.type is _JSONTokenType.RIGHT_CURLY_BRACKET:
                 pop_state()
                 continue
@@ -637,11 +632,7 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("expected , or }")
 
         if state in (_JSONState.DICT_STATE, _JSONState.DICT_STATE_NO_CLOSE):
-
-            if (
-                state is _JSONState.DICT_STATE
-                and token.type is _JSONTokenType.RIGHT_CURLY_BRACKET
-            ):
+            if state is _JSONState.DICT_STATE and token.type is _JSONTokenType.RIGHT_CURLY_BRACKET:
                 pop_state()
                 continue
 
@@ -657,23 +648,23 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
                 state = _JSONState.DICT_STATE_COMMA
 
                 if token.type is _JSONTokenType.STRING:
-                    cur[key_value] = token.value
+                    cast(dict[str, Any], cur)[key_value] = token.value
                     continue
                 if token.type is _JSONTokenType.NULL:
-                    cur[key_value] = None
+                    cast(dict[str, Any], cur)[key_value] = None
                     continue
                 if token.type is _JSONTokenType.TRUE:
-                    cur[key_value] = True
+                    cast(dict[str, Any], cur)[key_value] = True
                     continue
                 if token.type is _JSONTokenType.FALSE:
-                    cur[key_value] = False
+                    cast(dict[str, Any], cur)[key_value] = False
                     continue
                 if token.type is _JSONTokenType.NUMBER:
-                    cur[key_value] = _js_parse_float(token.value or "")
+                    cast(dict[str, Any], cur)[key_value] = _js_parse_float(token.value or "")
                     continue
                 if token.type is _JSONTokenType.LEFT_SQUARE_BRACKET:
                     new_array: list[Any] = []
-                    cur[key_value] = new_array
+                    cast(dict[str, Any], cur)[key_value] = new_array
                     push_state()
                     state = _JSONState.ARR_STATE
                     cur = new_array
@@ -682,7 +673,7 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
                     new_dict = {}
                     if with_metadata:
                         new_dict[LOCATION_KEY] = token.to_location(filename)
-                    cur[key_value] = new_dict
+                    cast(dict[str, Any], cur)[key_value] = new_dict
                     push_state()
                     state = _JSONState.DICT_STATE
                     cur = new_dict
@@ -691,7 +682,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("unexpected token in dict")
 
         if state is _JSONState.ARR_STATE_COMMA:
-
             if token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET:
                 pop_state()
                 continue
@@ -703,35 +693,31 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("expected , or ]")
 
         if state in (_JSONState.ARR_STATE, _JSONState.ARR_STATE_NO_CLOSE):
-
-            if (
-                state is _JSONState.ARR_STATE
-                and token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET
-            ):
+            if state is _JSONState.ARR_STATE and token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET:
                 pop_state()
                 continue
 
             state = _JSONState.ARR_STATE_COMMA
 
             if token.type is _JSONTokenType.STRING:
-                cur.append(token.value)
+                cast(list[Any], cur).append(token.value)
                 continue
             if token.type is _JSONTokenType.NULL:
-                cur.append(None)
+                cast(list[Any], cur).append(None)
                 continue
             if token.type is _JSONTokenType.TRUE:
-                cur.append(True)
+                cast(list[Any], cur).append(True)
                 continue
             if token.type is _JSONTokenType.FALSE:
-                cur.append(False)
+                cast(list[Any], cur).append(False)
                 continue
             if token.type is _JSONTokenType.NUMBER:
-                cur.append(_js_parse_float(token.value or ""))
+                cast(list[Any], cur).append(_js_parse_float(token.value or ""))
                 continue
 
             if token.type is _JSONTokenType.LEFT_SQUARE_BRACKET:
                 new_array = []
-                cur.append(new_array)
+                cast(list[Any], cur).append(new_array)
                 push_state()
                 state = _JSONState.ARR_STATE
                 cur = new_array
@@ -740,7 +726,7 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
                 new_dict = {}
                 if with_metadata:
                     new_dict[LOCATION_KEY] = token.to_location(filename)
-                cur.append(new_dict)
+                cast(list[Any], cur).append(new_dict)
                 push_state()
                 state = _JSONState.DICT_STATE
                 cur = new_dict

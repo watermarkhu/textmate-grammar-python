@@ -1,8 +1,8 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
 [![PyPI - License](https://img.shields.io/pypi/l/textmate-grammar-python.svg)](https://github.com/watermarkhu/textmate-grammar-python/tree/main?tab=MIT-1-ov-file)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](http://mypy-lang.org/)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Checked with ty](https://img.shields.io/badge/ty-checked-blue)](https://docs.astral.sh/ty/)
+[![prek](https://img.shields.io/badge/prek-enabled-brightgreen)](https://prek.j178.dev/)
 [![Python versions](https://img.shields.io/pypi/pyversions/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
 [![CI/CD](https://github.com/watermarkhu/textmate-grammar-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/watermarkhu/textmate-grammar-python/blob/main/.github/workflows/ci.yml)
 [![readthedocs](https://readthedocs.org/projects/textmate-grammar-python/badge/?version=latest)](https://textmate-grammar-python.readthedocs.io)
@@ -45,5 +45,5 @@ This 1.0.0 release is the first stable release; it breaks the old 0.x element-tr
 
 ## Information
 
-- For further information, please checkout the [documentation](https://textmate-grammar-python.readthedocs.io/en/latest/). 
+- For further information, please checkout the [documentation](https://textmate-grammar-python.readthedocs.io/en/latest/).
 - To setup an environment for development, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md)
