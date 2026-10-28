@@ -1,12 +1,21 @@
 [project]
 name = "textmate-grammar-python"
-version = "0.6.1"
-description = "A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python."
+version = "0.7.0"
+description = "A Python port of the vscode-textmate grammar tokenization engine."
 authors = [{ name = "Mark Shui Hu", email = "watermarkhu@gmail.com" }]
 license = "MIT"
 readme = "README.md"
-keywords = ["textmate", "tokenization"]
+keywords = ["textmate", "vscode", "grammar", "tokenization", "syntax-highlighting"]
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Text Processing :: General",
+]
 dependencies = [
     "onigurumacffi>=1.3.0,<2.0.0",
     "pyyaml>=6.0.1,<7.0.0",

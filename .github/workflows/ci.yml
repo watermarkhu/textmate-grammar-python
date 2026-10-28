@@ -7,11 +7,10 @@ on:
       - main
     paths:
       - '.github/workflows/ci.yml'
-      - '.pre-commig-config.yaml'
+      - '.pre-commit-config.yaml'
       - 'pyproject.toml'
       - 'uv.lock'
-      - 'src/**.py'
-      - 'src/syntaxes/**'
+      - 'src/**'
       - 'test/**'
 
 jobs:
