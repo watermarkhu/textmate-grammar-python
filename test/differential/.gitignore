@@ -1,0 +1,5 @@
+# Regenerate with:
+#   cd test/differential/node_root && npm install --no-fund --no-audit
+node_root/*
+!node_root/package.json
+!node_root/package-lock.json
