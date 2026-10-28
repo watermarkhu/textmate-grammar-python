@@ -17,6 +17,8 @@ from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, Protocol
 
+from textmate_grammar.engine.raw_grammar import parse_raw_grammar
+from textmate_grammar.engine.tokenize import create_grammar
 from textmate_grammar.parsers.base import LanguageParser
 from textmate_grammar.parsers.matlab import MatlabParser
 
@@ -77,6 +79,43 @@ class LegacyAdapter(Tokenizer):
         return records_from_element(element)
 
 
+class NewEngineAdapter(Tokenizer):
+    """Adapter over the grammar-driven engine, loaded from the corpus grammar file."""
+
+    def __init__(self, grammar_path: Path) -> None:
+        raw = parse_raw_grammar(grammar_path.read_text(encoding="utf-8"), str(grammar_path))
+        self._grammar = create_grammar(
+            str(raw["scopeName"]),
+            raw,
+            external_grammar=lambda _scope: None,
+        )
+
+    def tokenize(self, text: str) -> list[TokenRecord]:
+        return self.tokenize_with_state(text)[0]
+
+    def tokenize_with_state(self, text: str) -> tuple[list[TokenRecord], list[str]]:
+        """Return token records plus oracle-compatible final name-scope frames."""
+        records: list[TokenRecord] = []
+        state = None
+        for line_number, line in enumerate(text.split("\n")):
+            result = self._grammar.tokenize_line(line, state)
+            state = result.ruleStack
+            for token in result.tokens:
+                start = token.startIndex
+                end = min(token.endIndex, len(line))
+                if end > start:
+                    records.append(
+                        TokenRecord(line_number, start, end, tuple(token.scopes), line[start:end])
+                    )
+        frames = []
+        item = state
+        while item is not None:
+            frames.append(" ".join(item.nameScopesList.get_scope_names()) if item.nameScopesList else "")
+            item = item.parent
+        frames.reverse()
+        return records, frames
+
+
 def _repository_file(*path: str) -> str:
     """Path of ``path`` relative to the repository root (computed from this test directory)."""
     root = Path(__file__).resolve().parents[2]
@@ -105,8 +144,32 @@ def markdown_adapter() -> LegacyAdapter:
     return LegacyAdapter(LanguageParser(grammar))
 
 
-def get_adapter(language: str) -> LegacyAdapter:
-    """Return the :class:`LegacyAdapter` for a corpus language id."""
+@cache
+def new_matlab_adapter() -> NewEngineAdapter:
+    """New engine wired to the upstream MATLAB grammar."""
+    from .corpus import matlab_spec
+
+    return NewEngineAdapter(matlab_spec.grammar)
+
+
+@cache
+def new_markdown_adapter() -> NewEngineAdapter:
+    """New engine wired to the upstream built markdown grammar."""
+    from .corpus import markdown_spec
+
+    return NewEngineAdapter(markdown_spec.grammar)
+
+
+def get_adapter(language: str, engine: str = "legacy") -> LegacyAdapter | NewEngineAdapter:
+    """Return an adapter; omitted ``engine`` preserves the legacy harness default."""
+    if engine == "new":
+        if language == "matlab":
+            return new_matlab_adapter()
+        if language == "markdown":
+            return new_markdown_adapter()
+        raise KeyError(f"No new-engine adapter registered for language {language!r}")
+    if engine != "legacy":
+        raise ValueError(f"Unknown engine {engine!r}")
     if language == "matlab":
         return matlab_adapter()
     if language == "markdown":
