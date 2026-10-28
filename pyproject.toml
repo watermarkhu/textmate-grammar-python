@@ -1,6 +1,6 @@
 [project]
 name = "textmate-grammar-python"
-version = "0.7.0"
+version = "1.0.0"
 description = "A Python port of the vscode-textmate grammar tokenization engine."
 authors = [{ name = "Mark Shui Hu", email = "watermarkhu@gmail.com" }]
 license = "MIT"

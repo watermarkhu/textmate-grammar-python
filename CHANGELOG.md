@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0
+## 1.0.0
 
 This is a breaking 0.x release and a full port of the vscode-textmate 9.3.2 tokenization engine. It includes the rule model, scope-selector matcher, state stacks, tokenization loop, plist/JSON grammar loading, and Registry.
 

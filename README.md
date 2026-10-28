@@ -41,7 +41,7 @@ The bundled MATLAB and Markdown grammar helpers are also available from `textmat
 
 ## Migrating from 0.6.x
 
-This 0.7.0 release is breaking within the 0.x series. The old `LanguageParser` / `ContentElement` tree API (including `parse_file`, `parse_string`, and `flatten`) is removed without compatibility shims. Replace it with `Registry`, `parseRawGrammar`, `Grammar.tokenizeLine`, `IToken` tokens, and the `ruleStack` state API shown above.
+This 1.0.0 release is the first stable release; it breaks the old 0.x element-tree API. The old `LanguageParser` / `ContentElement` tree API (including `parse_file`, `parse_string`, and `flatten`) is removed without compatibility shims. Replace it with `Registry`, `parseRawGrammar`, `Grammar.tokenizeLine`, `IToken` tokens, and the `ruleStack` state API shown above.
 
 ## Information
 
