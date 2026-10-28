@@ -1,11 +1,11 @@
 name: documentation
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
       - main
-    paths: 
+    paths:
       - 'src/**.py'
       - 'docs/**'
       - '.github/workflows/docs.yml'
@@ -17,23 +17,18 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: '3.12'
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v3
+          version: "latest"
 
       - name: Install dependencies
-        run: |
-          poetry install --without test,dev
+        run: uv sync --no-dev --group doc
 
       - name: Sphinx build
-        run: |
-          source $(poetry env info --path)/bin/activate
-          cd docs && make html
+        run: uv run make -C docs html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

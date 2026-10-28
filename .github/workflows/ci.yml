@@ -9,7 +9,7 @@ on:
       - '.github/workflows/ci.yml'
       - '.pre-commig-config.yaml'
       - 'pyproject.toml'
-      - 'poetry.lock'
+      - 'uv.lock'
       - 'src/**.py'
       - 'src/syntaxes/**'
       - 'test/**'
@@ -21,40 +21,37 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v3
+          version: "latest"
 
       - name: Install the project dependencies
-        run: poetry install --without dev,doc
+        run: uv sync --no-dev --group test --python ${{ matrix.python-version }}
 
       - name: Test with pytest
         run: |
-          poetry run pytest -v test/unit
+          uv run pytest -v test/unit
 
   regression-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
       - name: Setup node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -66,17 +63,14 @@ jobs:
           npm init -y
           npm install oniguruma typescript vscode-oniguruma vscode-textmate
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v3
+          version: "latest"
 
       - name: Install the project dependencies
-        run: poetry install --without dev,doc
+        run: uv sync --no-dev --group test --python ${{ matrix.python-version }}
 
       - name: Test with pytest
         run: |
-          poetry run pytest -v test/regression
+          uv run pytest -v test/regression

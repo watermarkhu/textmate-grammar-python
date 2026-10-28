@@ -1,23 +1,12 @@
-Install the repository after cloning with [poetry](https://python-poetry.org/), and setup [pre-commit](https://pre-commit.com/) such that code is linted and formatted with [Ruff](https://docs.astral.sh/ruff/) and checked with [mypy](https://mypy-lang.org/).
+Install the repository after cloning with [uv](https://docs.astral.sh/uv/), and setup [pre-commit](https://pre-commit.com/) such that code is linted and formatted with [Ruff](https://docs.astral.sh/ruff/) and checked with [mypy](https://mypy-lang.org/).
 
 ```bash
-pip install poetry
-cd textmate-grammar-python
-poetry install
+uv sync --all-groups
 pre-commit install
 ```
 
-Run unit tests
-```bash
-tox run
-```
+To install the git submodules used for regression testing:
 
-Run static type checker
 ```bash
-tox run -e mypy
-```
-
-Run regression testing against vscode-textmate (will install npm and required packages). 
-```bash
-tox run -e regression
+git submodule update --init
 ```

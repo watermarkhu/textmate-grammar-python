@@ -23,9 +23,11 @@ repos:
             docs\/.*.py
         )$
 
-  - repo: https://github.com/python-poetry/poetry
-    rev: "1.8.0"
+  - repo: local
     hooks:
-    - id: poetry-check
-    - id: poetry-export
-      args: ["-f", "requirements.txt", "-o", "docs/requirements.txt", "--only", "doc"]
+    - id: uv-export
+      name: export doc requirements from uv.lock
+      entry: uv export --no-emit-project --no-dev --group doc --format requirements-txt -o docs/requirements.txt
+      language: system
+      pass_filenames: false
+      files: ^(pyproject\.toml|uv\.lock)$
