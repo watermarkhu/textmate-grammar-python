@@ -1,0 +1,14 @@
+{
+  "name": "node_root",
+  "version": "1.0.0",
+  "description": "Node dependencies for the differential test oracle (test/differential/oracle.js).",
+  "main": "oracle.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.3.2"
+  }
+}
