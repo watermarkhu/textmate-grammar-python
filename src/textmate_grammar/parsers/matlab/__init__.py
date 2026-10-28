@@ -1,72 +1,57 @@
+"""Small MATLAB convenience wrapper around the public grammar engine."""
+
 from __future__ import annotations
 
-import plistlib
-import re
+from functools import cache
 from pathlib import Path
 
-import yaml
+from ...engine import Grammar, IToken, Registry, parse_raw_grammar
 
-from ..base import LanguageParser
+_GRAMMAR_PATH = Path(__file__).with_name("MATLAB.tmLanguage")
+_SCOPE_NAME = "source.matlab"
 
 
-class MatlabParser(LanguageParser):
-    """
-    Represents a grammar for the MATLAB language.
-    """
+def _load_grammar(scope_name: str):
+    if scope_name != _SCOPE_NAME:
+        return None
+    return parse_raw_grammar(_GRAMMAR_PATH.read_text(encoding="utf-8"), str(_GRAMMAR_PATH))
 
-    def __init__(self, remove_line_continuations: bool = False, **kwargs):
-        """
-        Initializes a new instance of the MatlabGrammar class.
 
-        Args:
-            remove_line_continuations (bool, optional): Whether to remove line continuations. Defaults to False.
-        """
+_registry = Registry({"load_grammar": _load_grammar})
 
-        self._rlc = remove_line_continuations
 
-        tmLanguageFile = (
-            Path(__file__).parents[3]
-            / "syntaxes"
-            / "matlab"
-            / "Matlab.tmbundle"
-            / "Syntaxes"
-            / "MATLAB.tmLanguage"
-        )
-        tmLanguageYAML = Path(__file__).parent / "grammar.yaml"
+@cache
+def matlab_grammar() -> Grammar:
+    """Return the module-cached MATLAB grammar."""
+    grammar = _registry.load_grammar(_SCOPE_NAME)
+    if not isinstance(grammar, Grammar):
+        raise RuntimeError("Could not load the bundled MATLAB grammar")
+    return grammar
 
-        if tmLanguageFile.exists():
-            with open(tmLanguageFile, "rb") as tmFile:
-                grammar = plistlib.load(tmFile, fmt=plistlib.FMT_XML)
-            with open(tmLanguageYAML, "w") as ymlFile:
-                ymlFile.write(yaml.dump(grammar, indent=2))
-        else:
-            with open(tmLanguageYAML) as ymlFile:
-                try:
-                    grammar = yaml.load(ymlFile.read(), Loader=yaml.CLoader)
-                except ImportError:
-                    grammar = yaml.load(ymlFile.read(), Loader=yaml.Loader)
 
-        super().__init__(grammar, **kwargs)
+def tokenize_matlab(path_or_text: str | Path) -> list[list[IToken]]:
+    """Tokenize a MATLAB source path or text, returning tokens grouped by line."""
+    text = _read_source(path_or_text)
+    grammar = matlab_grammar()
+    state = None
+    lines: list[list[IToken]] = []
+    for line in text.split("\n"):
+        result = grammar.tokenizeLine(line, state)
+        state = result.ruleStack
+        lines.append(result.tokens)
+    return lines
 
-    def pre_process(self, input: str) -> str:
-        """
-        Pre-processes the input text.
-        """
-        if self._rlc:
-            input = self._remove_line_continuations(input)
-        return input
 
-    def _remove_line_continuations(self, input: str) -> str:
-        """
-        Removes line continuations from the input text.
-        """
-        if "..." not in input:
-            return input
-        output = ""
-        for split in input.split("..."):
-            matching = re.search(r"\n[\t\f\v ]*", split)
-            if matching:
-                output += split[matching.span()[1] :]
-            else:
-                output += split
-        return output
+def _read_source(path_or_text: str | Path) -> str:
+    if isinstance(path_or_text, Path):
+        return path_or_text.read_text(encoding="utf-8")
+    candidate = Path(path_or_text)
+    try:
+        if "\n" not in path_or_text and candidate.is_file():
+            return candidate.read_text(encoding="utf-8")
+    except OSError:
+        pass
+    return path_or_text
+
+
+__all__ = ["matlab_grammar", "tokenize_matlab"]

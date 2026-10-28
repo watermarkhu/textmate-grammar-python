@@ -1,11 +1,11 @@
-"""Differential tests: the legacy python tokenizer vs the vscode-textmate node oracle.
+"""Differential tests: the Python engine vs the vscode-textmate node oracle.
 
-For every corpus entry (see ``corpus.py``; task 6 grows it), the node oracle
-(``node oracle.js <grammar-file> <text-file>``) and the legacy engine adapter are run, and
+For every corpus entry (see ``corpus.py``), the node oracle
+(``node oracle.js <grammar-file> <text-file>``) and the public engine adapter are run, and
 their token records are compared exactly. On a mismatch the test fails with the first
 divergent token, its stream index, both records and their +/-3 surrounding records.
 
-The comparison happens on *merged* token streams: the legacy engine's ``flatten()`` merges
+The comparison happens on *merged* token streams: adjacent equal-scope tokens are merged
 consecutive character positions within a line that carry identical scope names, while the raw
 vscode-textmate ``tokenizeLine`` result may emit several adjacent tokens (capture boundaries)
 with identical scope lists. Merging both sides on the (line, scope list) criterion makes the
@@ -50,8 +50,8 @@ ORACLE_REASON = (
 )
 
 
-def run_oracle(entry: CorpusEntry, oracle_input: Path) -> list[TokenRecord]:
-    """Run the oracle on the (already unified) corpus text ``oracle_input`` for ``entry``."""
+def run_oracle(entry: CorpusEntry, oracle_input: Path) -> tuple[list[TokenRecord], list[str] | None]:
+    """Run the oracle and return its tokens and final state digest."""
     spec = CORPUS_LANGUAGES[entry.language]
     process = subprocess.run(
         ["node", str(ORACLE_SCRIPT), str(spec.grammar), str(oracle_input)],
@@ -63,20 +63,23 @@ def run_oracle(entry: CorpusEntry, oracle_input: Path) -> list[TokenRecord]:
         raise RuntimeError(f"oracle failed (exit={process.returncode}):\n{process.stderr}")
 
     records: list[TokenRecord] = []
+    state: list[str] | None = None
     for line in process.stdout.splitlines():
         record = json.loads(line)
         if record["type"] == "token":
             records.append(
                 TokenRecord(record["line"], record["start"], record["end"], tuple(record["scopes"]), record["content"])
             )
-    return records
+        elif record["type"] == "state":
+            state = record["scopes"]
+    return records, state
 
 
 def merge_records(records: list[TokenRecord]) -> list[TokenRecord]:
     """Merge consecutive same-scope records within a line; drop empty-content records.
 
-    Mirrors the legacy engine's ``flatten()`` semantics: characters carrying identical scope
-    names inside a line belong to a single token. Merging requires contiguity so that a
+    Characters carrying identical scope names inside a line belong to a single token.
+    Merging requires contiguity so that a
     coverage gap on either side is reported as a divergence instead of being hidden.
     """
     merged: list[TokenRecord] = []
@@ -144,33 +147,26 @@ class TestDifferential:
     """Token-stream parity per (grammar, corpus file) pair."""
 
     def test_tokenization_parity(self, entry: CorpusEntry, tmp_path: Path) -> None:
-        """The legacy engine and the node oracle produce identical token records."""
-        if entry.language == "markdown":
-            # Baseline debt (documented in the parity ledger): the legacy engine cannot
-            # tokenize markdown at all — parsers/markdown/grammar.yaml still contains the
-            # {{languageDefinitions}} placeholders, and BeginWhileParser._initialize_repository
-            # crashes on `self.parsers_end` (never initialized). The new engine (plan tasks
-            # 3b/5) replaces both; un-xfail when the differential adapter switches engines.
-            pytest.xfail("legacy engine cannot tokenize markdown (BeginWhileParser.parsers_end crash)")
-
-        # Both engines must tokenize identical text: the test feeds the oracle a copy of the
+        """The public engine and the node oracle produce identical tokens and states."""
+        # Both sides tokenize identical text: the test feeds the oracle a copy of the
         # corpus entry's unified text (see CorpusEntry.load_text for the normalization).
         oracle_input = tmp_path / f"oracle_{entry.path.name}"
         oracle_input.write_text(entry.load_text(), encoding="utf-8", newline="\n")
 
-        oracle = run_oracle(entry, oracle_input)
+        oracle, oracle_state = run_oracle(entry, oracle_input)
 
         text = entry.load_text()
         try:
-            legacy_adapter = get_adapter(entry.language)
-            records = legacy_adapter.tokenize(text)
+            adapter = get_adapter(entry.language)
+            records, final_state = adapter.tokenize_with_state(text)
         except Exception as error:
             pytest.fail(
-                f"The legacy engine could not tokenize {entry.id}: "
+                f"The Python engine could not tokenize {entry.id}: "
                 f"{error.__class__.__name__}: {error}"
-                "\nThis is baseline debt against the vscode-textmate oracle"
+                "\nThis is a divergence against the vscode-textmate oracle"
                 f" (oracle produced {len(oracle)} tokens; first ones: "
                 f"{[repr(record) for record in oracle[:5]]})",
                 pytrace=False,
             )
         compare(oracle, records)
+        assert final_state == oracle_state

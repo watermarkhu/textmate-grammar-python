@@ -99,7 +99,9 @@ def matlab_corpus() -> list[CorpusEntry]:
         for path in sorted(MATLAB_TEST_ROOT.glob("*.m"))
     ]
     entries.append(
-        CorpusEntry("matlab", REPOSITORY_ROOT / "test" / "regression" / "matlab" / "test_multiple_inheritance_ml.m")
+        # Originally part of the retired test/regression suite; retained in the
+        # differential corpus after that suite was removed.
+        CorpusEntry("matlab", TEST_DIFFERENTIAL_ROOT / "corpus" / "matlab" / "test_multiple_inheritance_ml.m")
     )
     return entries
 
