@@ -190,18 +190,24 @@ class AttributedScopeStack:
     def getScopeNames(self) -> list[str]:  # noqa: N802
         return self.get_scope_names()
 
-    def get_extension_if_defined(self, base: AttributedScopeStack | None) -> list[dict[str, Any]] | None:
+    def get_extension_if_defined(
+        self, base: AttributedScopeStack | None
+    ) -> list[dict[str, Any]] | None:
         frames: list[dict[str, Any]] = []
         item: AttributedScopeStack | None = self
         while item is not None and item is not base:
             scope_names = item.scope_path.get_extension_if_defined(
                 item.parent.scope_path if item.parent is not None else None
             )
-            frames.append({"encodedTokenAttributes": item.token_attributes, "scopeNames": scope_names or []})
+            frames.append(
+                {"encodedTokenAttributes": item.token_attributes, "scopeNames": scope_names or []}
+            )
             item = item.parent
         return list(reversed(frames)) if item is base else None
 
-    def getExtensionIfDefined(self, base: AttributedScopeStack | None) -> list[dict[str, Any]] | None:  # noqa: N802
+    def getExtensionIfDefined(
+        self, base: AttributedScopeStack | None
+    ) -> list[dict[str, Any]] | None:  # noqa: N802
         return self.get_extension_if_defined(base)
 
     def equals(self, other: AttributedScopeStack | None) -> bool:
@@ -277,7 +283,11 @@ class StateStackImpl:
         while left is not right:
             if left is None or right is None:
                 return left is right
-            if left.depth != right.depth or left.rule_id != right.rule_id or left.endRule != right.endRule:
+            if (
+                left.depth != right.depth
+                or left.rule_id != right.rule_id
+                or left.endRule != right.endRule
+            ):
                 return False
             left, right = left.parent, right.parent
         return True
@@ -288,8 +298,12 @@ class StateStackImpl:
         return self._structural_equals(self, other)
 
     def equals(self, other: StateStackImpl | None) -> bool:
-        return other is not None and self._structural_equals(self, other) and attributed_scope_stacks_equal(
-            self.contentNameScopesList, other.contentNameScopesList
+        return (
+            other is not None
+            and self._structural_equals(self, other)
+            and attributed_scope_stacks_equal(
+                self.contentNameScopesList, other.contentNameScopesList
+            )
         )
 
     def reset(self) -> None:
@@ -391,12 +405,18 @@ class StateStackImpl:
         return self.has_same_rule_as(other)
 
     def to_state_stack_frame(self) -> dict[str, Any]:
-        name_extension = self.nameScopesList.get_extension_if_defined(
-            self.parent.nameScopesList if self.parent is not None else None
-        ) if self.nameScopesList is not None else None
-        content_extension = self.contentNameScopesList.get_extension_if_defined(
-            self.nameScopesList
-        ) if self.contentNameScopesList is not None else None
+        name_extension = (
+            self.nameScopesList.get_extension_if_defined(
+                self.parent.nameScopesList if self.parent is not None else None
+            )
+            if self.nameScopesList is not None
+            else None
+        )
+        content_extension = (
+            self.contentNameScopesList.get_extension_if_defined(self.nameScopesList)
+            if self.contentNameScopesList is not None
+            else None
+        )
         return {
             "ruleId": self.rule_id,
             "beginRuleCapturedEOL": self.beginRuleCapturedEOL,
@@ -409,9 +429,7 @@ class StateStackImpl:
         return self.to_state_stack_frame()
 
     @classmethod
-    def push_frame(
-        cls, parent: StateStackImpl | None, frame: Mapping[str, Any]
-    ) -> StateStackImpl:
+    def push_frame(cls, parent: StateStackImpl | None, frame: Mapping[str, Any]) -> StateStackImpl:
         name_scopes = AttributedScopeStack.from_extension(
             parent.nameScopesList if parent is not None else None,
             frame.get("nameScopesList", ()),
@@ -440,9 +458,7 @@ class StateStackImpl:
         frames: list[str] = []
         item: StateStackImpl | None = self
         while item is not None:
-            frames.append(
-                f"({item.rule_id}, {item.nameScopesList}, {item.contentNameScopesList})"
-            )
+            frames.append(f"({item.rule_id}, {item.nameScopesList}, {item.contentNameScopesList})")
             item = item.parent
         return "[" + ",".join(reversed(frames)) + "]"
 
@@ -528,7 +544,9 @@ class LineTokens:
     def produce_from_scopes(self, scopes: AttributedScopeStack | None, end_index: int) -> None:
         if self.last_token_end_index >= end_index:
             return
-        self.tokens.append(IToken(self.last_token_end_index, end_index, scopes.get_scope_names() if scopes else []))
+        self.tokens.append(
+            IToken(self.last_token_end_index, end_index, scopes.get_scope_names() if scopes else [])
+        )
         self.last_token_end_index = end_index
 
     def get_result(self, stack: StateStackImpl, line_length: int) -> list[IToken]:
@@ -562,7 +580,9 @@ class Injection:
 
 
 class _DefaultGrammarRepository:
-    def __init__(self, root: Mapping[str, Any], external: Callable[[str], Mapping[str, Any] | None] | None) -> None:
+    def __init__(
+        self, root: Mapping[str, Any], external: Callable[[str], Mapping[str, Any] | None] | None
+    ) -> None:
         self.root = root
         self.external = external
 
@@ -647,7 +667,11 @@ class Grammar(RuleRegistry, IRuleFactoryHelper):
 
         add_injections(self.grammar)
         repo = self.grammar_repository
-        injection_scopes = repo.injections(self.root_scope_name) if callable(getattr(repo, "injections", None)) else ()
+        injection_scopes = (
+            repo.injections(self.root_scope_name)
+            if callable(getattr(repo, "injections", None))
+            else ()
+        )
         for injection_scope in injection_scopes or ():
             injection_grammar = self.get_external_grammar(injection_scope, None)
             if injection_grammar is not None and injection_grammar.get("injectionSelector"):
@@ -657,7 +681,9 @@ class Grammar(RuleRegistry, IRuleFactoryHelper):
                         injection_grammar, self, injection_grammar.get("repository") or {}
                     )
                     result.append(
-                        Injection(selector, matcher.matcher, matcher.priority, rule_id, injection_grammar)
+                        Injection(
+                            selector, matcher.matcher, matcher.priority, rule_id, injection_grammar
+                        )
                     )
         # Python's sort is stable, matching Array.sort's stable ordering in the pinned runtime.
         result.sort(key=lambda injection: injection.priority)
@@ -697,7 +723,9 @@ class Grammar(RuleRegistry, IRuleFactoryHelper):
             self, onig_line, is_first_line, 0, stack, handler, True, time_limit
         )
         onig_line.dispose()
-        return ITokenizeLineResult(handler.get_token_result(final_stack, len(augmented_line)), final_stack, stopped_early)
+        return ITokenizeLineResult(
+            handler.get_token_result(final_stack, len(augmented_line)), final_stack, stopped_early
+        )
 
     def tokenizeLine(
         self, line_text: str, prev_state: StateStackImpl | None = None, time_limit: int = 0
@@ -834,7 +862,12 @@ def _match_rule_or_injections(
         return injected
     injected_start = injected.capture_indices[0].start
     normal_start = normal.capture_indices[0].start
-    return injected if injected_start < normal_start or (injected.priority_match and injected_start == normal_start) else normal
+    return (
+        injected
+        if injected_start < normal_start
+        or (injected.priority_match and injected_start == normal_start)
+        else normal
+    )
 
 
 @dataclass
@@ -878,7 +911,9 @@ def _check_while_conditions(
         indices = result.capture_indices
         if indices:
             handler.handle(while_frame.contentNameScopesList, indices[0].start)
-            _handle_captures(grammar, line, is_first_line, while_frame, handler, rule.whileCaptures, indices)
+            _handle_captures(
+                grammar, line, is_first_line, while_frame, handler, rule.whileCaptures, indices
+            )
             handler.handle(while_frame.contentNameScopesList, indices[0].end)
             anchor_position = indices[0].end
             if indices[0].end > line_pos:
@@ -914,7 +949,9 @@ def _handle_captures(
         handler.handle(local[-1][0] if local else stack.contentNameScopesList, index.start)
         if capture.retokenize_captured_with_rule_id:
             name = capture.getName(line.content, indices)
-            name_scopes = (stack.contentNameScopesList or AttributedScopeStack.create_root("unknown")).push_attributed(name, grammar)
+            name_scopes = (
+                stack.contentNameScopesList or AttributedScopeStack.create_root("unknown")
+            ).push_attributed(name, grammar)
             content_name = capture.getContentName(line.content, indices)
             content_scopes = name_scopes.push_attributed(content_name, grammar)
             nested = stack.push(
@@ -990,7 +1027,9 @@ def _tokenize_string(
                 raise RuntimeError("end rule matched outside a begin/end context")
             handler.handle(stack.contentNameScopesList, indices[0].start)
             stack = stack.with_content_name_scopes_list(stack.nameScopesList)  # type: ignore[arg-type]
-            _handle_captures(grammar, line, is_first_line, stack, handler, popped_rule.endCaptures, indices)
+            _handle_captures(
+                grammar, line, is_first_line, stack, handler, popped_rule.endCaptures, indices
+            )
             handler.handle(stack.contentNameScopesList, indices[0].end)
             popped = stack
             stack = stack.parent or stack
@@ -1004,7 +1043,9 @@ def _tokenize_string(
             handler.handle(stack.contentNameScopesList, indices[0].start)
             before_push = stack
             scope_name = rule.getName(line.content, indices)
-            name_scopes = (stack.contentNameScopesList or AttributedScopeStack.create_root("unknown")).push_attributed(scope_name, grammar)
+            name_scopes = (
+                stack.contentNameScopesList or AttributedScopeStack.create_root("unknown")
+            ).push_attributed(scope_name, grammar)
             stack = stack.push(
                 matched_rule_id,
                 line_pos,
@@ -1023,9 +1064,13 @@ def _tokenize_string(
                 content_scopes = name_scopes.push_attributed(content_name, grammar)
                 stack = stack.with_content_name_scopes_list(content_scopes)
                 if isinstance(rule, BeginEndRule) and rule.endHasBackReferences:
-                    stack = stack.with_end_rule(rule.getEndWithResolvedBackReferences(line.content, indices))
+                    stack = stack.with_end_rule(
+                        rule.getEndWithResolvedBackReferences(line.content, indices)
+                    )
                 elif isinstance(rule, BeginWhileRule) and rule.whileHasBackReferences:
-                    stack = stack.with_end_rule(rule.getWhileWithResolvedBackReferences(line.content, indices))
+                    stack = stack.with_end_rule(
+                        rule.getWhileWithResolvedBackReferences(line.content, indices)
+                    )
                 if not has_advanced and before_push.has_same_rule_as(stack):
                     stack = stack.pop() or stack
                     handler.handle(stack.contentNameScopesList, line_length)
@@ -1053,7 +1098,9 @@ def get_scope_names(chain: Any | None) -> list[str]:
             result.append(item.scope_name)
             item = item.parent
         else:
-            name = getattr(item, "scope_name", getattr(item, "scopeName", getattr(item, "name", None)))
+            name = getattr(
+                item, "scope_name", getattr(item, "scopeName", getattr(item, "name", None))
+            )
             if name is None:
                 break
             result.append(name)

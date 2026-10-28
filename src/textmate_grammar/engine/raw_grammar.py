@@ -75,9 +75,7 @@ class ILocation(TypedDict):
 
 #: ``ILocatable`` upstream: objects produced by the debug-mode parsers may carry
 #: an extra ``$vscodeTextmateLocation`` entry.
-ILocatable = TypedDict(
-    "ILocatable", {"$vscodeTextmateLocation": ILocation}, total=False
-)
+ILocatable = TypedDict("ILocatable", {"$vscodeTextmateLocation": ILocation}, total=False)
 
 #: ``IRawCapturesMap & ILocatable`` upstream: maps capture ids (``"1"``, ...)
 #: to raw rules, plus the optional location entry.
@@ -560,9 +558,7 @@ def next_json_token(stream_state: JSONStreamState, out_token: _JSONToken) -> boo
     out_token.length = pos - out_token.offset
     if out_token.value is None:
         # substr semantics: clamped slice
-        out_token.value = _text_of(
-            source[out_token.offset : out_token.offset + out_token.length]
-        )
+        out_token.value = _text_of(source[out_token.offset : out_token.offset + out_token.length])
 
     stream_state.pos = pos
     stream_state.line = line
@@ -604,7 +600,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
         return _do_fail(stream_state, msg)
 
     while next_json_token(stream_state, token):
-
         if state is _JSONState.ROOT_STATE:
             if cur is not None:
                 fail("too many constructs in root")
@@ -627,7 +622,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("unexpected token in root")
 
         if state is _JSONState.DICT_STATE_COMMA:
-
             if token.type is _JSONTokenType.RIGHT_CURLY_BRACKET:
                 pop_state()
                 continue
@@ -639,11 +633,7 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("expected , or }")
 
         if state in (_JSONState.DICT_STATE, _JSONState.DICT_STATE_NO_CLOSE):
-
-            if (
-                state is _JSONState.DICT_STATE
-                and token.type is _JSONTokenType.RIGHT_CURLY_BRACKET
-            ):
+            if state is _JSONState.DICT_STATE and token.type is _JSONTokenType.RIGHT_CURLY_BRACKET:
                 pop_state()
                 continue
 
@@ -693,7 +683,6 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("unexpected token in dict")
 
         if state is _JSONState.ARR_STATE_COMMA:
-
             if token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET:
                 pop_state()
                 continue
@@ -705,11 +694,7 @@ def parse_json(source: str, filename: str | None, with_metadata: bool) -> Any:
             fail("expected , or ]")
 
         if state in (_JSONState.ARR_STATE, _JSONState.ARR_STATE_NO_CLOSE):
-
-            if (
-                state is _JSONState.ARR_STATE
-                and token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET
-            ):
+            if state is _JSONState.ARR_STATE and token.type is _JSONTokenType.RIGHT_SQUARE_BRACKET:
                 pop_state()
                 continue
 
