@@ -5,6 +5,10 @@ For every corpus entry (see ``corpus.py``), the node oracle
 their token records are compared exactly. On a mismatch the test fails with the first
 divergent token, its stream index, both records and their +/-3 surrounding records.
 
+Before comparison, oracle columns are converted from JavaScript UTF-16 code units to Python
+Unicode code points. CRLF handling is centralized in ``CorpusEntry.load_text``; ``oracle.js``
+removes vscode-textmate's virtual trailing newline from emitted token records.
+
 The comparison happens on *merged* token streams: adjacent equal-scope tokens are merged
 consecutive character positions within a line that carry identical scope names, while the raw
 vscode-textmate ``tokenizeLine`` result may emit several adjacent tokens (capture boundaries)
@@ -141,6 +145,38 @@ def compare(oracle: list[TokenRecord], adapter: list[TokenRecord]) -> None:
         pytest.fail(_divergence_message(merged_oracle, merged_adapter), pytrace=False)
 
 
+def canonicalize_oracle_records(records: list[TokenRecord], text: str) -> list[TokenRecord]:
+    """Convert oracle UTF-16-unit columns to Python code-point columns.
+
+    vscode-textmate indexes JavaScript strings in UTF-16 code units; the Python engine indexes
+    ``str`` by Unicode code points. Token content and scopes are unchanged, but columns after a
+    non-BMP character differ until oracle coordinates are translated before comparison.
+    """
+    lines = text.split("\n")
+    offset_maps: dict[int, dict[int, int]] = {}
+    converted: list[TokenRecord] = []
+    for record in records:
+        if record.line not in offset_maps:
+            offsets = {0: 0}
+            utf16_offset = 0
+            for codepoint_offset, character in enumerate(lines[record.line], start=1):
+                utf16_offset += 2 if ord(character) > 0xFFFF else 1
+                offsets[utf16_offset] = codepoint_offset
+            offset_maps[record.line] = offsets
+
+        offsets = offset_maps[record.line]
+        try:
+            start = offsets[record.start]
+            end = offsets[record.end]
+        except KeyError as error:
+            raise ValueError(
+                f"Oracle token boundary {error.args[0]} splits a UTF-16 surrogate pair "
+                f"on line {record.line}"
+            ) from error
+        converted.append(record._replace(start=start, end=end))
+    return converted
+
+
 @pytest.mark.skipif(not oracle_available(), reason=ORACLE_REASON)
 @pytest.mark.parametrize("entry", corpus(), ids=lambda entry: entry.id)
 class TestDifferential:
@@ -153,11 +189,14 @@ class TestDifferential:
         oracle_input = tmp_path / f"oracle_{entry.path.name}"
         oracle_input.write_text(entry.load_text(), encoding="utf-8", newline="\n")
 
-        oracle, oracle_state = run_oracle(entry, oracle_input)
-
         text = entry.load_text()
+        oracle, oracle_state = run_oracle(entry, oracle_input)
+        # EOL normalization happens in CorpusEntry.load_text, and oracle.js removes its virtual
+        # trailing newline before records reach this point. Canonicalize the remaining coordinate
+        # difference here: JS uses UTF-16 units while Python uses code points.
+        oracle = canonicalize_oracle_records(oracle, text)
         try:
-            adapter = get_adapter(entry.language)
+            adapter = get_adapter(entry.language, engine="new")
             records, final_state = adapter.tokenize_with_state(text)
         except Exception as error:
             pytest.fail(

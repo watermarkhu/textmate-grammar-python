@@ -1,0 +1,15 @@
+Python grammar
+--------------
+The grammar is vendored from the Microsoft VS Code Python extension at
+https://github.com/microsoft/vscode/blob/main/extensions/python/syntaxes/MagicPython.tmLanguage.json
+It identifies its original source as MagicPython, maintained at
+https://github.com/MagicStack/MagicPython. The grammar is distributed under the
+MIT license; the upstream license is available at
+https://github.com/MagicStack/MagicPython/blob/master/LICENSE.
+
+TypeScript grammar
+------------------
+TypeScript.tmLanguage is vendored from
+https://github.com/microsoft/TypeScript-TmLanguage/blob/master/TypeScript.tmLanguage
+and is distributed under the MIT license. See
+https://github.com/microsoft/TypeScript-TmLanguage/blob/master/LICENSE.txt.

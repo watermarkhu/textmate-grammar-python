@@ -64,7 +64,7 @@ async function main() {
     }));
 
     // Load the grammar from the file path argument and keep handing it back for its own scope name.
-    const parsedGrammar = vsctm.parseRawGrammar(fs.readFileSync(grammarFile).toString());
+    const parsedGrammar = vsctm.parseRawGrammar(fs.readFileSync(grammarFile).toString(), grammarFile);
     const scopeName = parsedGrammar.scopeName;
 
     const registry = new vsctm.Registry({
