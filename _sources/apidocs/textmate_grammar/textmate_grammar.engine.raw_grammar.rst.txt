@@ -1,0 +1,214 @@
+:py:mod:`textmate_grammar.engine.raw_grammar`
+=============================================
+
+.. py:module:: textmate_grammar.engine.raw_grammar
+
+.. autodoc2-docstring:: textmate_grammar.engine.raw_grammar
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ILocation <textmate_grammar.engine.raw_grammar.ILocation>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation
+          :summary:
+   * - :py:obj:`JSONStreamState <textmate_grammar.engine.raw_grammar.JSONStreamState>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`value_as_string <textmate_grammar.engine.raw_grammar.value_as_string>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.value_as_string
+          :summary:
+   * - :py:obj:`parse_raw_grammar <textmate_grammar.engine.raw_grammar.parse_raw_grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.parse_raw_grammar
+          :summary:
+   * - :py:obj:`next_json_token <textmate_grammar.engine.raw_grammar.next_json_token>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.next_json_token
+          :summary:
+   * - :py:obj:`parse_json <textmate_grammar.engine.raw_grammar.parse_json>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.parse_json
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`LOCATION_KEY <textmate_grammar.engine.raw_grammar.LOCATION_KEY>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.LOCATION_KEY
+          :summary:
+   * - :py:obj:`ILocatable <textmate_grammar.engine.raw_grammar.ILocatable>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocatable
+          :summary:
+   * - :py:obj:`IRawCaptures <textmate_grammar.engine.raw_grammar.IRawCaptures>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawCaptures
+          :summary:
+   * - :py:obj:`IRawRepository <textmate_grammar.engine.raw_grammar.IRawRepository>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawRepository
+          :summary:
+   * - :py:obj:`IRawRule <textmate_grammar.engine.raw_grammar.IRawRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawRule
+          :summary:
+   * - :py:obj:`IRawGrammar <textmate_grammar.engine.raw_grammar.IRawGrammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawGrammar
+          :summary:
+   * - :py:obj:`IN_DEBUG_MODE <textmate_grammar.engine.raw_grammar.IN_DEBUG_MODE>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IN_DEBUG_MODE
+          :summary:
+
+API
+~~~
+
+.. py:data:: LOCATION_KEY
+   :canonical: textmate_grammar.engine.raw_grammar.LOCATION_KEY
+   :value: '$vscodeTextmateLocation'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.LOCATION_KEY
+
+.. py:class:: ILocation()
+   :canonical: textmate_grammar.engine.raw_grammar.ILocation
+
+   Bases: :py:obj:`typing.TypedDict`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation.__init__
+
+   .. py:attribute:: filename
+      :canonical: textmate_grammar.engine.raw_grammar.ILocation.filename
+      :type: str | None
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation.filename
+
+   .. py:attribute:: line
+      :canonical: textmate_grammar.engine.raw_grammar.ILocation.line
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation.line
+
+   .. py:attribute:: char
+      :canonical: textmate_grammar.engine.raw_grammar.ILocation.char
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocation.char
+
+.. py:data:: ILocatable
+   :canonical: textmate_grammar.engine.raw_grammar.ILocatable
+   :value: 'TypedDict(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.ILocatable
+
+.. py:data:: IRawCaptures
+   :canonical: textmate_grammar.engine.raw_grammar.IRawCaptures
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawCaptures
+
+.. py:data:: IRawRepository
+   :canonical: textmate_grammar.engine.raw_grammar.IRawRepository
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawRepository
+
+.. py:data:: IRawRule
+   :canonical: textmate_grammar.engine.raw_grammar.IRawRule
+   :value: 'TypedDict(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawRule
+
+.. py:data:: IRawGrammar
+   :canonical: textmate_grammar.engine.raw_grammar.IRawGrammar
+   :value: 'TypedDict(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IRawGrammar
+
+.. py:function:: value_as_string(value: typing.Any) -> str
+   :canonical: textmate_grammar.engine.raw_grammar.value_as_string
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.value_as_string
+
+.. py:data:: IN_DEBUG_MODE
+   :canonical: textmate_grammar.engine.raw_grammar.IN_DEBUG_MODE
+   :value: 'is_in_debug_mode(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.IN_DEBUG_MODE
+
+.. py:function:: parse_raw_grammar(content: str, file_path: str | None = None) -> typing.Any
+   :canonical: textmate_grammar.engine.raw_grammar.parse_raw_grammar
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.parse_raw_grammar
+
+.. py:class:: JSONStreamState(source: str)
+   :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.__init__
+
+   .. py:attribute:: source
+      :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState.source
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.source
+
+   .. py:attribute:: pos
+      :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState.pos
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.pos
+
+   .. py:attribute:: length
+      :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState.length
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.length
+
+   .. py:attribute:: line
+      :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState.line
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.line
+
+   .. py:attribute:: char
+      :canonical: textmate_grammar.engine.raw_grammar.JSONStreamState.char
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.JSONStreamState.char
+
+.. py:function:: next_json_token(stream_state: textmate_grammar.engine.raw_grammar.JSONStreamState, out_token: textmate_grammar.engine.raw_grammar._JSONToken) -> bool
+   :canonical: textmate_grammar.engine.raw_grammar.next_json_token
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.next_json_token
+
+.. py:function:: parse_json(source: str, filename: str | None, with_metadata: bool) -> typing.Any
+   :canonical: textmate_grammar.engine.raw_grammar.parse_json
+
+   .. autodoc2-docstring:: textmate_grammar.engine.raw_grammar.parse_json

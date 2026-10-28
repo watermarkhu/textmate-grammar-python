@@ -1,0 +1,37 @@
+:py:mod:`textmate_grammar.parsers.matlab`
+=========================================
+
+.. py:module:: textmate_grammar.parsers.matlab
+
+.. autodoc2-docstring:: textmate_grammar.parsers.matlab
+   :allowtitles:
+
+Package Contents
+----------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`matlab_grammar <textmate_grammar.parsers.matlab.matlab_grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.matlab.matlab_grammar
+          :summary:
+   * - :py:obj:`tokenize_matlab <textmate_grammar.parsers.matlab.tokenize_matlab>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.matlab.tokenize_matlab
+          :summary:
+
+API
+~~~
+
+.. py:function:: matlab_grammar() -> textmate_grammar.engine.Grammar
+   :canonical: textmate_grammar.parsers.matlab.matlab_grammar
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.matlab.matlab_grammar
+
+.. py:function:: tokenize_matlab(path_or_text: str | pathlib.Path) -> list[list[textmate_grammar.engine.IToken]]
+   :canonical: textmate_grammar.parsers.matlab.tokenize_matlab
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.matlab.tokenize_matlab

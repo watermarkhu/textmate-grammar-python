@@ -1,0 +1,707 @@
+:py:mod:`textmate_grammar.engine.tokenize`
+==========================================
+
+.. py:module:: textmate_grammar.engine.tokenize
+
+.. autodoc2-docstring:: textmate_grammar.engine.tokenize
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ScopeStack <textmate_grammar.engine.tokenize.ScopeStack>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack
+          :summary:
+   * - :py:obj:`AttributedScopeStack <textmate_grammar.engine.tokenize.AttributedScopeStack>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack
+          :summary:
+   * - :py:obj:`StateStackImpl <textmate_grammar.engine.tokenize.StateStackImpl>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl
+          :summary:
+   * - :py:obj:`IToken <textmate_grammar.engine.tokenize.IToken>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken
+          :summary:
+   * - :py:obj:`ITokenizeLineResult <textmate_grammar.engine.tokenize.ITokenizeLineResult>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult
+          :summary:
+   * - :py:obj:`BalancedBracketSelectors <textmate_grammar.engine.tokenize.BalancedBracketSelectors>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors
+          :summary:
+   * - :py:obj:`LineTokens <textmate_grammar.engine.tokenize.LineTokens>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.LineTokens
+          :summary:
+   * - :py:obj:`TokenHandler <textmate_grammar.engine.tokenize.TokenHandler>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.TokenHandler
+          :summary:
+   * - :py:obj:`Injection <textmate_grammar.engine.tokenize.Injection>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection
+          :summary:
+   * - :py:obj:`Grammar <textmate_grammar.engine.tokenize.Grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`attributed_scope_stacks_equal <textmate_grammar.engine.tokenize.attributed_scope_stacks_equal>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.attributed_scope_stacks_equal
+          :summary:
+   * - :py:obj:`create_grammar <textmate_grammar.engine.tokenize.create_grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.create_grammar
+          :summary:
+   * - :py:obj:`get_scope_names <textmate_grammar.engine.tokenize.get_scope_names>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.get_scope_names
+          :summary:
+   * - :py:obj:`get_scope_name <textmate_grammar.engine.tokenize.get_scope_name>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.get_scope_name
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`StateStack <textmate_grammar.engine.tokenize.StateStack>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStack
+          :summary:
+   * - :py:obj:`ScopeListElement <textmate_grammar.engine.tokenize.ScopeListElement>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeListElement
+          :summary:
+   * - :py:obj:`createGrammar <textmate_grammar.engine.tokenize.createGrammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.createGrammar
+          :summary:
+   * - :py:obj:`getScopeName <textmate_grammar.engine.tokenize.getScopeName>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.getScopeName
+          :summary:
+   * - :py:obj:`getScopeNames <textmate_grammar.engine.tokenize.getScopeNames>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.tokenize.getScopeNames
+          :summary:
+
+API
+~~~
+
+.. py:class:: ScopeStack(parent: textmate_grammar.engine.tokenize.ScopeStack | None, scope_name: str)
+   :canonical: textmate_grammar.engine.tokenize.ScopeStack
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.__init__
+
+   .. py:method:: push_many(path: textmate_grammar.engine.tokenize.ScopeStack | None, scope_names: collections.abc.Sequence[str]) -> textmate_grammar.engine.tokenize.ScopeStack | None
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.push_many
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.push_many
+
+   .. py:method:: from_segments(*segments: str) -> textmate_grammar.engine.tokenize.ScopeStack | None
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.from_segments
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.from_segments
+
+   .. py:property:: scopeName
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.scopeName
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.scopeName
+
+   .. py:property:: name
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.name
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.name
+
+   .. py:method:: push(scope_name: str) -> textmate_grammar.engine.tokenize.ScopeStack
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.push
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.push
+
+   .. py:method:: get_segments() -> list[str]
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.get_segments
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.get_segments
+
+   .. py:method:: getSegments() -> list[str]
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.getSegments
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.getSegments
+
+   .. py:method:: get_extension_if_defined(base: textmate_grammar.engine.tokenize.ScopeStack | None) -> list[str] | None
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.get_extension_if_defined
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.get_extension_if_defined
+
+   .. py:method:: extends(other: textmate_grammar.engine.tokenize.ScopeStack) -> bool
+      :canonical: textmate_grammar.engine.tokenize.ScopeStack.extends
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeStack.extends
+
+.. py:class:: AttributedScopeStack
+   :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack
+
+   .. py:attribute:: parent
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.parent
+      :type: textmate_grammar.engine.tokenize.AttributedScopeStack | None
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.parent
+
+   .. py:attribute:: scope_path
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.scope_path
+      :type: textmate_grammar.engine.tokenize.ScopeStack
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.scope_path
+
+   .. py:attribute:: token_attributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.token_attributes
+      :type: int
+      :value: 0
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.token_attributes
+
+   .. py:attribute:: font_attributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.font_attributes
+      :type: typing.Any
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.font_attributes
+
+   .. py:attribute:: style_attributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.style_attributes
+      :type: typing.Any
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.style_attributes
+
+   .. py:property:: scopePath
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.scopePath
+      :type: textmate_grammar.engine.tokenize.ScopeStack
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.scopePath
+
+   .. py:property:: tokenAttributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.tokenAttributes
+      :type: int
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.tokenAttributes
+
+   .. py:property:: fontAttributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.fontAttributes
+      :type: typing.Any
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.fontAttributes
+
+   .. py:property:: styleAttributes
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.styleAttributes
+      :type: typing.Any
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.styleAttributes
+
+   .. py:property:: scope_name
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.scope_name
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.scope_name
+
+   .. py:method:: create_root(scope_name: str) -> textmate_grammar.engine.tokenize.AttributedScopeStack
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.create_root
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.create_root
+
+   .. py:method:: from_extension(name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None, content_name_scopes_list: collections.abc.Sequence[collections.abc.Mapping[str, typing.Any]]) -> textmate_grammar.engine.tokenize.AttributedScopeStack | None
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.from_extension
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.from_extension
+
+   .. py:method:: fromExtension(name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None, content_name_scopes_list: collections.abc.Sequence[collections.abc.Mapping[str, typing.Any]]) -> textmate_grammar.engine.tokenize.AttributedScopeStack | None
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.fromExtension
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.fromExtension
+
+   .. py:method:: push_attributed(scope_names: str | None, grammar: textmate_grammar.engine.tokenize.Grammar) -> textmate_grammar.engine.tokenize.AttributedScopeStack
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.push_attributed
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.push_attributed
+
+   .. py:method:: pushAttributed(scope_names: str | None, grammar: textmate_grammar.engine.tokenize.Grammar) -> textmate_grammar.engine.tokenize.AttributedScopeStack
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.pushAttributed
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.pushAttributed
+
+   .. py:method:: get_scope_names() -> list[str]
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.get_scope_names
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.get_scope_names
+
+   .. py:method:: getScopeNames() -> list[str]
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.getScopeNames
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.getScopeNames
+
+   .. py:method:: get_extension_if_defined(base: textmate_grammar.engine.tokenize.AttributedScopeStack | None) -> list[dict[str, typing.Any]] | None
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.get_extension_if_defined
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.get_extension_if_defined
+
+   .. py:method:: getExtensionIfDefined(base: textmate_grammar.engine.tokenize.AttributedScopeStack | None) -> list[dict[str, typing.Any]] | None
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.getExtensionIfDefined
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.getExtensionIfDefined
+
+   .. py:method:: equals(other: textmate_grammar.engine.tokenize.AttributedScopeStack | None) -> bool
+      :canonical: textmate_grammar.engine.tokenize.AttributedScopeStack.equals
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.AttributedScopeStack.equals
+
+.. py:function:: attributed_scope_stacks_equal(left: textmate_grammar.engine.tokenize.AttributedScopeStack | None, right: textmate_grammar.engine.tokenize.AttributedScopeStack | None) -> bool
+   :canonical: textmate_grammar.engine.tokenize.attributed_scope_stacks_equal
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.attributed_scope_stacks_equal
+
+.. py:class:: StateStackImpl(parent: textmate_grammar.engine.tokenize.StateStackImpl | None, rule_id: int, enter_pos: int, anchor_pos: int, begin_rule_captured_eol: bool, end_rule: str | None, name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None, content_name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None)
+   :canonical: textmate_grammar.engine.tokenize.StateStackImpl
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.__init__
+
+   .. py:attribute:: NULL
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.NULL
+      :type: textmate_grammar.engine.tokenize.StateStackImpl
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.NULL
+
+   .. py:property:: ruleId
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.ruleId
+      :type: int
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.ruleId
+
+   .. py:property:: begin_rule_captured_eol
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.begin_rule_captured_eol
+      :type: bool
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.begin_rule_captured_eol
+
+   .. py:property:: end_rule
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.end_rule
+      :type: str | None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.end_rule
+
+   .. py:property:: name_scopes_list
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.name_scopes_list
+      :type: textmate_grammar.engine.tokenize.AttributedScopeStack | None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.name_scopes_list
+
+   .. py:property:: content_name_scopes_list
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.content_name_scopes_list
+      :type: textmate_grammar.engine.tokenize.AttributedScopeStack | None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.content_name_scopes_list
+
+   .. py:method:: clone() -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.clone
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.clone
+
+   .. py:method:: structural_equals(other: textmate_grammar.engine.tokenize.StateStackImpl | None) -> bool
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.structural_equals
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.structural_equals
+
+   .. py:method:: equals(other: textmate_grammar.engine.tokenize.StateStackImpl | None) -> bool
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.equals
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.equals
+
+   .. py:method:: reset() -> None
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.reset
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.reset
+
+   .. py:method:: pop() -> textmate_grammar.engine.tokenize.StateStackImpl | None
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.pop
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.pop
+
+   .. py:method:: safe_pop() -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.safe_pop
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.safe_pop
+
+   .. py:method:: safePop() -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.safePop
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.safePop
+
+   .. py:method:: push(rule_id: int, enter_pos: int, anchor_pos: int, begin_rule_captured_eol: bool, end_rule: str | None, name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None, content_name_scopes_list: textmate_grammar.engine.tokenize.AttributedScopeStack | None) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.push
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.push
+
+   .. py:method:: get_enter_pos() -> int
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.get_enter_pos
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.get_enter_pos
+
+   .. py:method:: getEnterPos() -> int
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.getEnterPos
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.getEnterPos
+
+   .. py:method:: get_anchor_pos() -> int
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.get_anchor_pos
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.get_anchor_pos
+
+   .. py:method:: getAnchorPos() -> int
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.getAnchorPos
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.getAnchorPos
+
+   .. py:method:: get_rule(grammar: textmate_grammar.engine.rules.RuleRegistry) -> textmate_grammar.engine.rules.Rule
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.get_rule
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.get_rule
+
+   .. py:method:: with_content_name_scopes_list(scopes: textmate_grammar.engine.tokenize.AttributedScopeStack) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.with_content_name_scopes_list
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.with_content_name_scopes_list
+
+   .. py:method:: withContentNameScopesList(scopes: textmate_grammar.engine.tokenize.AttributedScopeStack) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.withContentNameScopesList
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.withContentNameScopesList
+
+   .. py:method:: with_end_rule(end_rule: str) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.with_end_rule
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.with_end_rule
+
+   .. py:method:: withEndRule(end_rule: str) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.withEndRule
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.withEndRule
+
+   .. py:method:: has_same_rule_as(other: textmate_grammar.engine.tokenize.StateStackImpl) -> bool
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.has_same_rule_as
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.has_same_rule_as
+
+   .. py:method:: hasSameRuleAs(other: textmate_grammar.engine.tokenize.StateStackImpl) -> bool
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.hasSameRuleAs
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.hasSameRuleAs
+
+   .. py:method:: to_state_stack_frame() -> dict[str, typing.Any]
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.to_state_stack_frame
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.to_state_stack_frame
+
+   .. py:method:: toStateStackFrame() -> dict[str, typing.Any]
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.toStateStackFrame
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.toStateStackFrame
+
+   .. py:method:: push_frame(parent: textmate_grammar.engine.tokenize.StateStackImpl | None, frame: collections.abc.Mapping[str, typing.Any]) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.push_frame
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.push_frame
+
+   .. py:method:: pushFrame(parent: textmate_grammar.engine.tokenize.StateStackImpl | None, frame: collections.abc.Mapping[str, typing.Any]) -> textmate_grammar.engine.tokenize.StateStackImpl
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.pushFrame
+      :classmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.pushFrame
+
+   .. py:method:: to_string() -> str
+      :canonical: textmate_grammar.engine.tokenize.StateStackImpl.to_string
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStackImpl.to_string
+
+.. py:data:: StateStack
+   :canonical: textmate_grammar.engine.tokenize.StateStack
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.StateStack
+
+.. py:data:: ScopeListElement
+   :canonical: textmate_grammar.engine.tokenize.ScopeListElement
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ScopeListElement
+
+.. py:class:: IToken
+   :canonical: textmate_grammar.engine.tokenize.IToken
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken
+
+   .. py:attribute:: startIndex
+      :canonical: textmate_grammar.engine.tokenize.IToken.startIndex
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken.startIndex
+
+   .. py:attribute:: endIndex
+      :canonical: textmate_grammar.engine.tokenize.IToken.endIndex
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken.endIndex
+
+   .. py:attribute:: scopes
+      :canonical: textmate_grammar.engine.tokenize.IToken.scopes
+      :type: list[str]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken.scopes
+
+   .. py:property:: start_index
+      :canonical: textmate_grammar.engine.tokenize.IToken.start_index
+      :type: int
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken.start_index
+
+   .. py:property:: end_index
+      :canonical: textmate_grammar.engine.tokenize.IToken.end_index
+      :type: int
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.IToken.end_index
+
+.. py:class:: ITokenizeLineResult
+   :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult
+
+   .. py:attribute:: tokens
+      :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult.tokens
+      :type: list[textmate_grammar.engine.tokenize.IToken]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult.tokens
+
+   .. py:attribute:: ruleStack
+      :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult.ruleStack
+      :type: textmate_grammar.engine.tokenize.StateStackImpl
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult.ruleStack
+
+   .. py:attribute:: stoppedEarly
+      :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult.stoppedEarly
+      :type: bool
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult.stoppedEarly
+
+   .. py:property:: rule_stack
+      :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult.rule_stack
+      :type: textmate_grammar.engine.tokenize.StateStackImpl
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult.rule_stack
+
+   .. py:property:: stopped_early
+      :canonical: textmate_grammar.engine.tokenize.ITokenizeLineResult.stopped_early
+      :type: bool
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.ITokenizeLineResult.stopped_early
+
+.. py:class:: BalancedBracketSelectors(balanced: collections.abc.Sequence[str], unbalanced: collections.abc.Sequence[str])
+   :canonical: textmate_grammar.engine.tokenize.BalancedBracketSelectors
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors.__init__
+
+   .. py:property:: matchesAlways
+      :canonical: textmate_grammar.engine.tokenize.BalancedBracketSelectors.matchesAlways
+      :type: bool
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors.matchesAlways
+
+   .. py:property:: matchesNever
+      :canonical: textmate_grammar.engine.tokenize.BalancedBracketSelectors.matchesNever
+      :type: bool
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors.matchesNever
+
+   .. py:method:: match(scopes: list[str]) -> bool
+      :canonical: textmate_grammar.engine.tokenize.BalancedBracketSelectors.match
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.BalancedBracketSelectors.match
+
+.. py:class:: LineTokens(line_text: str)
+   :canonical: textmate_grammar.engine.tokenize.LineTokens
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.LineTokens
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.LineTokens.__init__
+
+   .. py:method:: produce_from_scopes(scopes: textmate_grammar.engine.tokenize.AttributedScopeStack | None, end_index: int) -> None
+      :canonical: textmate_grammar.engine.tokenize.LineTokens.produce_from_scopes
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.LineTokens.produce_from_scopes
+
+   .. py:method:: get_result(stack: textmate_grammar.engine.tokenize.StateStackImpl, line_length: int) -> list[textmate_grammar.engine.tokenize.IToken]
+      :canonical: textmate_grammar.engine.tokenize.LineTokens.get_result
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.LineTokens.get_result
+
+.. py:class:: TokenHandler(line_text: str)
+   :canonical: textmate_grammar.engine.tokenize.TokenHandler
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.TokenHandler
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.TokenHandler.__init__
+
+   .. py:method:: handle(scopes: textmate_grammar.engine.tokenize.AttributedScopeStack | None, end_index: int) -> None
+      :canonical: textmate_grammar.engine.tokenize.TokenHandler.handle
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.TokenHandler.handle
+
+   .. py:method:: get_token_result(stack: textmate_grammar.engine.tokenize.StateStackImpl, line_length: int) -> list[textmate_grammar.engine.tokenize.IToken]
+      :canonical: textmate_grammar.engine.tokenize.TokenHandler.get_token_result
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.TokenHandler.get_token_result
+
+.. py:class:: Injection
+   :canonical: textmate_grammar.engine.tokenize.Injection
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection
+
+   .. py:attribute:: debug_selector
+      :canonical: textmate_grammar.engine.tokenize.Injection.debug_selector
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection.debug_selector
+
+   .. py:attribute:: matcher
+      :canonical: textmate_grammar.engine.tokenize.Injection.matcher
+      :type: collections.abc.Callable[[list[str]], bool]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection.matcher
+
+   .. py:attribute:: priority
+      :canonical: textmate_grammar.engine.tokenize.Injection.priority
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection.priority
+
+   .. py:attribute:: rule_id
+      :canonical: textmate_grammar.engine.tokenize.Injection.rule_id
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection.rule_id
+
+   .. py:attribute:: grammar
+      :canonical: textmate_grammar.engine.tokenize.Injection.grammar
+      :type: collections.abc.Mapping[str, typing.Any]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Injection.grammar
+
+.. py:class:: Grammar(scope_name: str, grammar: collections.abc.Mapping[str, typing.Any], initial_language: int = 1, embedded_languages: collections.abc.Mapping[str, int] | None = None, token_types: collections.abc.Mapping[str, int] | None = None, balanced_bracket_selectors: textmate_grammar.engine.tokenize.BalancedBracketSelectors | None = None, grammar_repository: typing.Any = None, onig_lib: textmate_grammar.engine.oniglib.IOnigLib = DEFAULT_ONIG_LIB, *, external_grammar: collections.abc.Callable[[str], collections.abc.Mapping[str, typing.Any] | None] | None = None)
+   :canonical: textmate_grammar.engine.tokenize.Grammar
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.RuleRegistry`, :py:obj:`textmate_grammar.engine.rules.IRuleFactoryHelper`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar.__init__
+
+   .. py:method:: get_external_grammar(scope_name: str, repository: dict[str, typing.Any] | None) -> dict[str, typing.Any] | None
+      :canonical: textmate_grammar.engine.tokenize.Grammar.get_external_grammar
+
+   .. py:method:: get_injections() -> list[textmate_grammar.engine.tokenize.Injection]
+      :canonical: textmate_grammar.engine.tokenize.Grammar.get_injections
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar.get_injections
+
+   .. py:method:: tokenize_line(line_text: str, prev_state: textmate_grammar.engine.tokenize.StateStackImpl | None = None, time_limit: int = 0) -> textmate_grammar.engine.tokenize.ITokenizeLineResult
+      :canonical: textmate_grammar.engine.tokenize.Grammar.tokenize_line
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar.tokenize_line
+
+   .. py:method:: tokenizeLine(line_text: str, prev_state: textmate_grammar.engine.tokenize.StateStackImpl | None = None, time_limit: int = 0) -> textmate_grammar.engine.tokenize.ITokenizeLineResult
+      :canonical: textmate_grammar.engine.tokenize.Grammar.tokenizeLine
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar.tokenizeLine
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.tokenize.Grammar.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.tokenize.Grammar.dispose
+
+.. py:function:: create_grammar(scope_name: str, grammar: collections.abc.Mapping[str, typing.Any], initial_language: int = 1, embedded_languages: collections.abc.Mapping[str, int] | None = None, token_types: collections.abc.Mapping[str, int] | None = None, balanced_bracket_selectors: textmate_grammar.engine.tokenize.BalancedBracketSelectors | None = None, grammar_repository: typing.Any = None, onig_lib: textmate_grammar.engine.oniglib.IOnigLib = DEFAULT_ONIG_LIB, *, external_grammar: collections.abc.Callable[[str], collections.abc.Mapping[str, typing.Any] | None] | None = None) -> textmate_grammar.engine.tokenize.Grammar
+   :canonical: textmate_grammar.engine.tokenize.create_grammar
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.create_grammar
+
+.. py:data:: createGrammar
+   :canonical: textmate_grammar.engine.tokenize.createGrammar
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.createGrammar
+
+.. py:function:: get_scope_names(chain: typing.Any | None) -> list[str]
+   :canonical: textmate_grammar.engine.tokenize.get_scope_names
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.get_scope_names
+
+.. py:function:: get_scope_name(chain: typing.Any | None) -> str
+   :canonical: textmate_grammar.engine.tokenize.get_scope_name
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.get_scope_name
+
+.. py:data:: getScopeName
+   :canonical: textmate_grammar.engine.tokenize.getScopeName
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.getScopeName
+
+.. py:data:: getScopeNames
+   :canonical: textmate_grammar.engine.tokenize.getScopeNames
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.tokenize.getScopeNames

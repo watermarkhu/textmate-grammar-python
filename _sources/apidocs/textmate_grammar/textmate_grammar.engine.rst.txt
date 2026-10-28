@@ -1,0 +1,65 @@
+:py:mod:`textmate_grammar.engine`
+=================================
+
+.. py:module:: textmate_grammar.engine
+
+.. autodoc2-docstring:: textmate_grammar.engine
+   :allowtitles:
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   textmate_grammar.engine.matcher
+   textmate_grammar.engine.oniglib
+   textmate_grammar.engine.registry
+   textmate_grammar.engine.tokenize
+   textmate_grammar.engine.regexsource
+   textmate_grammar.engine.plist
+   textmate_grammar.engine.raw_grammar
+   textmate_grammar.engine.debug
+   textmate_grammar.engine.rules
+
+Package Contents
+----------------
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`parseRawGrammar <textmate_grammar.engine.parseRawGrammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.parseRawGrammar
+          :summary:
+   * - :py:obj:`createGrammar <textmate_grammar.engine.createGrammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.createGrammar
+          :summary:
+   * - :py:obj:`INITIAL <textmate_grammar.engine.INITIAL>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.INITIAL
+          :summary:
+
+API
+~~~
+
+.. py:data:: parseRawGrammar
+   :canonical: textmate_grammar.engine.parseRawGrammar
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.parseRawGrammar
+
+.. py:data:: createGrammar
+   :canonical: textmate_grammar.engine.createGrammar
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.createGrammar
+
+.. py:data:: INITIAL
+   :canonical: textmate_grammar.engine.INITIAL
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.INITIAL

@@ -1,0 +1,676 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="textmate_grammar.engine.registry" href="textmate_grammar.engine.registry.html"><link rel="prev" title="textmate_grammar.engine.matcher" href="textmate_grammar.engine.matcher.html">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
+        <title>textmate_grammar.engine.oniglib - TextMate Grammar Python</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">TextMate Grammar Python</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">TextMate Grammar Python</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../languages.html">Bundled grammars and differential coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tokenization.html">Tokens and state</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="textmate_grammar.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar</span></code></a><input aria-label="Toggle navigation of textmate_grammar" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="textmate_grammar.parsers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers</span></code></a><input aria-label="Toggle navigation of textmate_grammar.parsers" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.parsers.matlab.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers.matlab</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.parsers.markdown.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers.markdown</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="textmate_grammar.engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine</span></code></a><input aria-label="Toggle navigation of textmate_grammar.engine" checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.matcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.matcher</span></code></a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.oniglib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.tokenize.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.tokenize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.regexsource.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.regexsource</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.plist.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.plist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.raw_grammar.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.raw_grammar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.debug.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.debug</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="textmate_grammar.engine.rules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.rules</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="textmate_grammar.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.utils</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/apidocs/textmate_grammar/textmate_grammar.engine.oniglib.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-textmate_grammar.engine.oniglib">
+<span id="textmate-grammar-engine-oniglib"></span><h1><a class="reference internal" href="#module-textmate_grammar.engine.oniglib" title="textmate_grammar.engine.oniglib"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.oniglib</span></code></a><a class="headerlink" href="#module-textmate_grammar.engine.oniglib" title="Link to this heading">¶</a></h1>
+<p>Port of vscode-textmate’s <code class="docutils literal notranslate"><span class="pre">src/onigLib.ts</span></code> — the oniguruma library adapter.</p>
+<dl class="simple">
+<dt>vscode-textmate drives tokenization through an injectable <code class="docutils literal notranslate"><span class="pre">IOnigLib</span></code> that provides</dt><dd><p>scanners and strings. Upstream this is backed by <code class="docutils literal notranslate"><span class="pre">vscode-oniguruma</span></code> (a wasm build of</p>
+</dd>
+</dl>
+<p>oniguruma ~6.9). Here the same surface is provided on top of <code class="xref py py-mod docutils literal notranslate"><span class="pre">onigurumacffi</span></code>, an
+ffi binding of oniguruma 6.9 — the same engine family, so the semantics carry over:</p>
+<ul class="simple">
+<li><p><strong>Pattern selection</strong> (leftmost match wins, ties resolved by the lowest pattern
+index) is done by oniguruma’s RegSet API (<code class="docutils literal notranslate"><span class="pre">onig_regset_search</span></code> with
+<code class="docutils literal notranslate"><span class="pre">ONIG_REGSET_POSITION_LEAD</span></code>), which is exactly the strategy vscode-oniguruma’s
+C++ <code class="docutils literal notranslate"><span class="pre">findNextOnigScannerMatch</span></code> uses for short strings.</p></li>
+<li><p><strong>The critical semantic</strong> (see the parity plan): <code class="docutils literal notranslate"><span class="pre">\G</span></code> matches <em>exactly at the
+start offset of the scan</em>, i.e. at the <code class="docutils literal notranslate"><span class="pre">start_position</span></code> passed to each
+<a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync" title="textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync"><code class="xref py py-meth docutils literal notranslate"><span class="pre">OnigScanner.find_next_match_sync()</span></code></a> call, not at a stored anchor. oniguruma
+binds <code class="docutils literal notranslate"><span class="pre">\G</span></code> to the search start, and vscode-textmate passes the token offset per
+call — <code class="docutils literal notranslate"><span class="pre">Pattern.search(content,</span> <span class="pre">start=start_position)</span></code> reproduces this 1:1.
+A pattern compiled once therefore matches at different offsets for different
+<code class="docutils literal notranslate"><span class="pre">start_position</span></code> values.</p></li>
+</ul>
+<p>Capture indices are returned in Python code-point offsets (consistent with the rest
+of the Python port; upstream returns UTF-16 offsets, having decoded the UTF-8 wasm
+buffer). Unmatched capture groups — which oniguruma reports with offsets of <code class="docutils literal notranslate"><span class="pre">-1</span></code> —
+are mapped to <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">==</span> <span class="pre">end</span> <span class="pre">==</span> <span class="pre">0</span></code>, the same clamp vscode-oniguruma applies when its
+<code class="docutils literal notranslate"><span class="pre">convertUtf8OffsetToUtf16</span></code> encounters values below zero.</p>
+<p>Every non-obvious piece references the ported section of vscode-oniguruma / onigLib.ts.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption" title="textmate_grammar.engine.oniglib.FindOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FindOption</span></code></a></p></td>
+<td><p>Port of the <code class="docutils literal notranslate"><span class="pre">FindOption</span></code> const enum from <code class="docutils literal notranslate"><span class="pre">onigLib.ts</span></code> (onigLib.ts:23-41).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex" title="textmate_grammar.engine.oniglib.IOnigCaptureIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOnigCaptureIndex</span></code></a></p></td>
+<td><p>Port of <code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex</span></code> (onigLib.ts:12-16).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch" title="textmate_grammar.engine.oniglib.IOnigMatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOnigMatch</span></code></a></p></td>
+<td><p>Port of <code class="docutils literal notranslate"><span class="pre">IOnigMatch</span></code> (onigLib.ts:18-21): the index of the matching pattern
+within the scanner and the captured regions of that match.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnigString</span></code></a></p></td>
+<td><p>Port of <code class="docutils literal notranslate"><span class="pre">OnigString</span></code> (onigLib.ts:48-51).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner" title="textmate_grammar.engine.oniglib.OnigScanner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnigScanner</span></code></a></p></td>
+<td><p>Port of <code class="docutils literal notranslate"><span class="pre">OnigScanner</span></code> from vscode-oniguruma — the scanner behind
+<code class="docutils literal notranslate"><span class="pre">IOnigLib.createOnigScanner</span></code> (onigLib.ts:43-46).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib" title="textmate_grammar.engine.oniglib.IOnigLib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOnigLib</span></code></a></p></td>
+<td><p>Port of the <code class="docutils literal notranslate"><span class="pre">IOnigLib</span></code> interface (onigLib.ts:7-10): the library surface
+vscode-textmate expects the tokenization engine to be wired against.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigLib" title="textmate_grammar.engine.oniglib.OnigLib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnigLib</span></code></a></p></td>
+<td><p>The concrete onigurumacffi-backed <a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib" title="textmate_grammar.engine.oniglib.IOnigLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOnigLib</span></code></a> — the role
+vscode-oniguruma plays upstream when <code class="docutils literal notranslate"><span class="pre">main.ts</span></code> wires up the default library.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.disposeOnigString" title="textmate_grammar.engine.oniglib.disposeOnigString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disposeOnigString</span></code></a></p></td>
+<td><p>Port of <code class="docutils literal notranslate"><span class="pre">disposeOnigString</span></code> (onigLib.ts:53-57).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB" title="textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_ONIG_LIB</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">FindOption</span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#FindOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.IntFlag" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></a></p>
+<p>Port of the <code class="docutils literal notranslate"><span class="pre">FindOption</span></code> const enum from <code class="docutils literal notranslate"><span class="pre">onigLib.ts</span></code> (onigLib.ts:23-41).</p>
+<p>The bit values are vscode-textmate’s own numbering; they are translated to the
+oniguruma search options named in the upstream member comments
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">_translate_options()</span></code>). <code class="docutils literal notranslate"><span class="pre">DEBUG_CALL</span></code> is a debugging marker only and is
+dropped, like the <code class="docutils literal notranslate"><span class="pre">debugCall</span></code> flag is in vscode-oniguruma’s non-debug path.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption.NONE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_STRING">
+<span class="sig-name descname"><span class="pre">NOT_BEGIN_STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_STRING" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption.NOT_END_STRING">
+<span class="sig-name descname"><span class="pre">NOT_END_STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption.NOT_END_STRING" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_POSITION">
+<span class="sig-name descname"><span class="pre">NOT_BEGIN_POSITION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_POSITION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.FindOption.DEBUG_CALL">
+<span class="sig-name descname"><span class="pre">DEBUG_CALL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.FindOption.DEBUG_CALL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigCaptureIndex">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">IOnigCaptureIndex</span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#IOnigCaptureIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex</span></code> (onigLib.ts:12-16).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigCaptureIndex.start">
+<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.start" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigCaptureIndex.end">
+<span class="sig-name descname"><span class="pre">end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.end" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigCaptureIndex.length">
+<span class="sig-name descname"><span class="pre">length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigMatch">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">IOnigMatch</span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#IOnigMatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigMatch" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">IOnigMatch</span></code> (onigLib.ts:18-21): the index of the matching pattern
+within the scanner and the captured regions of that match.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigMatch.index">
+<span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigMatch.index" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigMatch.capture_indices">
+<span class="sig-name descname"><span class="pre">capture_indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex" title="textmate_grammar.engine.oniglib.IOnigCaptureIndex"><span class="pre">textmate_grammar.engine.oniglib.IOnigCaptureIndex</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigMatch.capture_indices" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigString">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">OnigString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigString" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">OnigString</span></code> (onigLib.ts:48-51).</p>
+<p>Upstream this wraps the wasm-resident UTF-8 encoding of the string and carries
+the UTF-8/UTF-16 offset translation tables; Python strings are indexed by code
+point natively, so this is the light wrapper keeping <code class="docutils literal notranslate"><span class="pre">content</span></code> around, with a
+no-op <code class="docutils literal notranslate"><span class="pre">dispose</span></code> (parity of the optional <code class="docutils literal notranslate"><span class="pre">dispose?</span></code> member).</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigString.dispose">
+<span class="sig-name descname"><span class="pre">dispose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigString.dispose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigString.dispose" title="Link to this definition">¶</a></dt>
+<dd><p>No-op — there is no wasm string buffer to release.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.disposeOnigString">
+<span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">disposeOnigString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><span class="pre">textmate_grammar.engine.oniglib.OnigString</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#disposeOnigString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.disposeOnigString" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">disposeOnigString</span></code> (onigLib.ts:53-57).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigScanner">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">OnigScanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigScanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigScanner" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">OnigScanner</span></code> from vscode-oniguruma — the scanner behind
+<code class="docutils literal notranslate"><span class="pre">IOnigLib.createOnigScanner</span></code> (onigLib.ts:43-46).</p>
+<p>Patterns are compiled eagerly at construction, like vscode-oniguruma does; an
+invalid pattern raises <code class="xref py py-class docutils literal notranslate"><span class="pre">onigurumacffi.OnigError</span></code> where upstream throws
+the oniguruma error message. Matching uses one RegSet search per call, whose
+<code class="docutils literal notranslate"><span class="pre">ONIG_REGSET_POSITION_LEAD</span></code> strategy yields the same candidate selection as
+vscode-oniguruma’s C++ <code class="docutils literal notranslate"><span class="pre">findNextOnigScannerMatch</span></code>: the match beginning at the
+smallest offset wins and ties break toward the lowest pattern index.</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigScanner.sources">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sources</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigScanner.sources" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync">
+<span class="sig-name descname"><span class="pre">find_next_match_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><span class="pre">textmate_grammar.engine.oniglib.OnigString</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption" title="textmate_grammar.engine.oniglib.FindOption"><span class="pre">textmate_grammar.engine.oniglib.FindOption</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FindOption.NONE</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch" title="textmate_grammar.engine.oniglib.IOnigMatch"><span class="pre">textmate_grammar.engine.oniglib.IOnigMatch</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigScanner.find_next_match_sync"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">OnigScanner.findNextMatchSync</span></code> (onigLib.ts:44).</p>
+<p><code class="docutils literal notranslate"><span class="pre">string</span></code> may be a plain string or an <a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><code class="xref py py-class docutils literal notranslate"><span class="pre">OnigString</span></code></a>, as upstream.
+<code class="docutils literal notranslate"><span class="pre">start_position</span></code> is the offset the scan starts at, which is where
+<code class="docutils literal notranslate"><span class="pre">\G</span></code> binds: a pattern containing <code class="docutils literal notranslate"><span class="pre">\G</span></code> is compiled once and still
+matches at whatever initial offset the caller passes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigScanner.find_best_match">
+<span class="sig-name descname"><span class="pre">find_best_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_anchor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_back_references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch" title="textmate_grammar.engine.oniglib.IOnigMatch"><span class="pre">textmate_grammar.engine.oniglib.IOnigMatch</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigScanner.find_best_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigScanner.find_best_match" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience mirroring the pre-4.0 <code class="docutils literal notranslate"><span class="pre">IOnigScanner.findBestMatch(position,</span>
+<span class="pre">line,</span> <span class="pre">hasAnchor,</span> <span class="pre">hasBackReferences)</span></code> surface named in the porting plan.</p>
+<p><code class="docutils literal notranslate"><span class="pre">position</span></code> is the scan offset, so a <code class="docutils literal notranslate"><span class="pre">\G</span></code> binds there: with
+<code class="docutils literal notranslate"><span class="pre">has_anchor=True</span></code> the patterns are scanned as-is, with <code class="docutils literal notranslate"><span class="pre">has_anchor=False</span></code>
+<code class="docutils literal notranslate"><span class="pre">FindOption.NOT_BEGIN_POSITION</span></code> makes every <code class="docutils literal notranslate"><span class="pre">\G</span></code> fail (the same
+equivalent option vscode-textmate’s <code class="docutils literal notranslate"><span class="pre">getFindOptions</span></code> builds for
+<code class="docutils literal notranslate"><span class="pre">allowG=False</span></code> in <code class="docutils literal notranslate"><span class="pre">grammar/tokenizeString.ts:549-557</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">has_back_references</span></code> is bookkeeping parity for the old signature only:
+in the current vscode-textmate, <code class="docutils literal notranslate"><span class="pre">\n</span></code> backreference patterns are resolved
+<em>before</em> scanning (<code class="docutils literal notranslate"><span class="pre">rule.ts</span></code> <code class="docutils literal notranslate"><span class="pre">resolveBackReferences</span></code>, ported in
+<a class="reference internal" href="textmate_grammar.engine.regexsource.html#module-textmate_grammar.engine.regexsource" title="textmate_grammar.engine.regexsource"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.regexsource</span></code></a>), so the scanner has nothing to
+do with them — the flag is accepted and unused.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigScanner.dispose">
+<span class="sig-name descname"><span class="pre">dispose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigScanner.dispose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigScanner.dispose" title="Link to this definition">¶</a></dt>
+<dd><p>Port of the optional <code class="docutils literal notranslate"><span class="pre">dispose</span></code> member: drops the compiled pattern set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigLib">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">IOnigLib</span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#IOnigLib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigLib" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a></p>
+<p>Port of the <code class="docutils literal notranslate"><span class="pre">IOnigLib</span></code> interface (onigLib.ts:7-10): the library surface
+vscode-textmate expects the tokenization engine to be wired against.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigLib.create_onig_scanner">
+<span class="sig-name descname"><span class="pre">create_onig_scanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner" title="textmate_grammar.engine.oniglib.OnigScanner"><span class="pre">textmate_grammar.engine.oniglib.OnigScanner</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#IOnigLib.create_onig_scanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigLib.create_onig_scanner" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">createOnigScanner(sources)</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.IOnigLib.create_onig_string">
+<span class="sig-name descname"><span class="pre">create_onig_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><span class="pre">textmate_grammar.engine.oniglib.OnigString</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#IOnigLib.create_onig_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.IOnigLib.create_onig_string" title="Link to this definition">¶</a></dt>
+<dd><p>Port of <code class="docutils literal notranslate"><span class="pre">createOnigString(str)</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigLib">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">OnigLib</span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigLib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigLib" title="Link to this definition">¶</a></dt>
+<dd><p>The concrete onigurumacffi-backed <a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib" title="textmate_grammar.engine.oniglib.IOnigLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOnigLib</span></code></a> — the role
+vscode-oniguruma plays upstream when <code class="docutils literal notranslate"><span class="pre">main.ts</span></code> wires up the default library.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigLib.create_onig_scanner">
+<span class="sig-name descname"><span class="pre">create_onig_scanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner" title="textmate_grammar.engine.oniglib.OnigScanner"><span class="pre">textmate_grammar.engine.oniglib.OnigScanner</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigLib.create_onig_scanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigLib.create_onig_scanner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.OnigLib.create_onig_string">
+<span class="sig-name descname"><span class="pre">create_onig_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString" title="textmate_grammar.engine.oniglib.OnigString"><span class="pre">textmate_grammar.engine.oniglib.OnigString</span></a></span></span><a class="reference internal" href="../../_modules/textmate_grammar/engine/oniglib.html#OnigLib.create_onig_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#textmate_grammar.engine.oniglib.OnigLib.create_onig_string" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB">
+<span class="sig-prename descclassname"><span class="pre">textmate_grammar.engine.oniglib.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_ONIG_LIB</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib" title="textmate_grammar.engine.oniglib.IOnigLib"><span class="pre">textmate_grammar.engine.oniglib.IOnigLib</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OnigLib(...)'</span></em><a class="headerlink" href="#textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="textmate_grammar.engine.registry.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.registry</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="textmate_grammar.engine.matcher.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.matcher</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Mark Shui Hu
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/watermarkhu/textmate-grammar-python" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.oniglib</span></code></a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#data">Data</a></li>
+<li><a class="reference internal" href="#api">API</a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption"><code class="docutils literal notranslate"><span class="pre">FindOption</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption.NONE"><code class="docutils literal notranslate"><span class="pre">FindOption.NONE</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_STRING"><code class="docutils literal notranslate"><span class="pre">FindOption.NOT_BEGIN_STRING</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption.NOT_END_STRING"><code class="docutils literal notranslate"><span class="pre">FindOption.NOT_END_STRING</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_POSITION"><code class="docutils literal notranslate"><span class="pre">FindOption.NOT_BEGIN_POSITION</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.FindOption.DEBUG_CALL"><code class="docutils literal notranslate"><span class="pre">FindOption.DEBUG_CALL</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex"><code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.start"><code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex.start</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.end"><code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex.end</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigCaptureIndex.length"><code class="docutils literal notranslate"><span class="pre">IOnigCaptureIndex.length</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch"><code class="docutils literal notranslate"><span class="pre">IOnigMatch</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch.index"><code class="docutils literal notranslate"><span class="pre">IOnigMatch.index</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigMatch.capture_indices"><code class="docutils literal notranslate"><span class="pre">IOnigMatch.capture_indices</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString"><code class="docutils literal notranslate"><span class="pre">OnigString</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigString.dispose"><code class="docutils literal notranslate"><span class="pre">OnigString.dispose()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.disposeOnigString"><code class="docutils literal notranslate"><span class="pre">disposeOnigString()</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner"><code class="docutils literal notranslate"><span class="pre">OnigScanner</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner.sources"><code class="docutils literal notranslate"><span class="pre">OnigScanner.sources</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync"><code class="docutils literal notranslate"><span class="pre">OnigScanner.find_next_match_sync()</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner.find_best_match"><code class="docutils literal notranslate"><span class="pre">OnigScanner.find_best_match()</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigScanner.dispose"><code class="docutils literal notranslate"><span class="pre">OnigScanner.dispose()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib"><code class="docutils literal notranslate"><span class="pre">IOnigLib</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib.create_onig_scanner"><code class="docutils literal notranslate"><span class="pre">IOnigLib.create_onig_scanner()</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.IOnigLib.create_onig_string"><code class="docutils literal notranslate"><span class="pre">IOnigLib.create_onig_string()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigLib"><code class="docutils literal notranslate"><span class="pre">OnigLib</span></code></a><ul>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigLib.create_onig_scanner"><code class="docutils literal notranslate"><span class="pre">OnigLib.create_onig_scanner()</span></code></a></li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.OnigLib.create_onig_string"><code class="docutils literal notranslate"><span class="pre">OnigLib.create_onig_string()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB"><code class="docutils literal notranslate"><span class="pre">DEFAULT_ONIG_LIB</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

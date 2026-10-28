@@ -1,0 +1,575 @@
+:py:mod:`textmate_grammar.engine.rules`
+=======================================
+
+.. py:module:: textmate_grammar.engine.rules
+
+.. autodoc2-docstring:: textmate_grammar.engine.rules
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`IRuleRegistry <textmate_grammar.engine.rules.IRuleRegistry>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleRegistry
+          :summary:
+   * - :py:obj:`IGrammarRegistry <textmate_grammar.engine.rules.IGrammarRegistry>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IGrammarRegistry
+          :summary:
+   * - :py:obj:`IRuleFactoryHelper <textmate_grammar.engine.rules.IRuleFactoryHelper>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleFactoryHelper
+          :summary:
+   * - :py:obj:`RuleRegistry <textmate_grammar.engine.rules.RuleRegistry>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry
+          :summary:
+   * - :py:obj:`Rule <textmate_grammar.engine.rules.Rule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule
+          :summary:
+   * - :py:obj:`CompilePatternsResult <textmate_grammar.engine.rules.CompilePatternsResult>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.CompilePatternsResult
+          :summary:
+   * - :py:obj:`CaptureRule <textmate_grammar.engine.rules.CaptureRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.CaptureRule
+          :summary:
+   * - :py:obj:`MatchRule <textmate_grammar.engine.rules.MatchRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.MatchRule
+          :summary:
+   * - :py:obj:`IncludeOnlyRule <textmate_grammar.engine.rules.IncludeOnlyRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeOnlyRule
+          :summary:
+   * - :py:obj:`BeginEndRule <textmate_grammar.engine.rules.BeginEndRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule
+          :summary:
+   * - :py:obj:`BeginWhileRule <textmate_grammar.engine.rules.BeginWhileRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule
+          :summary:
+   * - :py:obj:`IncludeReferenceKind <textmate_grammar.engine.rules.IncludeReferenceKind>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind
+          :summary:
+   * - :py:obj:`IncludeReference <textmate_grammar.engine.rules.IncludeReference>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReference
+          :summary:
+   * - :py:obj:`RuleFactory <textmate_grammar.engine.rules.RuleFactory>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`parse_include <textmate_grammar.engine.rules.parse_include>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.parse_include
+          :summary:
+   * - :py:obj:`init_grammar <textmate_grammar.engine.rules.init_grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.init_grammar
+          :summary:
+   * - :py:obj:`create_rule <textmate_grammar.engine.rules.create_rule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.create_rule
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`T <textmate_grammar.engine.rules.T>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.T
+          :summary:
+   * - :py:obj:`END_RULE_ID <textmate_grammar.engine.rules.END_RULE_ID>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.END_RULE_ID
+          :summary:
+   * - :py:obj:`WHILE_RULE_ID <textmate_grammar.engine.rules.WHILE_RULE_ID>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.WHILE_RULE_ID
+          :summary:
+   * - :py:obj:`IRawRuleDict <textmate_grammar.engine.rules.IRawRuleDict>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawRuleDict
+          :summary:
+   * - :py:obj:`IRawRepositoryDict <textmate_grammar.engine.rules.IRawRepositoryDict>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawRepositoryDict
+          :summary:
+   * - :py:obj:`IRawGrammarDict <textmate_grammar.engine.rules.IRawGrammarDict>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawGrammarDict
+          :summary:
+   * - :py:obj:`ILocation <textmate_grammar.engine.rules.ILocation>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.rules.ILocation
+          :summary:
+
+API
+~~~
+
+.. py:data:: T
+   :canonical: textmate_grammar.engine.rules.T
+   :value: 'TypeVar(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.T
+
+.. py:data:: END_RULE_ID
+   :canonical: textmate_grammar.engine.rules.END_RULE_ID
+   :type: int
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.END_RULE_ID
+
+.. py:data:: WHILE_RULE_ID
+   :canonical: textmate_grammar.engine.rules.WHILE_RULE_ID
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.WHILE_RULE_ID
+
+.. py:data:: IRawRuleDict
+   :canonical: textmate_grammar.engine.rules.IRawRuleDict
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawRuleDict
+
+.. py:data:: IRawRepositoryDict
+   :canonical: textmate_grammar.engine.rules.IRawRepositoryDict
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawRepositoryDict
+
+.. py:data:: IRawGrammarDict
+   :canonical: textmate_grammar.engine.rules.IRawGrammarDict
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IRawGrammarDict
+
+.. py:data:: ILocation
+   :canonical: textmate_grammar.engine.rules.ILocation
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.ILocation
+
+.. py:class:: IRuleRegistry
+   :canonical: textmate_grammar.engine.rules.IRuleRegistry
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleRegistry
+
+   .. py:method:: get_rule(rule_id: int) -> textmate_grammar.engine.rules.Rule
+      :canonical: textmate_grammar.engine.rules.IRuleRegistry.get_rule
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleRegistry.get_rule
+
+   .. py:method:: register_rule(factory: collections.abc.Callable[[int], textmate_grammar.engine.rules.T]) -> textmate_grammar.engine.rules.T
+      :canonical: textmate_grammar.engine.rules.IRuleRegistry.register_rule
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleRegistry.register_rule
+
+.. py:class:: IGrammarRegistry
+   :canonical: textmate_grammar.engine.rules.IGrammarRegistry
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IGrammarRegistry
+
+   .. py:method:: get_external_grammar(scope_name: str, repository: textmate_grammar.engine.rules.IRawRepositoryDict | None) -> textmate_grammar.engine.rules.IRawGrammarDict | None
+      :canonical: textmate_grammar.engine.rules.IGrammarRegistry.get_external_grammar
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IGrammarRegistry.get_external_grammar
+
+.. py:class:: IRuleFactoryHelper
+   :canonical: textmate_grammar.engine.rules.IRuleFactoryHelper
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.IRuleRegistry`, :py:obj:`textmate_grammar.engine.rules.IGrammarRegistry`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleFactoryHelper
+
+   .. py:method:: create_onig_scanner(sources: collections.abc.Sequence[str]) -> typing.Any
+      :canonical: textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_scanner
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_scanner
+
+   .. py:method:: create_onig_string(string: str) -> typing.Any
+      :canonical: textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_string
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_string
+
+.. py:class:: RuleRegistry(onig_lib: typing.Any = None)
+   :canonical: textmate_grammar.engine.rules.RuleRegistry
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.IRuleFactoryHelper`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.__init__
+
+   .. py:method:: register_rule(factory: collections.abc.Callable[[int], textmate_grammar.engine.rules.T]) -> textmate_grammar.engine.rules.T
+      :canonical: textmate_grammar.engine.rules.RuleRegistry.register_rule
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.register_rule
+
+   .. py:method:: get_rule(rule_id: int) -> textmate_grammar.engine.rules.Rule
+      :canonical: textmate_grammar.engine.rules.RuleRegistry.get_rule
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.get_rule
+
+   .. py:method:: get_external_grammar(scope_name: str, repository: textmate_grammar.engine.rules.IRawRepositoryDict | None) -> textmate_grammar.engine.rules.IRawGrammarDict | None
+      :canonical: textmate_grammar.engine.rules.RuleRegistry.get_external_grammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.get_external_grammar
+
+   .. py:method:: create_onig_scanner(sources: collections.abc.Sequence[str]) -> typing.Any
+      :canonical: textmate_grammar.engine.rules.RuleRegistry.create_onig_scanner
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.create_onig_scanner
+
+   .. py:method:: create_onig_string(string: str) -> typing.Any
+      :canonical: textmate_grammar.engine.rules.RuleRegistry.create_onig_string
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleRegistry.create_onig_string
+
+.. py:class:: Rule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, contentName: str | None)
+   :canonical: textmate_grammar.engine.rules.Rule
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.__init__
+
+   .. py:property:: debugName
+      :canonical: textmate_grammar.engine.rules.Rule.debugName
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.debugName
+
+   .. py:method:: getName(lineText: str | None, captureIndices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex] | None) -> str | None
+      :canonical: textmate_grammar.engine.rules.Rule.getName
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.getName
+
+   .. py:method:: getContentName(lineText: str, captureIndices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex]) -> str | None
+      :canonical: textmate_grammar.engine.rules.Rule.getContentName
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.getContentName
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.rules.Rule.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.dispose
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.Rule.collectPatterns
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.Rule.compile
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.Rule.compileAG
+      :abstractmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.Rule.compileAG
+
+.. py:class:: CompilePatternsResult
+   :canonical: textmate_grammar.engine.rules.CompilePatternsResult
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.CompilePatternsResult
+
+   .. py:attribute:: patterns
+      :canonical: textmate_grammar.engine.rules.CompilePatternsResult.patterns
+      :type: tuple[int, ...]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.CompilePatternsResult.patterns
+
+   .. py:attribute:: hasMissingPatterns
+      :canonical: textmate_grammar.engine.rules.CompilePatternsResult.hasMissingPatterns
+      :type: bool
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.CompilePatternsResult.hasMissingPatterns
+
+.. py:class:: CaptureRule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, contentName: str | None, retokenizeCapturedWithRuleId: int)
+   :canonical: textmate_grammar.engine.rules.CaptureRule
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.Rule`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.CaptureRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.CaptureRule.__init__
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.CaptureRule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.CaptureRule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.CaptureRule.compileAG
+
+.. py:class:: MatchRule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, match: str, captures: list[textmate_grammar.engine.rules.CaptureRule | None])
+   :canonical: textmate_grammar.engine.rules.MatchRule
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.Rule`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.MatchRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.MatchRule.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.rules.MatchRule.dispose
+
+   .. py:property:: debugMatchRegExp
+      :canonical: textmate_grammar.engine.rules.MatchRule.debugMatchRegExp
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.MatchRule.debugMatchRegExp
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.MatchRule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.MatchRule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.MatchRule.compileAG
+
+.. py:class:: IncludeOnlyRule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, contentName: str | None, patterns: textmate_grammar.engine.rules.CompilePatternsResult)
+   :canonical: textmate_grammar.engine.rules.IncludeOnlyRule
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.Rule`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeOnlyRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeOnlyRule.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.rules.IncludeOnlyRule.dispose
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.IncludeOnlyRule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.IncludeOnlyRule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.IncludeOnlyRule.compileAG
+
+.. py:class:: BeginEndRule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, contentName: str | None, begin: str, beginCaptures: list[textmate_grammar.engine.rules.CaptureRule | None], end: str | None, endCaptures: list[textmate_grammar.engine.rules.CaptureRule | None], applyEndPatternLast: bool | None, patterns: textmate_grammar.engine.rules.CompilePatternsResult)
+   :canonical: textmate_grammar.engine.rules.BeginEndRule
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.Rule`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.dispose
+
+   .. py:property:: debugBeginRegExp
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.debugBeginRegExp
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule.debugBeginRegExp
+
+   .. py:property:: debugEndRegExp
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.debugEndRegExp
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule.debugEndRegExp
+
+   .. py:method:: getEndWithResolvedBackReferences(lineText: str, captureIndices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex]) -> str
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.getEndWithResolvedBackReferences
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginEndRule.getEndWithResolvedBackReferences
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginEndRule.compileAG
+
+.. py:class:: BeginWhileRule(location: textmate_grammar.engine.rules.ILocation, id: int, name: str | None, contentName: str | None, begin: str, beginCaptures: list[textmate_grammar.engine.rules.CaptureRule | None], while_: str, whileCaptures: list[textmate_grammar.engine.rules.CaptureRule | None], patterns: textmate_grammar.engine.rules.CompilePatternsResult)
+   :canonical: textmate_grammar.engine.rules.BeginWhileRule
+
+   Bases: :py:obj:`textmate_grammar.engine.rules.Rule`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.dispose
+
+   .. py:property:: debugBeginRegExp
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.debugBeginRegExp
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.debugBeginRegExp
+
+   .. py:property:: debugWhileRegExp
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.debugWhileRegExp
+      :type: str
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.debugWhileRegExp
+
+   .. py:method:: getWhileWithResolvedBackReferences(lineText: str, captureIndices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex]) -> str
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.getWhileWithResolvedBackReferences
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.getWhileWithResolvedBackReferences
+
+   .. py:method:: collectPatterns(grammar: textmate_grammar.engine.rules.IRuleRegistry, out: textmate_grammar.engine.regexsource.RegExpSourceList) -> None
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.collectPatterns
+
+   .. py:method:: compile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.compile
+
+   .. py:method:: compileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.compileAG
+
+   .. py:method:: compileWhile(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.compileWhile
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.compileWhile
+
+   .. py:method:: compileWhileAG(grammar: textmate_grammar.engine.rules.IRuleFactoryHelper, endRegexSource: str | None, allowA: bool, allowG: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.rules.BeginWhileRule.compileWhileAG
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.BeginWhileRule.compileWhileAG
+
+.. py:class:: IncludeReferenceKind()
+   :canonical: textmate_grammar.engine.rules.IncludeReferenceKind
+
+   Bases: :py:obj:`enum.IntEnum`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.__init__
+
+   .. py:attribute:: Base
+      :canonical: textmate_grammar.engine.rules.IncludeReferenceKind.Base
+      :value: 0
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.Base
+
+   .. py:attribute:: Self
+      :canonical: textmate_grammar.engine.rules.IncludeReferenceKind.Self
+      :value: 1
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.Self
+
+   .. py:attribute:: RelativeReference
+      :canonical: textmate_grammar.engine.rules.IncludeReferenceKind.RelativeReference
+      :value: 2
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.RelativeReference
+
+   .. py:attribute:: TopLevelReference
+      :canonical: textmate_grammar.engine.rules.IncludeReferenceKind.TopLevelReference
+      :value: 3
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.TopLevelReference
+
+   .. py:attribute:: TopLevelRepositoryReference
+      :canonical: textmate_grammar.engine.rules.IncludeReferenceKind.TopLevelRepositoryReference
+      :value: 4
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReferenceKind.TopLevelRepositoryReference
+
+.. py:class:: IncludeReference
+   :canonical: textmate_grammar.engine.rules.IncludeReference
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReference
+
+   .. py:attribute:: kind
+      :canonical: textmate_grammar.engine.rules.IncludeReference.kind
+      :type: textmate_grammar.engine.rules.IncludeReferenceKind
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReference.kind
+
+   .. py:attribute:: scopeName
+      :canonical: textmate_grammar.engine.rules.IncludeReference.scopeName
+      :type: str | None
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReference.scopeName
+
+   .. py:attribute:: ruleName
+      :canonical: textmate_grammar.engine.rules.IncludeReference.ruleName
+      :type: str | None
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.IncludeReference.ruleName
+
+.. py:function:: parse_include(include: str) -> textmate_grammar.engine.rules.IncludeReference
+   :canonical: textmate_grammar.engine.rules.parse_include
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.parse_include
+
+.. py:function:: init_grammar(grammar: textmate_grammar.engine.rules.IRawGrammarDict, base: textmate_grammar.engine.rules.IRawRuleDict | None = None) -> textmate_grammar.engine.rules.IRawGrammarDict
+   :canonical: textmate_grammar.engine.rules.init_grammar
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.init_grammar
+
+.. py:class:: RuleFactory
+   :canonical: textmate_grammar.engine.rules.RuleFactory
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory
+
+   .. py:method:: create_capture_rule(helper: textmate_grammar.engine.rules.IRuleFactoryHelper, location: textmate_grammar.engine.rules.ILocation, name: str | None, contentName: str | None, retokenizeCapturedWithRuleId: int) -> textmate_grammar.engine.rules.CaptureRule
+      :canonical: textmate_grammar.engine.rules.RuleFactory.create_capture_rule
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory.create_capture_rule
+
+   .. py:method:: get_compiled_rule_id(desc: textmate_grammar.engine.rules.IRawRuleDict, helper: textmate_grammar.engine.rules.IRuleFactoryHelper, repository: textmate_grammar.engine.rules.IRawRepositoryDict) -> int
+      :canonical: textmate_grammar.engine.rules.RuleFactory.get_compiled_rule_id
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory.get_compiled_rule_id
+
+   .. py:method:: compile_captures(captures: textmate_grammar.engine.rules.IRawRuleDict | None, helper: textmate_grammar.engine.rules.IRuleFactoryHelper, repository: textmate_grammar.engine.rules.IRawRepositoryDict) -> list[textmate_grammar.engine.rules.CaptureRule | None]
+      :canonical: textmate_grammar.engine.rules.RuleFactory.compile_captures
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory.compile_captures
+
+   .. py:method:: compile_patterns(patterns: list[textmate_grammar.engine.rules.IRawRuleDict] | None, helper: textmate_grammar.engine.rules.IRuleFactoryHelper, repository: textmate_grammar.engine.rules.IRawRepositoryDict) -> textmate_grammar.engine.rules.CompilePatternsResult
+      :canonical: textmate_grammar.engine.rules.RuleFactory.compile_patterns
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.rules.RuleFactory.compile_patterns
+
+.. py:function:: create_rule(desc: textmate_grammar.engine.rules.IRawRuleDict, helper: textmate_grammar.engine.rules.IRuleFactoryHelper, repository: textmate_grammar.engine.rules.IRawRepositoryDict) -> int
+   :canonical: textmate_grammar.engine.rules.create_rule
+
+   .. autodoc2-docstring:: textmate_grammar.engine.rules.create_rule

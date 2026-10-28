@@ -1,0 +1,17 @@
+:py:mod:`textmate_grammar.parsers`
+==================================
+
+.. py:module:: textmate_grammar.parsers
+
+.. autodoc2-docstring:: textmate_grammar.parsers
+   :allowtitles:
+
+Subpackages
+-----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   textmate_grammar.parsers.matlab
+   textmate_grammar.parsers.markdown

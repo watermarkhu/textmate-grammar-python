@@ -1,0 +1,54 @@
+:py:mod:`textmate_grammar.engine.plist`
+=======================================
+
+.. py:module:: textmate_grammar.engine.plist
+
+.. autodoc2-docstring:: textmate_grammar.engine.plist
+   :allowtitles:
+
+Module Contents
+---------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`parse_with_location <textmate_grammar.engine.plist.parse_with_location>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.plist.parse_with_location
+          :summary:
+   * - :py:obj:`parse_plist <textmate_grammar.engine.plist.parse_plist>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.plist.parse_plist
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`PLIST_LOCATION_KEY <textmate_grammar.engine.plist.PLIST_LOCATION_KEY>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.plist.PLIST_LOCATION_KEY
+          :summary:
+
+API
+~~~
+
+.. py:data:: PLIST_LOCATION_KEY
+   :canonical: textmate_grammar.engine.plist.PLIST_LOCATION_KEY
+   :value: '$vscodeTextmateLocation'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.plist.PLIST_LOCATION_KEY
+
+.. py:function:: parse_with_location(content: str, filename: str | None, location_key_name: str | None) -> typing.Any
+   :canonical: textmate_grammar.engine.plist.parse_with_location
+
+   .. autodoc2-docstring:: textmate_grammar.engine.plist.parse_with_location
+
+.. py:function:: parse_plist(content: str) -> typing.Any
+   :canonical: textmate_grammar.engine.plist.parse_plist
+
+   .. autodoc2-docstring:: textmate_grammar.engine.plist.parse_plist

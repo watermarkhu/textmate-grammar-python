@@ -1,0 +1,153 @@
+:py:mod:`textmate_grammar.engine.matcher`
+=========================================
+
+.. py:module:: textmate_grammar.engine.matcher
+
+.. autodoc2-docstring:: textmate_grammar.engine.matcher
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`MatcherWithPriority <textmate_grammar.engine.matcher.MatcherWithPriority>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatcherWithPriority
+          :summary:
+   * - :py:obj:`ScopePath <textmate_grammar.engine.matcher.ScopePath>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.ScopePath
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`create_matchers <textmate_grammar.engine.matcher.create_matchers>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.create_matchers
+          :summary:
+   * - :py:obj:`scopes_are_matching <textmate_grammar.engine.matcher.scopes_are_matching>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.scopes_are_matching
+          :summary:
+   * - :py:obj:`match_scope_identifiers <textmate_grammar.engine.matcher.match_scope_identifiers>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.match_scope_identifiers
+          :summary:
+   * - :py:obj:`match_scope_names <textmate_grammar.engine.matcher.match_scope_names>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.match_scope_names
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`T <textmate_grammar.engine.matcher.T>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.T
+          :summary:
+   * - :py:obj:`Matcher <textmate_grammar.engine.matcher.Matcher>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.Matcher
+          :summary:
+   * - :py:obj:`MatchesName <textmate_grammar.engine.matcher.MatchesName>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatchesName
+          :summary:
+   * - :py:obj:`Priority <textmate_grammar.engine.matcher.Priority>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.matcher.Priority
+          :summary:
+
+API
+~~~
+
+.. py:data:: T
+   :canonical: textmate_grammar.engine.matcher.T
+   :value: 'TypeVar(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.T
+
+.. py:data:: Matcher
+   :canonical: textmate_grammar.engine.matcher.Matcher
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.Matcher
+
+.. py:data:: MatchesName
+   :canonical: textmate_grammar.engine.matcher.MatchesName
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatchesName
+
+.. py:data:: Priority
+   :canonical: textmate_grammar.engine.matcher.Priority
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.Priority
+
+.. py:class:: MatcherWithPriority
+   :canonical: textmate_grammar.engine.matcher.MatcherWithPriority
+
+   Bases: :py:obj:`typing.NamedTuple`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatcherWithPriority
+
+   .. py:attribute:: matcher
+      :canonical: textmate_grammar.engine.matcher.MatcherWithPriority.matcher
+      :type: collections.abc.Callable[[typing.Any], bool]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatcherWithPriority.matcher
+
+   .. py:attribute:: priority
+      :canonical: textmate_grammar.engine.matcher.MatcherWithPriority.priority
+      :type: textmate_grammar.engine.matcher.Priority
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.matcher.MatcherWithPriority.priority
+
+.. py:class:: ScopePath
+   :canonical: textmate_grammar.engine.matcher.ScopePath
+
+   Bases: :py:obj:`typing.Protocol`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.ScopePath
+
+   .. py:attribute:: name
+      :canonical: textmate_grammar.engine.matcher.ScopePath.name
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.matcher.ScopePath.name
+
+   .. py:attribute:: parent
+      :canonical: textmate_grammar.engine.matcher.ScopePath.parent
+      :type: textmate_grammar.engine.matcher.ScopePath | None
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.matcher.ScopePath.parent
+
+.. py:function:: create_matchers(selector: str, matches_name: textmate_grammar.engine.matcher.MatchesName[textmate_grammar.engine.matcher.T]) -> list[textmate_grammar.engine.matcher.MatcherWithPriority]
+   :canonical: textmate_grammar.engine.matcher.create_matchers
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.create_matchers
+
+.. py:function:: scopes_are_matching(scope_name: str, selector_scope: str) -> bool
+   :canonical: textmate_grammar.engine.matcher.scopes_are_matching
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.scopes_are_matching
+
+.. py:function:: match_scope_identifiers(identifiers: list[str], scopes: list[str]) -> bool
+   :canonical: textmate_grammar.engine.matcher.match_scope_identifiers
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.match_scope_identifiers
+
+.. py:function:: match_scope_names(identifiers: list[str], scopes_path: textmate_grammar.engine.matcher.ScopePath | None) -> bool
+   :canonical: textmate_grammar.engine.matcher.match_scope_names
+
+   .. autodoc2-docstring:: textmate_grammar.engine.matcher.match_scope_names

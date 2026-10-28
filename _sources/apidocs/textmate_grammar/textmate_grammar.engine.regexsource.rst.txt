@@ -1,0 +1,234 @@
+:py:mod:`textmate_grammar.engine.regexsource`
+=============================================
+
+.. py:module:: textmate_grammar.engine.regexsource
+
+.. autodoc2-docstring:: textmate_grammar.engine.regexsource
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RegexSource <textmate_grammar.engine.regexsource.RegexSource>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegexSource
+          :summary:
+   * - :py:obj:`AnchorCache <textmate_grammar.engine.regexsource.AnchorCache>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache
+          :summary:
+   * - :py:obj:`RegExpSource <textmate_grammar.engine.regexsource.RegExpSource>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource
+          :summary:
+   * - :py:obj:`IFindNextMatchResult <textmate_grammar.engine.regexsource.IFindNextMatchResult>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.IFindNextMatchResult
+          :summary:
+   * - :py:obj:`CompiledRule <textmate_grammar.engine.regexsource.CompiledRule>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.CompiledRule
+          :summary:
+   * - :py:obj:`RegExpSourceList <textmate_grammar.engine.regexsource.RegExpSourceList>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`escapeRegExpCharacters <textmate_grammar.engine.regexsource.escapeRegExpCharacters>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.regexsource.escapeRegExpCharacters
+          :summary:
+
+API
+~~~
+
+.. py:function:: escapeRegExpCharacters(value: str) -> str
+   :canonical: textmate_grammar.engine.regexsource.escapeRegExpCharacters
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.escapeRegExpCharacters
+
+.. py:class:: RegexSource
+   :canonical: textmate_grammar.engine.regexsource.RegexSource
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegexSource
+
+   .. py:method:: hasCaptures(regex_source: str | None) -> bool
+      :canonical: textmate_grammar.engine.regexsource.RegexSource.hasCaptures
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegexSource.hasCaptures
+
+   .. py:method:: replaceCaptures(regex_source: str, capture_source: str, capture_indices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex]) -> str
+      :canonical: textmate_grammar.engine.regexsource.RegexSource.replaceCaptures
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegexSource.replaceCaptures
+
+.. py:class:: AnchorCache
+   :canonical: textmate_grammar.engine.regexsource.AnchorCache
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache
+
+   .. py:attribute:: a0_g0
+      :canonical: textmate_grammar.engine.regexsource.AnchorCache.a0_g0
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache.a0_g0
+
+   .. py:attribute:: a0_g1
+      :canonical: textmate_grammar.engine.regexsource.AnchorCache.a0_g1
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache.a0_g1
+
+   .. py:attribute:: a1_g0
+      :canonical: textmate_grammar.engine.regexsource.AnchorCache.a1_g0
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache.a1_g0
+
+   .. py:attribute:: a1_g1
+      :canonical: textmate_grammar.engine.regexsource.AnchorCache.a1_g1
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.AnchorCache.a1_g1
+
+.. py:class:: RegExpSource(reg_exp_source: str, rule_id: int)
+   :canonical: textmate_grammar.engine.regexsource.RegExpSource
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.__init__
+
+   .. py:attribute:: source
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.source
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.source
+
+   .. py:attribute:: rule_id
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.rule_id
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.rule_id
+
+   .. py:attribute:: has_anchor
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.has_anchor
+      :type: bool
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.has_anchor
+
+   .. py:attribute:: has_back_references
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.has_back_references
+      :type: bool
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.has_back_references
+
+   .. py:method:: clone() -> textmate_grammar.engine.regexsource.RegExpSource
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.clone
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.clone
+
+   .. py:method:: set_source(new_source: str) -> None
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.set_source
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.set_source
+
+   .. py:method:: resolve_back_references(line_text: str, capture_indices: collections.abc.Sequence[textmate_grammar.engine.oniglib.IOnigCaptureIndex]) -> str
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.resolve_back_references
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.resolve_back_references
+
+   .. py:method:: resolve_anchors(allow_a: bool, allow_g: bool) -> str
+      :canonical: textmate_grammar.engine.regexsource.RegExpSource.resolve_anchors
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSource.resolve_anchors
+
+.. py:class:: IFindNextMatchResult
+   :canonical: textmate_grammar.engine.regexsource.IFindNextMatchResult
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.IFindNextMatchResult
+
+   .. py:attribute:: rule_id
+      :canonical: textmate_grammar.engine.regexsource.IFindNextMatchResult.rule_id
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.IFindNextMatchResult.rule_id
+
+   .. py:attribute:: capture_indices
+      :canonical: textmate_grammar.engine.regexsource.IFindNextMatchResult.capture_indices
+      :type: tuple[textmate_grammar.engine.oniglib.IOnigCaptureIndex, ...]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.IFindNextMatchResult.capture_indices
+
+.. py:class:: CompiledRule(onig_lib: textmate_grammar.engine.oniglib.IOnigLib, reg_exps: collections.abc.Sequence[str], rules: collections.abc.Sequence[int])
+   :canonical: textmate_grammar.engine.regexsource.CompiledRule
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.CompiledRule
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.CompiledRule.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.regexsource.CompiledRule.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.CompiledRule.dispose
+
+   .. py:method:: find_next_match_sync(string: str | textmate_grammar.engine.oniglib.OnigString, start_position: int, options: textmate_grammar.engine.oniglib.FindOption = FindOption.NONE) -> textmate_grammar.engine.regexsource.IFindNextMatchResult | None
+      :canonical: textmate_grammar.engine.regexsource.CompiledRule.find_next_match_sync
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.CompiledRule.find_next_match_sync
+
+.. py:class:: RegExpSourceList()
+   :canonical: textmate_grammar.engine.regexsource.RegExpSourceList
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.__init__
+
+   .. py:method:: push(item: textmate_grammar.engine.regexsource.RegExpSource) -> None
+      :canonical: textmate_grammar.engine.regexsource.RegExpSourceList.push
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.push
+
+   .. py:method:: unshift(item: textmate_grammar.engine.regexsource.RegExpSource) -> None
+      :canonical: textmate_grammar.engine.regexsource.RegExpSourceList.unshift
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.unshift
+
+   .. py:method:: set_source(index: int, new_source: str) -> None
+      :canonical: textmate_grammar.engine.regexsource.RegExpSourceList.set_source
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.set_source
+
+   .. py:method:: compile(onig_lib: textmate_grammar.engine.oniglib.IOnigLib) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.regexsource.RegExpSourceList.compile
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.compile
+
+   .. py:method:: compile_ag(onig_lib: textmate_grammar.engine.oniglib.IOnigLib, allow_a: bool, allow_g: bool) -> textmate_grammar.engine.regexsource.CompiledRule
+      :canonical: textmate_grammar.engine.regexsource.RegExpSourceList.compile_ag
+
+      .. autodoc2-docstring:: textmate_grammar.engine.regexsource.RegExpSourceList.compile_ag

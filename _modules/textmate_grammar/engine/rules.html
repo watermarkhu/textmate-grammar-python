@@ -1,0 +1,1447 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
+        <title>textmate_grammar.engine.rules - TextMate Grammar Python</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">TextMate Grammar Python</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <span class="sidebar-brand-text">TextMate Grammar Python</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../languages.html">Bundled grammars and differential coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tokenization.html">Tokens and state</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../apidocs/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar</span></code></a><input aria-label="Toggle navigation of textmate_grammar" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.parsers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers</span></code></a><input aria-label="Toggle navigation of textmate_grammar.parsers" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.parsers.matlab.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers.matlab</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.parsers.markdown.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.parsers.markdown</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine</span></code></a><input aria-label="Toggle navigation of textmate_grammar.engine" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.matcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.matcher</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.oniglib.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.oniglib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.tokenize.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.tokenize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.regexsource.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.regexsource</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.plist.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.plist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.raw_grammar.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.raw_grammar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.debug.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.debug</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.engine.rules</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../apidocs/textmate_grammar/textmate_grammar.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">textmate_grammar.utils</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for textmate_grammar.engine.rules</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Port of the ``Rule`` classes, ``RuleRegistry`` and the rule factory from</span>
+<span class="sd">vscode-textmate's ``src/rule.ts`` (version 9.3.2, the pinned reference clone).</span>
+
+<span class="sd">Ported from rule.ts: ``endRuleId``/``whileRuleId`` (rule.ts:17-20), the ``Rule`` base</span>
+<span class="sd">class (rule.ts:43-89), ``CaptureRule`` (rule.ts:96-120), ``MatchRule``</span>
+<span class="sd">(rule.ts:122-164), ``IncludeOnlyRule`` (rule.ts:166-207), ``BeginEndRule``</span>
+<span class="sd">(rule.ts:209-288), ``BeginWhileRule`` (rule.ts:290-379) and the ``RuleFactory``</span>
+<span class="sd">(rule.ts:381-573) — i.e. ``createCaptureRule``, ``getCompiledRuleId``,</span>
+<span class="sd">``_compileCaptures`` and ``_compilePatterns``. The registry lives in ``Grammar``</span>
+<span class="sd">upstream: ``registerRule``/``getRule`` are grammar.ts:245-254; the class</span>
+<span class="sd">:class:`RuleRegistry` here extracts exactly that behaviour.</span>
+
+<span class="sd">``parse_include`` ports ``parseInclude`` and ``IncludeReferenceKind`` from</span>
+<span class="sd">``src/grammar/grammarDependencies.ts`` (grammarDependencies.ts:247-295) — the</span>
+<span class="sd">minimal piece the rule factory needs for include resolution. ``init_grammar`` ports</span>
+<span class="sd">``initGrammar`` (grammar.ts:410-421), which installs the ``$self``/``$base``</span>
+<span class="sd">repository hooks.</span>
+
+<span class="sd">Semantics are 1:1 with the reference; naming is pythonic where it can be (upstream</span>
+<span class="sd">member names are kept when the python port is simply "same words"), and every</span>
+<span class="sd">non-obvious piece carries a comment referencing the ported lines of rule.ts /</span>
+<span class="sd">grammar.ts / grammarDependencies.ts.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.oniglib</span><span class="w"> </span><span class="kn">import</span> <span class="n">IOnigCaptureIndex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.regexsource</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CompiledRule</span><span class="p">,</span>
+    <span class="n">RegExpSource</span><span class="p">,</span>
+    <span class="n">RegExpSourceList</span><span class="p">,</span>
+    <span class="n">RegexSource</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Rule"</span><span class="p">)</span>
+
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"BeginEndRule"</span><span class="p">,</span>
+    <span class="s2">"BeginWhileRule"</span><span class="p">,</span>
+    <span class="s2">"CaptureRule"</span><span class="p">,</span>
+    <span class="s2">"CompilePatternsResult"</span><span class="p">,</span>
+    <span class="s2">"END_RULE_ID"</span><span class="p">,</span>
+    <span class="s2">"IncludeOnlyRule"</span><span class="p">,</span>
+    <span class="s2">"IncludeReference"</span><span class="p">,</span>
+    <span class="s2">"IncludeReferenceKind"</span><span class="p">,</span>
+    <span class="s2">"IRuleFactoryHelper"</span><span class="p">,</span>
+    <span class="s2">"IRuleRegistry"</span><span class="p">,</span>
+    <span class="s2">"MatchRule"</span><span class="p">,</span>
+    <span class="s2">"Rule"</span><span class="p">,</span>
+    <span class="s2">"RuleFactory"</span><span class="p">,</span>
+    <span class="s2">"RuleRegistry"</span><span class="p">,</span>
+    <span class="s2">"WHILE_RULE_ID"</span><span class="p">,</span>
+    <span class="s2">"create_rule"</span><span class="p">,</span>
+    <span class="s2">"init_grammar"</span><span class="p">,</span>
+    <span class="s2">"parse_include"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># rule.ts:17-20 — special rule ids signaling that the end (`-1`) / while (`-2`)</span>
+<span class="c1"># regexp of the enclosing begin rule matched; negative so real registry ids</span>
+<span class="c1"># (allocated from 1, grammar.ts:246) cannot collide.</span>
+<span class="n">END_RULE_ID</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">WHILE_RULE_ID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+
+<span class="n">IRawRuleDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="n">IRawRepositoryDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IRawRuleDict</span><span class="p">]</span>
+<span class="n">IRawGrammarDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<span class="c1"># rawGrammar.ts ILocatable — where a rule came from in its tmLanguage file, as</span>
+<span class="c1"># carried under a rule's ``$vscodeTextmateLocation`` key: ``{"filename", "line"}``.</span>
+<span class="n">ILocation</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+
+<span class="c1">#: rule.ts:98 — ``retokenizeCapturedWithRuleId`` of 0: the capture content is not</span>
+<span class="c1">#: retokenized with a nested rule.</span>
+<span class="n">_NO_RETOKENIZE</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_basename</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of utils.ts ``basename`` (utils.ts:46-55), used for debug names only."""</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="IRuleRegistry">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRuleRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``IRuleRegistry`` (rule.ts:31-34): numeric rule registration and</span>
+<span class="sd">    lookup by id."""</span>
+
+<div class="viewcode-block" id="IRuleRegistry.get_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleRegistry.get_rule">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``getRule(ruleId)`` (rule.ts:32)."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="IRuleRegistry.register_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleRegistry.register_rule">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``registerRule(factory)`` (rule.ts:33): the factory is invoked</span>
+<span class="sd">        immediately with the freshly allocated id."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IGrammarRegistry">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IGrammarRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IGrammarRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``IGrammarRegistry`` (rule.ts:36-38): resolves scope-name includes</span>
+<span class="sd">    against grammars looked up by scope name. The concrete implementation arrives</span>
+<span class="sd">    with the registry layer (task 4b); here it is only the hook shape."""</span>
+
+<div class="viewcode-block" id="IGrammarRegistry.get_external_grammar">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IGrammarRegistry.get_external_grammar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_external_grammar</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">scope_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IRawGrammarDict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``getExternalGrammar(scopeName, repository)`` (rule.ts:37)."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IRuleFactoryHelper">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleFactoryHelper">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRuleFactoryHelper</span><span class="p">(</span><span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">IGrammarRegistry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``IRuleFactoryHelper`` (rule.ts:40-41). Upstream ``Grammar``</span>
+<span class="sd">    additionally implements ``IOnigLib`` (grammar.ts:98), so the helper doubles as</span>
+<span class="sd">    the onig-lib argument of the compile calls; the two ``createOnig*`` members</span>
+<span class="sd">    come from ``Grammar.createOnigScanner``/``createOnigString``</span>
+<span class="sd">    (grammar.ts:177-181)."""</span>
+
+<div class="viewcode-block" id="IRuleFactoryHelper.create_onig_scanner">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_scanner">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_onig_scanner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``createOnigScanner`` (grammar.ts:177-179)."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="IRuleFactoryHelper.create_onig_string">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IRuleFactoryHelper.create_onig_string">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_onig_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``createOnigString`` (grammar.ts:180-181)."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RuleRegistry">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuleRegistry</span><span class="p">(</span><span class="n">IRuleFactoryHelper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of the rule-id &lt;-&gt; Rule bookkeeping that lives in ``Grammar``</span>
+<span class="sd">    (grammar.ts:100, 127-128, 245-254): monotonically increasing numeric ids</span>
+<span class="sd">    starting at 1, with the rule objects stored under their id. Serves as the</span>
+<span class="sd">    concrete :class:`IRuleFactoryHelper` for :class:`RuleFactory` users and, later</span>
+<span class="sd">    (task 3), as the registry component of ``Grammar``.</span>
+
+<span class="sd">    Note: upstream v9.3.2 has no standalone ``RuleRegistry`` class and no scope-name</span>
+<span class="sd">    interning; the class here is simply the extracted ``Grammar`` behaviour.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onig_lib</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># grammar.ts:126-128 — the id counter and the id -&gt; rule table; index 0</span>
+        <span class="c1"># stays unused (no rule has id 0).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rule_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rule_id2desc</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Rule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="c1"># grammar.ts:119 — the oniguruma lib Grammar delegates scanner/string</span>
+        <span class="c1"># creation to (an unwired helper creates nothing until needed).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_onig_lib</span> <span class="o">=</span> <span class="n">onig_lib</span>
+
+<div class="viewcode-block" id="RuleRegistry.register_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry.register_rule">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Grammar.registerRule`` (grammar.ts:245-250)."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_rule_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">rule_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_rule_id</span>
+        <span class="c1"># ids are strictly sequential; grow to the id first so a factory that</span>
+        <span class="c1"># recursively registers rules (captures compile inside this call) keeps</span>
+        <span class="c1"># the table aligned</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rule_id2desc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">rule</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">rule_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rule_id2desc</span><span class="p">[</span><span class="n">rule_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">rule</span>
+        <span class="k">return</span> <span class="n">rule</span></div>
+
+
+<div class="viewcode-block" id="RuleRegistry.get_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry.get_rule">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Grammar.getRule`` (grammar.ts:252-254). May return the</span>
+<span class="sd">        (python) ``None`` of a not-yet-registered rule while its factory is still</span>
+<span class="sd">        running — upstream yields ``undefined`` there, and the only reader that</span>
+<span class="sd">        can act on it treats non-``None`` like ``undefined`` (see</span>
+<span class="sd">        ``RuleFactory.compile_patterns``)."""</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Rule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_id2desc</span><span class="p">[</span><span class="n">rule_id</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RuleRegistry.get_external_grammar">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry.get_external_grammar">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_external_grammar</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">scope_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IRawGrammarDict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Grammar.getExternalGrammar`` (grammar.ts:256-274): scope-name</span>
+<span class="sd">        includes resolve through the grammar repository; without a registry layer</span>
+<span class="sd">        behind this helper there is nothing to resolve (task 4b provides it)."""</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_onig_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onig_lib</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">.oniglib</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_ONIG_LIB</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_onig_lib</span> <span class="o">=</span> <span class="n">DEFAULT_ONIG_LIB</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onig_lib</span>
+
+<div class="viewcode-block" id="RuleRegistry.create_onig_scanner">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry.create_onig_scanner">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_onig_scanner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Grammar.createOnigScanner`` (grammar.ts:177-179)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_onig_lib</span><span class="p">()</span><span class="o">.</span><span class="n">create_onig_scanner</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RuleRegistry.create_onig_string">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleRegistry.create_onig_string">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_onig_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Grammar.createOnigString`` (grammar.ts:180-181)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_onig_lib</span><span class="p">()</span><span class="o">.</span><span class="n">create_onig_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of the abstract ``Rule`` (rule.ts:43-89): identity, ``name``/</span>
+<span class="sd">    ``contentName`` with capture expansion, and the pattern collection / compile</span>
+<span class="sd">    contract the tokenization loop drives."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002 — mirrors the upstream member name</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803 — upstream member name</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># rule.ts:45-46 — Python identifiers cannot carry `$`, so the upstream</span>
+        <span class="c1"># member ``$location`` becomes ``location``</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="c1"># rule.ts:57-60 — falsy names become None, and whether a name contains</span>
+        <span class="c1"># capture references ($1 / ${1:/downcase}) is detected once here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name_is_capturing</span> <span class="o">=</span> <span class="n">RegexSource</span><span class="o">.</span><span class="n">hasCaptures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contentName</span> <span class="o">=</span> <span class="n">contentName</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contentName_is_capturing</span> <span class="o">=</span> <span class="n">RegexSource</span><span class="o">.</span><span class="n">hasCaptures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contentName</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugName</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.debugName`` (rule.ts:65-68)."""</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">])</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="s1">'line'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
+            <span class="k">else</span> <span class="s2">"unknown"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> @ </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">"</span>
+
+<div class="viewcode-block" id="Rule.getName">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.getName">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getName</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lineText</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IOnigCaptureIndex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.getName`` (rule.ts:70-75): expands capture references in</span>
+<span class="sd">        the name against the matched text; non-capturing names pass through."""</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_is_capturing</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="n">lineText</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="n">captureIndices</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+        <span class="k">return</span> <span class="n">RegexSource</span><span class="o">.</span><span class="n">replaceCaptures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">lineText</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rule.getContentName">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.getContentName">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getContentName</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lineText</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IOnigCaptureIndex</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.getContentName`` (rule.ts:77-82)."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contentName_is_capturing</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contentName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contentName</span>
+        <span class="k">return</span> <span class="n">RegexSource</span><span class="o">.</span><span class="n">replaceCaptures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contentName</span><span class="p">,</span> <span class="n">lineText</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rule.dispose">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.dispose`` (rule.ts:63); the base rule holds nothing.</span>
+
+<span class="sd">        Subclasses override to drop their compiled-pattern caches (kept for</span>
+<span class="sd">        parity; garbage collection makes it a cache-buster only)."""</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="Rule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.collectPatterns`` (rule.ts:84) — abstract."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="Rule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.compile`` (rule.ts:86) — abstract."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="Rule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.Rule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``Rule.compileAG`` (rule.ts:88) — abstract."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CompilePatternsResult">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.CompilePatternsResult">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompilePatternsResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``ICompilePatternsResult`` (rule.ts:91-94): the ordered rule ids of</span>
+<span class="sd">    a pattern list plus upstream's flag recording that entries were dropped</span>
+<span class="sd">    (include targets that could not be resolved)."""</span>
+
+    <span class="n">patterns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">hasMissingPatterns</span><span class="p">:</span> <span class="nb">bool</span>  <span class="c1"># noqa: N815 — upstream field name</span></div>
+
+
+
+<div class="viewcode-block" id="CaptureRule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.CaptureRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CaptureRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``CaptureRule`` (rule.ts:96-120) — one entry of a ``captures`` map.</span>
+
+<span class="sd">    ``retokenizeCapturedWithRuleId`` is 0 (no nested rule) unless the capture</span>
+<span class="sd">    declares ``patterns``, in which case it is the id of the rule compiled from</span>
+<span class="sd">    them (rule.ts:476-480)."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">retokenizeCapturedWithRuleId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contentName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">retokenize_captured_with_rule_id</span> <span class="o">=</span> <span class="n">retokenizeCapturedWithRuleId</span>
+
+<div class="viewcode-block" id="CaptureRule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.CaptureRule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:109-111 — capture rules never appear in a pattern list</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Not supported!"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CaptureRule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.CaptureRule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:113-115</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Not supported!"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CaptureRule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.CaptureRule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+        <span class="c1"># rule.ts:117-119</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Not supported!"</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MatchRule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.MatchRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MatchRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``MatchRule`` (rule.ts:122-164): a single ``match`` pattern with</span>
+<span class="sd">    optional captures."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">match</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">captures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># rule.ts:129 — the match pattern carries this rule's id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_match</span> <span class="o">=</span> <span class="n">RegExpSource</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">captures</span> <span class="o">=</span> <span class="n">captures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">:</span> <span class="n">RegExpSourceList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MatchRule.dispose">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.MatchRule.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># rule.ts:134-139 — bust the compiled cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugMatchRegExp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``debugMatchRegExp`` (rule.ts:141-143)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span><span class="o">.</span><span class="n">source</span>
+
+<div class="viewcode-block" id="MatchRule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.MatchRule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:145-147</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_match</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_compiled_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegExpSourceList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_getCachedCompiledPatterns`` (rule.ts:157-163)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="n">RegExpSourceList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">collectPatterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span>
+
+<div class="viewcode-block" id="MatchRule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.MatchRule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:149-151 — `endRegexSource` is unused for match rules</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MatchRule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.MatchRule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+        <span class="c1"># rule.ts:153-155</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile_ag</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">allowA</span><span class="p">,</span> <span class="n">allowG</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IncludeOnlyRule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeOnlyRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IncludeOnlyRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``IncludeOnlyRule`` (rule.ts:166-207): a rule made purely of</span>
+<span class="sd">    ``include`` references whose own (possibly missing) patterns are collected at</span>
+<span class="sd">    compile time."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">patterns</span><span class="p">:</span> <span class="n">CompilePatternsResult</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contentName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">patterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hasMissingPatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">hasMissingPatterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">:</span> <span class="n">RegExpSourceList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="IncludeOnlyRule.dispose">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeOnlyRule.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># rule.ts:178-182</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="IncludeOnlyRule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeOnlyRule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:185-190 — flatten each referenced rule's patterns, in order</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">:</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get_rule</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+            <span class="n">rule</span><span class="o">.</span><span class="n">collectPatterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_compiled_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegExpSourceList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_getCachedCompiledPatterns`` (rule.ts:200-206)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="n">RegExpSourceList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">collectPatterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span>
+
+<div class="viewcode-block" id="IncludeOnlyRule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeOnlyRule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:192-194</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IncludeOnlyRule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeOnlyRule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+        <span class="c1"># rule.ts:196-198</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile_ag</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">allowA</span><span class="p">,</span> <span class="n">allowG</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BeginEndRule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BeginEndRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``BeginEndRule`` (rule.ts:209-288): ``begin``/``end`` with captures</span>
+<span class="sd">    on both, contained ``patterns`` and ``applyEndPatternLast`` placement."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">beginCaptures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">endCaptures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">applyEndPatternLast</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">patterns</span><span class="p">:</span> <span class="n">CompilePatternsResult</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contentName</span><span class="p">)</span>
+        <span class="c1"># rule.ts:222 — the begin pattern carries this rule's id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_begin</span> <span class="o">=</span> <span class="n">RegExpSource</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginCaptures</span> <span class="o">=</span> <span class="n">beginCaptures</span>
+        <span class="c1"># rule.ts:224 — the end pattern carries endRuleId (-1); a missing end</span>
+        <span class="c1"># becomes the empty source (see grammar.ts turn-of-line handling)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">RegExpSource</span><span class="p">(</span><span class="n">end</span> <span class="k">if</span> <span class="n">end</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span> <span class="n">END_RULE_ID</span><span class="p">)</span>
+        <span class="c1"># rule.ts:225 — backreferences in the end get substituted against the</span>
+        <span class="c1"># begin match's captures before use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endHasBackReferences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">has_back_references</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endCaptures</span> <span class="o">=</span> <span class="n">endCaptures</span>
+        <span class="c1"># rule.ts:227 — missing/undefined means False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">applyEndPatternLast</span> <span class="o">=</span> <span class="n">applyEndPatternLast</span> <span class="ow">or</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">patterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hasMissingPatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">hasMissingPatterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">:</span> <span class="n">RegExpSourceList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BeginEndRule.dispose">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># rule.ts:233-238</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugBeginRegExp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``debugBeginRegExp`` (rule.ts:240-242)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin</span><span class="o">.</span><span class="n">source</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugEndRegExp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``debugEndRegExp`` (rule.ts:244-246)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">source</span>
+
+<div class="viewcode-block" id="BeginEndRule.getEndWithResolvedBackReferences">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule.getEndWithResolvedBackReferences">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getEndWithResolvedBackReferences</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lineText</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IOnigCaptureIndex</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``getEndWithResolvedBackReferences`` (rule.ts:248-250): the end</span>
+<span class="sd">        pattern with backreferences substituted from the begin match."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">resolve_back_references</span><span class="p">(</span><span class="n">lineText</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BeginEndRule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:252-254</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_begin</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_compiled_patterns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegExpSourceList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_getCachedCompiledPatterns`` (rule.ts:264-287): the contained</span>
+<span class="sd">        patterns' sources, with the end source placed first (or last under</span>
+<span class="sd">        ``applyEndPatternLast``) and backreferencing ends swapped for the caller's</span>
+<span class="sd">        resolved ``endRegexSource`` (it changes per match, hence the setSource)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="n">RegExpSourceList</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">:</span>
+                <span class="n">rule</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get_rule</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">collectPatterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">)</span>
+
+            <span class="c1"># rule.ts:273-277 — a cloned end carries the same rule id; cloning is</span>
+            <span class="c1"># needed because set_source below rewrites the shared source</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">applyEndPatternLast</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="o">.</span><span class="n">push</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">has_back_references</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="o">.</span><span class="n">unshift</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">has_back_references</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
+                <span class="p">)</span>
+
+        <span class="c1"># rule.ts:279-285 — with backreferences, the end source differs per call</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="o">.</span><span class="n">has_back_references</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">applyEndPatternLast</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endRegexSource</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span>
+
+<div class="viewcode-block" id="BeginEndRule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:256-258</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">endRegexSource</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BeginEndRule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginEndRule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+        <span class="c1"># rule.ts:260-262</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">endRegexSource</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">compile_ag</span><span class="p">(</span>
+            <span class="n">grammar</span><span class="p">,</span> <span class="n">allowA</span><span class="p">,</span> <span class="n">allowG</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BeginWhileRule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BeginWhileRule</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``BeginWhileRule`` (rule.ts:290-379): ``begin`` plus a ``while``</span>
+<span class="sd">    condition checked at the start of every line (rule id ``whileRuleId`` = -2),</span>
+<span class="sd">    with the contained ``patterns`` compiled as for ``BeginEndRule``."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">beginCaptures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">while_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">whileCaptures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">patterns</span><span class="p">:</span> <span class="n">CompilePatternsResult</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contentName</span><span class="p">)</span>
+        <span class="c1"># rule.ts:303 — the begin pattern carries this rule's id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_begin</span> <span class="o">=</span> <span class="n">RegExpSource</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginCaptures</span> <span class="o">=</span> <span class="n">beginCaptures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whileCaptures</span> <span class="o">=</span> <span class="n">whileCaptures</span>
+        <span class="c1"># rule.ts:306 — the while pattern carries whileRuleId (-2)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_while</span> <span class="o">=</span> <span class="n">RegExpSource</span><span class="p">(</span><span class="n">while_</span><span class="p">,</span> <span class="n">WHILE_RULE_ID</span><span class="p">)</span>
+        <span class="c1"># rule.ts:307</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whileHasBackReferences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">has_back_references</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">patterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hasMissingPatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="o">.</span><span class="n">hasMissingPatterns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">:</span> <span class="n">RegExpSourceList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span><span class="p">:</span> <span class="n">RegExpSourceList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BeginWhileRule.dispose">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># rule.ts:314-323 — both caches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugBeginRegExp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``debugBeginRegExp`` (rule.ts:325-327)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_begin</span><span class="o">.</span><span class="n">source</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debugWhileRegExp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``debugWhileRegExp`` (rule.ts:329-331)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">source</span>
+
+<div class="viewcode-block" id="BeginWhileRule.getWhileWithResolvedBackReferences">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.getWhileWithResolvedBackReferences">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getWhileWithResolvedBackReferences</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lineText</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IOnigCaptureIndex</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``getWhileWithResolvedBackReferences`` (rule.ts:333-335): the</span>
+<span class="sd">        while pattern with backreferences substituted from the begin match."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">resolve_back_references</span><span class="p">(</span><span class="n">lineText</span><span class="p">,</span> <span class="n">captureIndices</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BeginWhileRule.collectPatterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.collectPatterns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collectPatterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">RegExpSourceList</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:337-339</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_begin</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_compiled_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegExpSourceList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_getCachedCompiledPatterns`` (rule.ts:349-359): only the</span>
+<span class="sd">        contained patterns — unlike ``BeginEndRule`` there is no end source."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span> <span class="o">=</span> <span class="n">RegExpSourceList</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">:</span>
+                <span class="n">rule</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get_rule</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">collectPatterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledPatterns</span>
+
+<div class="viewcode-block" id="BeginWhileRule.compile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+        <span class="c1"># rule.ts:341-343</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BeginWhileRule.compileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.compileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+        <span class="c1"># rule.ts:345-347</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span><span class="o">.</span><span class="n">compile_ag</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">allowA</span><span class="p">,</span> <span class="n">allowG</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_compiled_while_patterns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleRegistry</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegExpSourceList</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_getCachedCompiledWhilePatterns`` (rule.ts:369-378): a</span>
+<span class="sd">        single-item list with the while source, swapped for the resolved source</span>
+<span class="sd">        when it has backreferences."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span> <span class="o">=</span> <span class="n">RegExpSourceList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span><span class="o">.</span><span class="n">push</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">has_back_references</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_while</span><span class="o">.</span><span class="n">has_back_references</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="n">endRegexSource</span> <span class="k">if</span> <span class="n">endRegexSource</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachedCompiledWhilePatterns</span>
+
+<div class="viewcode-block" id="BeginWhileRule.compileWhile">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.compileWhile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileWhile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">"""Port of ``compileWhile`` (rule.ts:361-363)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_while_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BeginWhileRule.compileWhileAG">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.BeginWhileRule.compileWhileAG">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compileWhileAG</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allowA</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">allowG</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledRule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``compileWhileAG`` (rule.ts:365-367)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached_compiled_while_patterns</span><span class="p">(</span><span class="n">grammar</span><span class="p">,</span> <span class="n">endRegexSource</span><span class="p">)</span><span class="o">.</span><span class="n">compile_ag</span><span class="p">(</span>
+            <span class="n">grammar</span><span class="p">,</span> <span class="n">allowA</span><span class="p">,</span> <span class="n">allowG</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IncludeReferenceKind">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeReferenceKind">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IncludeReferenceKind</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Port of ``IncludeReferenceKind`` (grammarDependencies.ts:247-253)."""</span>
+
+    <span class="n">Base</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Self</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">RelativeReference</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">TopLevelReference</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">TopLevelRepositoryReference</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+
+<div class="viewcode-block" id="IncludeReference">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.IncludeReference">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IncludeReference</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of the ``IncludeReference`` union (grammarDependencies.ts:240-276);</span>
+<span class="sd">    fields beyond ``kind`` are set per kind (``scope_name``/``rule_name``)."""</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="n">IncludeReferenceKind</span>
+    <span class="n">scopeName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa: N815 — upstream field name</span>
+    <span class="n">ruleName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa: N815 — upstream field name</span></div>
+
+
+
+<div class="viewcode-block" id="parse_include">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.parse_include">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_include</span><span class="p">(</span><span class="n">include</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IncludeReference</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``parseInclude`` (grammarDependencies.ts:278-295): ``$base`` /</span>
+<span class="sd">    ``$self``, ``#rule`` (relative), ``scope`` (top level), ``scope#rule``</span>
+<span class="sd">    (top-level repository reference). Note: this is the shared include parser; the</span>
+<span class="sd">    full grammarDependency machinery (task 4b) should import it from here."""</span>
+    <span class="k">if</span> <span class="n">include</span> <span class="o">==</span> <span class="s2">"$base"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IncludeReference</span><span class="p">(</span><span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">Base</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">include</span> <span class="o">==</span> <span class="s2">"$self"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IncludeReference</span><span class="p">(</span><span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">Self</span><span class="p">)</span>
+
+    <span class="n">index_of_sharp</span> <span class="o">=</span> <span class="n">include</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index_of_sharp</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IncludeReference</span><span class="p">(</span><span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">TopLevelReference</span><span class="p">,</span> <span class="n">scopeName</span><span class="o">=</span><span class="n">include</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index_of_sharp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IncludeReference</span><span class="p">(</span><span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">RelativeReference</span><span class="p">,</span> <span class="n">ruleName</span><span class="o">=</span><span class="n">include</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">IncludeReference</span><span class="p">(</span>
+        <span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">TopLevelRepositoryReference</span><span class="p">,</span>
+        <span class="n">scopeName</span><span class="o">=</span><span class="n">include</span><span class="p">[:</span><span class="n">index_of_sharp</span><span class="p">],</span>
+        <span class="n">ruleName</span><span class="o">=</span><span class="n">include</span><span class="p">[</span><span class="n">index_of_sharp</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="init_grammar">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.init_grammar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_grammar</span><span class="p">(</span><span class="n">grammar</span><span class="p">:</span> <span class="n">IRawGrammarDict</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="n">IRawRuleDict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IRawGrammarDict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``initGrammar`` (grammar.ts:410-421): deep-copies the raw grammar</span>
+<span class="sd">    and installs the ``$self`` and ``$base`` repository entries the include</span>
+<span class="sd">    resolution relies on (``$self`` = the top-level patterns, ``$base`` = the</span>
+<span class="sd">    caller-provided base grammar's self entry or the grammar's own)."""</span>
+
+    <span class="n">grammar</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">grammar</span><span class="p">)</span>
+
+    <span class="c1"># grammar.ts:413</span>
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repository"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">grammar</span><span class="p">[</span><span class="s2">"repository"</span><span class="p">]</span> <span class="o">=</span> <span class="n">repository</span>
+
+    <span class="c1"># grammar.ts:414-418</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">)</span>
+    <span class="n">repository</span><span class="p">[</span><span class="s2">"$self"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"$vscodeTextmateLocation"</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+        <span class="s2">"patterns"</span><span class="p">:</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">),</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scopeName"</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="c1"># grammar.ts:419</span>
+    <span class="n">repository</span><span class="p">[</span><span class="s2">"$base"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span> <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">repository</span><span class="p">[</span><span class="s2">"$self"</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">grammar</span></div>
+
+
+
+<div class="viewcode-block" id="RuleFactory">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleFactory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuleFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Port of ``RuleFactory`` (rule.ts:381-573)."""</span>
+
+<div class="viewcode-block" id="RuleFactory.create_capture_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleFactory.create_capture_rule">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_capture_rule</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">ILocation</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">contentName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+        <span class="n">retokenizeCapturedWithRuleId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># noqa: N803</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CaptureRule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``createCaptureRule`` (rule.ts:383-387): registers the capture</span>
+<span class="sd">        rule under a fresh id."""</span>
+        <span class="k">return</span> <span class="n">helper</span><span class="o">.</span><span class="n">register_rule</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="nb">id</span><span class="p">:</span> <span class="n">CaptureRule</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contentName</span><span class="p">,</span> <span class="n">retokenizeCapturedWithRuleId</span><span class="p">)</span>  <span class="c1"># noqa: B008</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RuleFactory.get_compiled_rule_id">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleFactory.get_compiled_rule_id">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_compiled_rule_id</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="n">desc</span><span class="p">:</span> <span class="n">IRawRuleDict</span><span class="p">,</span> <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``getCompiledRuleId`` (rule.ts:389-447): the dispatch on the raw</span>
+<span class="sd">        rule's shape, memoized on the rule dict via its internal ``id`` field.</span>
+
+<span class="sd">        Note on recursion: upstream writes ``desc.id = id`` *inside* the factory</span>
+<span class="sd">        callback, which is invoked synchronously by ``registerRule`` — so the id is</span>
+<span class="sd">        stored before any nested ``getCompiledRuleId`` runs, exactly as here.</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># rule.ts:390 — a previously compiled desc keeps its id; the callback sets</span>
+        <span class="c1"># desc['id'] = id first thing (rule.ts:391-392) so re-entrancy sees it</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">):</span>
+            <span class="n">helper</span><span class="o">.</span><span class="n">register_rule</span><span class="p">(</span><span class="n">_RuleFactoryCallback</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RuleFactory.compile_captures">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleFactory.compile_captures">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile_captures</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="n">captures</span><span class="p">:</span> <span class="n">IRawRuleDict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_compileCaptures`` (rule.ts:449-485): builds the</span>
+<span class="sd">        ``(CaptureRule | None)[]`` indexed by capture group number 1..n."""</span>
+        <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CaptureRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">captures</span><span class="p">:</span>
+            <span class="c1"># rule.ts:454-461 — find the maximum capture id (keys "1", "2", ...)</span>
+            <span class="n">maximum_capture_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">capture_id</span> <span class="ow">in</span> <span class="n">captures</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">capture_id</span> <span class="o">==</span> <span class="s2">"$vscodeTextmateLocation"</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">numeric_capture_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">capture_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">numeric_capture_id</span> <span class="o">&gt;</span> <span class="n">maximum_capture_id</span><span class="p">:</span>
+                    <span class="n">maximum_capture_id</span> <span class="o">=</span> <span class="n">numeric_capture_id</span>
+
+            <span class="c1"># rule.ts:466-468 — initialize the result with nones</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">maximum_capture_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># rule.ts:471-481 — fill out result; a capture group declaring</span>
+            <span class="c1"># `patterns` retokenizes its content with a fresh nested rule</span>
+            <span class="k">for</span> <span class="n">capture_id</span> <span class="ow">in</span> <span class="n">captures</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">capture_id</span> <span class="o">==</span> <span class="s2">"$vscodeTextmateLocation"</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">numeric_capture_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">capture_id</span><span class="p">)</span>
+                <span class="n">capture</span> <span class="o">=</span> <span class="n">captures</span><span class="p">[</span><span class="n">capture_id</span><span class="p">]</span>
+                <span class="n">retokenize_captured_with_rule_id</span> <span class="o">=</span> <span class="n">_NO_RETOKENIZE</span>
+                <span class="k">if</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">):</span>
+                    <span class="n">retokenize_captured_with_rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span>
+                        <span class="n">capture</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+                    <span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">numeric_capture_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">create_capture_rule</span><span class="p">(</span>
+                    <span class="n">helper</span><span class="p">,</span>
+                    <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">),</span>
+                    <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
+                    <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"contentName"</span><span class="p">),</span>
+                    <span class="n">retokenize_captured_with_rule_id</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="RuleFactory.compile_patterns">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.RuleFactory.compile_patterns">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile_patterns</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+        <span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">IRawRuleDict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span>
+        <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompilePatternsResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Port of ``_compilePatterns`` (rule.ts:487-572): compiles the raw pattern</span>
+<span class="sd">        list to rule ids, preserving order, resolving ``include`` entries and</span>
+<span class="sd">        dropping rules whose include chain resolves to nothing instantiated."""</span>
+        <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">patterns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+                <span class="c1"># rule.ts:493 — -1 signals "entry dropped"</span>
+                <span class="n">rule_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"include"</span><span class="p">):</span>
+                    <span class="n">reference</span> <span class="o">=</span> <span class="n">parse_include</span><span class="p">(</span><span class="n">pattern</span><span class="p">[</span><span class="s2">"include"</span><span class="p">])</span>
+
+                    <span class="c1"># rule.ts:499-542</span>
+                    <span class="k">if</span> <span class="n">reference</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span>
+                        <span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">Base</span><span class="p">,</span>
+                        <span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">Self</span><span class="p">,</span>
+                    <span class="p">):</span>
+                        <span class="c1"># rule.ts:502 — look up the raw repository rule; the</span>
+                        <span class="c1"># grammar must have $self/$base installed (init_grammar).</span>
+                        <span class="c1"># int(...[-1]) keeps the type narrow: a missing entry is a</span>
+                        <span class="c1"># programming error upstream too (it would throw)</span>
+                        <span class="n">included</span> <span class="o">=</span> <span class="n">repository</span><span class="p">[</span><span class="n">pattern</span><span class="p">[</span><span class="s2">"include"</span><span class="p">]]</span>
+                        <span class="n">rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span><span class="n">included</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">reference</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">RelativeReference</span><span class="p">:</span>
+                        <span class="c1"># rule.ts:507-513 — local include found in `repository`</span>
+                        <span class="n">local_included_rule</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">ruleName</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">local_included_rule</span><span class="p">:</span>
+                            <span class="n">rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span>
+                                <span class="n">local_included_rule</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+                            <span class="p">)</span>
+                        <span class="c1"># else: dropped (upstream logs a warning; the id stays -1)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># rule.ts:517-541 — external include (scope name), with or</span>
+                        <span class="c1"># without a `#repository` rule name; resolved through the</span>
+                        <span class="c1"># IRuleFactoryHelper hook (task 4b implements it)</span>
+                        <span class="n">external_grammar_name</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">scopeName</span>
+                        <span class="n">external_grammar_include</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">reference</span><span class="o">.</span><span class="n">ruleName</span>
+                            <span class="k">if</span> <span class="n">reference</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">IncludeReferenceKind</span><span class="o">.</span><span class="n">TopLevelRepositoryReference</span>
+                            <span class="k">else</span> <span class="kc">None</span>
+                        <span class="p">)</span>
+
+                        <span class="n">external_grammar</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">get_external_grammar</span><span class="p">(</span>
+                            <span class="n">external_grammar_name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span> <span class="n">repository</span>
+                        <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">external_grammar</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">external_grammar_include</span><span class="p">:</span>
+                                <span class="n">external_included_rule</span> <span class="o">=</span> <span class="p">(</span>
+                                    <span class="n">external_grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repository"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">external_grammar_include</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">external_included_rule</span><span class="p">:</span>
+                                    <span class="n">rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span>
+                                        <span class="n">external_included_rule</span><span class="p">,</span>
+                                        <span class="n">helper</span><span class="p">,</span>
+                                        <span class="n">external_grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repository"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{},</span>
+                                    <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="c1"># rule.ts:536 — the external grammar's top rule</span>
+                                <span class="n">external_repository</span> <span class="o">=</span> <span class="n">external_grammar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repository"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+                                <span class="n">self_rule</span> <span class="o">=</span> <span class="n">external_repository</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$self"</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">self_rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="n">rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span>
+                                        <span class="n">self_rule</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">external_repository</span>
+                                    <span class="p">)</span>
+                        <span class="c1"># else: dropped (upstream logs a warning; the id stays -1)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># rule.ts:544 — an inline (anonymous) pattern compiles itself</span>
+                    <span class="n">rule_id</span> <span class="o">=</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">rule_id</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># rule.ts:548-562 — skip rules that are pattern-less skeletons</span>
+                    <span class="c1"># whose pattern lists all had missing include targets</span>
+                    <span class="n">rule</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">get_rule</span><span class="p">(</span><span class="n">rule_id</span><span class="p">)</span>
+
+                    <span class="n">skip_rule</span> <span class="o">=</span> <span class="kc">False</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="p">(</span><span class="n">IncludeOnlyRule</span><span class="p">,</span> <span class="n">BeginEndRule</span><span class="p">,</span> <span class="n">BeginWhileRule</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
+                        <span class="n">rule</span><span class="o">.</span><span class="n">hasMissingPatterns</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">patterns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="p">):</span>
+                        <span class="n">skip_rule</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="k">if</span> <span class="n">skip_rule</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rule_id</span><span class="p">)</span>
+
+        <span class="c1"># rule.ts:568-571 — order preserved; a shorter output means patterns went</span>
+        <span class="c1"># missing (rule.ts:570)</span>
+        <span class="k">return</span> <span class="n">CompilePatternsResult</span><span class="p">(</span>
+            <span class="n">patterns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+            <span class="n">hasMissingPatterns</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="n">patterns</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="create_rule">
+<a class="viewcode-back" href="../../../apidocs/textmate_grammar/textmate_grammar.engine.rules.html#textmate_grammar.engine.rules.create_rule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_rule</span><span class="p">(</span>
+    <span class="n">desc</span><span class="p">:</span> <span class="n">IRawRuleDict</span><span class="p">,</span> <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Mirror of ``RuleFactory.getCompiledRuleId`` (task-card spelling); prefer</span>
+<span class="sd">    :meth:`RuleFactory.get_compiled_rule_id`."""</span>
+    <span class="k">return</span> <span class="n">RuleFactory</span><span class="o">.</span><span class="n">get_compiled_rule_id</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_RuleFactoryCallback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The `(id) =&gt; { ... }` factories of ``getCompiledRuleId`` (rule.ts:391-443),</span>
+<span class="sd">    kept as a small class so the dispatch reads like upstream. The callback stores</span>
+<span class="sd">    the allocated id on the raw desc *first* (rule.ts:391-392) so behaviour is</span>
+<span class="sd">    identical under recursion."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">desc</span><span class="p">:</span> <span class="n">IRawRuleDict</span><span class="p">,</span> <span class="n">helper</span><span class="p">:</span> <span class="n">IRuleFactoryHelper</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="n">IRawRepositoryDict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span> <span class="o">=</span> <span class="n">desc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span> <span class="o">=</span> <span class="n">helper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_repository</span> <span class="o">=</span> <span class="n">repository</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rule</span><span class="p">:</span>  <span class="c1"># noqa: A002</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span>
+        <span class="n">helper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repository</span>
+
+        <span class="c1"># rule.ts:392 — memoize on the desc (consumed by the guard in</span>
+        <span class="c1"># getCompiledRuleId once the callback returns)</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span>
+
+        <span class="c1"># rule.ts:394-402 — match rule</span>
+        <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"match"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">MatchRule</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"match"</span><span class="p">],</span>
+                <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_captures</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"captures"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># rule.ts:404-419 — begin is undefined: include-only rule; a local</span>
+        <span class="c1"># `repository` section extends the parent's for the patterns below it</span>
+        <span class="k">if</span> <span class="s2">"begin"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">desc</span> <span class="ow">or</span> <span class="n">desc</span><span class="p">[</span><span class="s2">"begin"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repository"</span><span class="p">):</span>
+                <span class="n">repository</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">repository</span><span class="p">,</span> <span class="o">**</span><span class="n">desc</span><span class="p">[</span><span class="s2">"repository"</span><span class="p">]}</span>
+            <span class="n">patterns</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">patterns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"include"</span><span class="p">):</span>
+                <span class="c1"># rule.ts:409-411 — a bare `include` becomes the pattern list</span>
+                <span class="n">patterns</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"include"</span><span class="p">:</span> <span class="n">desc</span><span class="p">[</span><span class="s2">"include"</span><span class="p">]}]</span>
+            <span class="k">return</span> <span class="n">IncludeOnlyRule</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"contentName"</span><span class="p">),</span>
+                <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_patterns</span><span class="p">(</span><span class="n">patterns</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># rule.ts:421-431 — begin + while: BeginWhileRule; captures fall back to</span>
+        <span class="c1"># the rule-level `captures` when the specific ones are missing</span>
+        <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"while"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">BeginWhileRule</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"contentName"</span><span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"begin"</span><span class="p">],</span>
+                <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_captures</span><span class="p">(</span>
+                    <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"beginCaptures"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"captures"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+                <span class="p">),</span>
+                <span class="n">desc</span><span class="p">[</span><span class="s2">"while"</span><span class="p">],</span>
+                <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_captures</span><span class="p">(</span>
+                    <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"whileCaptures"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"captures"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+                <span class="p">),</span>
+                <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_patterns</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># rule.ts:433-442 — begin + end: BeginEndRule</span>
+        <span class="k">return</span> <span class="n">BeginEndRule</span><span class="p">(</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"$vscodeTextmateLocation"</span><span class="p">),</span>
+            <span class="n">desc</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">),</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"contentName"</span><span class="p">),</span>
+            <span class="n">desc</span><span class="p">[</span><span class="s2">"begin"</span><span class="p">],</span>
+            <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_captures</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"beginCaptures"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"captures"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+            <span class="p">),</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"end"</span><span class="p">),</span>
+            <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_captures</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"endCaptures"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"captures"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span>
+            <span class="p">),</span>
+            <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"applyEndPatternLast"</span><span class="p">),</span>
+            <span class="n">RuleFactory</span><span class="o">.</span><span class="n">compile_patterns</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">),</span> <span class="n">helper</span><span class="p">,</span> <span class="n">repository</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Mark Shui Hu
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/watermarkhu/textmate-grammar-python" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    </body>
+</html>

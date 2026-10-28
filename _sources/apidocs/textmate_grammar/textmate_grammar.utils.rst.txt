@@ -1,0 +1,7 @@
+:py:mod:`textmate_grammar.utils`
+================================
+
+.. py:module:: textmate_grammar.utils
+
+.. autodoc2-docstring:: textmate_grammar.utils
+   :allowtitles:

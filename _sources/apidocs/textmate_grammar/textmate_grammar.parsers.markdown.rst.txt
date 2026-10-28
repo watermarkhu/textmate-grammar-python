@@ -1,0 +1,37 @@
+:py:mod:`textmate_grammar.parsers.markdown`
+===========================================
+
+.. py:module:: textmate_grammar.parsers.markdown
+
+.. autodoc2-docstring:: textmate_grammar.parsers.markdown
+   :allowtitles:
+
+Package Contents
+----------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`markdown_grammar <textmate_grammar.parsers.markdown.markdown_grammar>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.markdown.markdown_grammar
+          :summary:
+   * - :py:obj:`tokenize_markdown <textmate_grammar.parsers.markdown.tokenize_markdown>`
+     - .. autodoc2-docstring:: textmate_grammar.parsers.markdown.tokenize_markdown
+          :summary:
+
+API
+~~~
+
+.. py:function:: markdown_grammar() -> textmate_grammar.engine.Grammar
+   :canonical: textmate_grammar.parsers.markdown.markdown_grammar
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.markdown.markdown_grammar
+
+.. py:function:: tokenize_markdown(path_or_text: str | pathlib.Path) -> list[list[textmate_grammar.engine.IToken]]
+   :canonical: textmate_grammar.parsers.markdown.tokenize_markdown
+
+   .. autodoc2-docstring:: textmate_grammar.parsers.markdown.tokenize_markdown

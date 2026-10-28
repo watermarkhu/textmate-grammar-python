@@ -1,0 +1,58 @@
+:py:mod:`textmate_grammar.engine.debug`
+=======================================
+
+.. py:module:: textmate_grammar.engine.debug
+
+.. autodoc2-docstring:: textmate_grammar.engine.debug
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`DebugFlags <textmate_grammar.engine.debug.DebugFlags>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.debug.DebugFlags
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`UseOnigurumaFindOptions <textmate_grammar.engine.debug.UseOnigurumaFindOptions>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.debug.UseOnigurumaFindOptions
+          :summary:
+
+API
+~~~
+
+.. py:class:: DebugFlags
+   :canonical: textmate_grammar.engine.debug.DebugFlags
+
+   .. autodoc2-docstring:: textmate_grammar.engine.debug.DebugFlags
+
+   .. py:attribute:: InDebugMode
+      :canonical: textmate_grammar.engine.debug.DebugFlags.InDebugMode
+      :value: 'bool(...)'
+
+      .. autodoc2-docstring:: textmate_grammar.engine.debug.DebugFlags.InDebugMode
+
+   .. py:method:: is_in_debug_mode() -> bool
+      :canonical: textmate_grammar.engine.debug.DebugFlags.is_in_debug_mode
+      :staticmethod:
+
+      .. autodoc2-docstring:: textmate_grammar.engine.debug.DebugFlags.is_in_debug_mode
+
+.. py:data:: UseOnigurumaFindOptions
+   :canonical: textmate_grammar.engine.debug.UseOnigurumaFindOptions
+   :value: False
+
+   .. autodoc2-docstring:: textmate_grammar.engine.debug.UseOnigurumaFindOptions

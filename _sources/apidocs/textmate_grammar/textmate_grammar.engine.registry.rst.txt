@@ -1,0 +1,321 @@
+:py:mod:`textmate_grammar.engine.registry`
+==========================================
+
+.. py:module:: textmate_grammar.engine.registry
+
+.. autodoc2-docstring:: textmate_grammar.engine.registry
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`TokenizerLike <textmate_grammar.engine.registry.TokenizerLike>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.TokenizerLike
+          :summary:
+   * - :py:obj:`RegistryOptions <textmate_grammar.engine.registry.RegistryOptions>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions
+          :summary:
+   * - :py:obj:`TopLevelRuleReference <textmate_grammar.engine.registry.TopLevelRuleReference>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRuleReference
+          :summary:
+   * - :py:obj:`TopLevelRepositoryRuleReference <textmate_grammar.engine.registry.TopLevelRepositoryRuleReference>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference
+          :summary:
+   * - :py:obj:`ExternalReferenceCollector <textmate_grammar.engine.registry.ExternalReferenceCollector>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.ExternalReferenceCollector
+          :summary:
+   * - :py:obj:`ScopeDependencyProcessor <textmate_grammar.engine.registry.ScopeDependencyProcessor>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.ScopeDependencyProcessor
+          :summary:
+   * - :py:obj:`SyncRegistry <textmate_grammar.engine.registry.SyncRegistry>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry
+          :summary:
+   * - :py:obj:`Registry <textmate_grammar.engine.registry.Registry>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`collect_includes <textmate_grammar.engine.registry.collect_includes>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.collect_includes
+          :summary:
+   * - :py:obj:`get_grammar_dependencies <textmate_grammar.engine.registry.get_grammar_dependencies>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.get_grammar_dependencies
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RawGrammar <textmate_grammar.engine.registry.RawGrammar>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.RawGrammar
+          :summary:
+   * - :py:obj:`GrammarFactory <textmate_grammar.engine.registry.GrammarFactory>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.GrammarFactory
+          :summary:
+   * - :py:obj:`AbsoluteRuleReference <textmate_grammar.engine.registry.AbsoluteRuleReference>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.registry.AbsoluteRuleReference
+          :summary:
+
+API
+~~~
+
+.. py:data:: RawGrammar
+   :canonical: textmate_grammar.engine.registry.RawGrammar
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.RawGrammar
+
+.. py:class:: TokenizerLike
+   :canonical: textmate_grammar.engine.registry.TokenizerLike
+
+   Bases: :py:obj:`typing.Protocol`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.TokenizerLike
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.registry.TokenizerLike.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TokenizerLike.dispose
+
+.. py:class:: RegistryOptions()
+   :canonical: textmate_grammar.engine.registry.RegistryOptions
+
+   Bases: :py:obj:`typing.TypedDict`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.__init__
+
+   .. py:attribute:: onig_lib
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.onig_lib
+      :type: textmate_grammar.engine.oniglib.IOnigLib
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.onig_lib
+
+   .. py:attribute:: load_grammar
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.load_grammar
+      :type: collections.abc.Callable[[str], textmate_grammar.engine.raw_grammar.IRawGrammar | None]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.load_grammar
+
+   .. py:attribute:: get_injections
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.get_injections
+      :type: collections.abc.Callable[[str], collections.abc.Sequence[str] | None]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.get_injections
+
+   .. py:attribute:: onigLib
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.onigLib
+      :type: textmate_grammar.engine.oniglib.IOnigLib
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.onigLib
+
+   .. py:attribute:: loadGrammar
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.loadGrammar
+      :type: collections.abc.Callable[[str], textmate_grammar.engine.raw_grammar.IRawGrammar | None]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.loadGrammar
+
+   .. py:attribute:: getInjections
+      :canonical: textmate_grammar.engine.registry.RegistryOptions.getInjections
+      :type: collections.abc.Callable[[str], collections.abc.Sequence[str] | None]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.RegistryOptions.getInjections
+
+.. py:data:: GrammarFactory
+   :canonical: textmate_grammar.engine.registry.GrammarFactory
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.GrammarFactory
+
+.. py:class:: TopLevelRuleReference
+   :canonical: textmate_grammar.engine.registry.TopLevelRuleReference
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRuleReference
+
+   .. py:attribute:: scope_name
+      :canonical: textmate_grammar.engine.registry.TopLevelRuleReference.scope_name
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRuleReference.scope_name
+
+   .. py:method:: to_key() -> str
+      :canonical: textmate_grammar.engine.registry.TopLevelRuleReference.to_key
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRuleReference.to_key
+
+.. py:class:: TopLevelRepositoryRuleReference
+   :canonical: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference
+
+   .. py:attribute:: scope_name
+      :canonical: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.scope_name
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.scope_name
+
+   .. py:attribute:: rule_name
+      :canonical: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.rule_name
+      :type: str
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.rule_name
+
+   .. py:method:: to_key() -> str
+      :canonical: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.to_key
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.TopLevelRepositoryRuleReference.to_key
+
+.. py:data:: AbsoluteRuleReference
+   :canonical: textmate_grammar.engine.registry.AbsoluteRuleReference
+   :value: None
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.AbsoluteRuleReference
+
+.. py:class:: ExternalReferenceCollector()
+   :canonical: textmate_grammar.engine.registry.ExternalReferenceCollector
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.ExternalReferenceCollector
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.ExternalReferenceCollector.__init__
+
+   .. py:method:: add(reference: textmate_grammar.engine.registry.AbsoluteRuleReference) -> None
+      :canonical: textmate_grammar.engine.registry.ExternalReferenceCollector.add
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.ExternalReferenceCollector.add
+
+.. py:class:: ScopeDependencyProcessor(repo: textmate_grammar.engine.registry.SyncRegistry, initial_scope_name: str)
+   :canonical: textmate_grammar.engine.registry.ScopeDependencyProcessor
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.ScopeDependencyProcessor
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.ScopeDependencyProcessor.__init__
+
+   .. py:method:: process_queue() -> None
+      :canonical: textmate_grammar.engine.registry.ScopeDependencyProcessor.process_queue
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.ScopeDependencyProcessor.process_queue
+
+.. py:function:: collect_includes(grammar: textmate_grammar.engine.raw_grammar.IRawGrammar) -> list[textmate_grammar.engine.registry.AbsoluteRuleReference]
+   :canonical: textmate_grammar.engine.registry.collect_includes
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.collect_includes
+
+.. py:function:: get_grammar_dependencies(registry: SyncRegistry, scope_name: str) -> list[str]
+   :canonical: textmate_grammar.engine.registry.get_grammar_dependencies
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.get_grammar_dependencies
+
+.. py:class:: SyncRegistry(onig_lib: textmate_grammar.engine.oniglib.IOnigLib = DEFAULT_ONIG_LIB)
+   :canonical: textmate_grammar.engine.registry.SyncRegistry
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.dispose
+
+   .. py:method:: register_grammar(grammar: textmate_grammar.engine.raw_grammar.IRawGrammar, injection_scope_names: collections.abc.Sequence[str] | None = None) -> None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.register_grammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.register_grammar
+
+   .. py:method:: addGrammar(grammar: textmate_grammar.engine.raw_grammar.IRawGrammar, injection_scope_names: collections.abc.Sequence[str] | None = None) -> None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.addGrammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.addGrammar
+
+   .. py:method:: lookup(scope_name: str) -> textmate_grammar.engine.raw_grammar.IRawGrammar | None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.lookup
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.lookup
+
+   .. py:method:: injections(target_scope: str) -> list[str] | None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.injections
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.injections
+
+   .. py:method:: get_external_grammar(scope_name: str, repository: collections.abc.Mapping[str, typing.Any] | None = None) -> textmate_grammar.engine.raw_grammar.IRawGrammar | None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.get_external_grammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.get_external_grammar
+
+   .. py:method:: grammar_for_scope_name(scope_name: str, grammar_factory: textmate_grammar.engine.registry.GrammarFactory | None = None) -> textmate_grammar.engine.registry.TokenizerLike | None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.grammar_for_scope_name
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.grammar_for_scope_name
+
+   .. py:method:: grammarForScopeName(scope_name: str) -> textmate_grammar.engine.registry.TokenizerLike | None
+      :canonical: textmate_grammar.engine.registry.SyncRegistry.grammarForScopeName
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.SyncRegistry.grammarForScopeName
+
+.. py:class:: Registry(options: textmate_grammar.engine.registry.RegistryOptions, *, grammar_factory: textmate_grammar.engine.registry.GrammarFactory | None = None)
+   :canonical: textmate_grammar.engine.registry.Registry
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.registry.Registry.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.dispose
+
+   .. py:method:: register_grammar(raw_grammar: textmate_grammar.engine.raw_grammar.IRawGrammar, injections: collections.abc.Sequence[str] | None = None) -> None
+      :canonical: textmate_grammar.engine.registry.Registry.register_grammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.register_grammar
+
+   .. py:method:: load_grammar(initial_scope_name: str) -> textmate_grammar.engine.registry.TokenizerLike | None
+      :canonical: textmate_grammar.engine.registry.Registry.load_grammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.load_grammar
+
+   .. py:method:: loadGrammar(initial_scope_name: str) -> textmate_grammar.engine.registry.TokenizerLike | None
+      :canonical: textmate_grammar.engine.registry.Registry.loadGrammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.loadGrammar
+
+   .. py:method:: addGrammar(raw_grammar: textmate_grammar.engine.raw_grammar.IRawGrammar, injections: collections.abc.Sequence[str] = (), initial_language: int = 0, embedded_languages: collections.abc.Mapping[str, int] | None = None) -> textmate_grammar.engine.registry.TokenizerLike
+      :canonical: textmate_grammar.engine.registry.Registry.addGrammar
+
+      .. autodoc2-docstring:: textmate_grammar.engine.registry.Registry.addGrammar

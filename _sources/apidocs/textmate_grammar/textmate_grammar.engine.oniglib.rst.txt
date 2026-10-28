@@ -1,0 +1,238 @@
+:py:mod:`textmate_grammar.engine.oniglib`
+=========================================
+
+.. py:module:: textmate_grammar.engine.oniglib
+
+.. autodoc2-docstring:: textmate_grammar.engine.oniglib
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`FindOption <textmate_grammar.engine.oniglib.FindOption>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption
+          :summary:
+   * - :py:obj:`IOnigCaptureIndex <textmate_grammar.engine.oniglib.IOnigCaptureIndex>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigCaptureIndex
+          :summary:
+   * - :py:obj:`IOnigMatch <textmate_grammar.engine.oniglib.IOnigMatch>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigMatch
+          :summary:
+   * - :py:obj:`OnigString <textmate_grammar.engine.oniglib.OnigString>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigString
+          :summary:
+   * - :py:obj:`OnigScanner <textmate_grammar.engine.oniglib.OnigScanner>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner
+          :summary:
+   * - :py:obj:`IOnigLib <textmate_grammar.engine.oniglib.IOnigLib>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigLib
+          :summary:
+   * - :py:obj:`OnigLib <textmate_grammar.engine.oniglib.OnigLib>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigLib
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`disposeOnigString <textmate_grammar.engine.oniglib.disposeOnigString>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.disposeOnigString
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`DEFAULT_ONIG_LIB <textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB>`
+     - .. autodoc2-docstring:: textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB
+          :summary:
+
+API
+~~~
+
+.. py:class:: FindOption()
+   :canonical: textmate_grammar.engine.oniglib.FindOption
+
+   Bases: :py:obj:`enum.IntFlag`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.__init__
+
+   .. py:attribute:: NONE
+      :canonical: textmate_grammar.engine.oniglib.FindOption.NONE
+      :value: 0
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.NONE
+
+   .. py:attribute:: NOT_BEGIN_STRING
+      :canonical: textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_STRING
+      :value: 1
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_STRING
+
+   .. py:attribute:: NOT_END_STRING
+      :canonical: textmate_grammar.engine.oniglib.FindOption.NOT_END_STRING
+      :value: 2
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.NOT_END_STRING
+
+   .. py:attribute:: NOT_BEGIN_POSITION
+      :canonical: textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_POSITION
+      :value: 4
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.NOT_BEGIN_POSITION
+
+   .. py:attribute:: DEBUG_CALL
+      :canonical: textmate_grammar.engine.oniglib.FindOption.DEBUG_CALL
+      :value: 8
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.FindOption.DEBUG_CALL
+
+.. py:class:: IOnigCaptureIndex
+   :canonical: textmate_grammar.engine.oniglib.IOnigCaptureIndex
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigCaptureIndex
+
+   .. py:attribute:: start
+      :canonical: textmate_grammar.engine.oniglib.IOnigCaptureIndex.start
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigCaptureIndex.start
+
+   .. py:attribute:: end
+      :canonical: textmate_grammar.engine.oniglib.IOnigCaptureIndex.end
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigCaptureIndex.end
+
+   .. py:attribute:: length
+      :canonical: textmate_grammar.engine.oniglib.IOnigCaptureIndex.length
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigCaptureIndex.length
+
+.. py:class:: IOnigMatch
+   :canonical: textmate_grammar.engine.oniglib.IOnigMatch
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigMatch
+
+   .. py:attribute:: index
+      :canonical: textmate_grammar.engine.oniglib.IOnigMatch.index
+      :type: int
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigMatch.index
+
+   .. py:attribute:: capture_indices
+      :canonical: textmate_grammar.engine.oniglib.IOnigMatch.capture_indices
+      :type: tuple[textmate_grammar.engine.oniglib.IOnigCaptureIndex, ...]
+      :value: None
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigMatch.capture_indices
+
+.. py:class:: OnigString(content: str)
+   :canonical: textmate_grammar.engine.oniglib.OnigString
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigString
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigString.__init__
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.oniglib.OnigString.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigString.dispose
+
+.. py:function:: disposeOnigString(string: textmate_grammar.engine.oniglib.OnigString) -> None
+   :canonical: textmate_grammar.engine.oniglib.disposeOnigString
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.disposeOnigString
+
+.. py:class:: OnigScanner(sources: collections.abc.Sequence[str])
+   :canonical: textmate_grammar.engine.oniglib.OnigScanner
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner.__init__
+
+   .. py:property:: sources
+      :canonical: textmate_grammar.engine.oniglib.OnigScanner.sources
+      :type: tuple[str, ...]
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner.sources
+
+   .. py:method:: find_next_match_sync(string: str | textmate_grammar.engine.oniglib.OnigString, start_position: int = 0, options: textmate_grammar.engine.oniglib.FindOption = FindOption.NONE) -> textmate_grammar.engine.oniglib.IOnigMatch | None
+      :canonical: textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner.find_next_match_sync
+
+   .. py:method:: find_best_match(position: int, line: str, has_anchor: bool = False, has_back_references: bool = False) -> textmate_grammar.engine.oniglib.IOnigMatch | None
+      :canonical: textmate_grammar.engine.oniglib.OnigScanner.find_best_match
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner.find_best_match
+
+   .. py:method:: dispose() -> None
+      :canonical: textmate_grammar.engine.oniglib.OnigScanner.dispose
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigScanner.dispose
+
+.. py:class:: IOnigLib
+   :canonical: textmate_grammar.engine.oniglib.IOnigLib
+
+   Bases: :py:obj:`typing.Protocol`
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigLib
+
+   .. py:method:: create_onig_scanner(sources: collections.abc.Sequence[str]) -> textmate_grammar.engine.oniglib.OnigScanner
+      :canonical: textmate_grammar.engine.oniglib.IOnigLib.create_onig_scanner
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigLib.create_onig_scanner
+
+   .. py:method:: create_onig_string(string: str) -> textmate_grammar.engine.oniglib.OnigString
+      :canonical: textmate_grammar.engine.oniglib.IOnigLib.create_onig_string
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.IOnigLib.create_onig_string
+
+.. py:class:: OnigLib
+   :canonical: textmate_grammar.engine.oniglib.OnigLib
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigLib
+
+   .. py:method:: create_onig_scanner(sources: collections.abc.Sequence[str]) -> textmate_grammar.engine.oniglib.OnigScanner
+      :canonical: textmate_grammar.engine.oniglib.OnigLib.create_onig_scanner
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigLib.create_onig_scanner
+
+   .. py:method:: create_onig_string(string: str) -> textmate_grammar.engine.oniglib.OnigString
+      :canonical: textmate_grammar.engine.oniglib.OnigLib.create_onig_string
+
+      .. autodoc2-docstring:: textmate_grammar.engine.oniglib.OnigLib.create_onig_string
+
+.. py:data:: DEFAULT_ONIG_LIB
+   :canonical: textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB
+   :type: textmate_grammar.engine.oniglib.IOnigLib
+   :value: 'OnigLib(...)'
+
+   .. autodoc2-docstring:: textmate_grammar.engine.oniglib.DEFAULT_ONIG_LIB
