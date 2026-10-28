@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from typing import Any
 
-import pytest
-
 from textmate_grammar.engine.raw_grammar import parse_raw_grammar
 from textmate_grammar.engine.registry import (
     Registry,
@@ -114,10 +112,30 @@ def test_external_grammar_lookup_initializes_and_caches_with_base_repository() -
     assert other["repository"]["$base"] is other_base
 
 
-def test_default_factory_is_the_explicit_3b_seam() -> None:
-    registry = Registry({"load_grammar": lambda _: GRAMMAR_A})
-    with pytest.raises(NotImplementedError, match="Grammar construction is not landed"):
-        registry.load_grammar("source.a")
+def test_registry_default_factory_loads_and_tokenizes_a_file_grammar(tmp_path) -> None:
+    grammar_path = tmp_path / "sample.tmLanguage.json"
+    grammar_path.write_text(
+        json.dumps(
+            {
+                "scopeName": "source.sample",
+                "patterns": [{"match": "[a-z]+", "name": "variable.sample"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def load_grammar(scope_name: str):
+        if scope_name != "source.sample":
+            return None
+        return parse_raw_grammar(grammar_path.read_text(encoding="utf-8"), str(grammar_path))
+
+    registry = Registry({"loadGrammar": load_grammar})
+    grammar = registry.loadGrammar("source.sample")
+    assert grammar is not None
+    result = grammar.tokenizeLine("word", None)
+    assert [(token.startIndex, token.endIndex, token.scopes) for token in result.tokens] == [
+        (0, 4, ["source.sample", "variable.sample"])
+    ]
 
 
 def test_dispose_releases_cached_tokenizers() -> None:

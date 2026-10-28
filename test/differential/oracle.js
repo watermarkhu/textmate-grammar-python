@@ -50,7 +50,7 @@ async function main() {
         process.exit(2);
     }
 
-    // Set up the vscode-oniguruma wasm bindings (same setup as test/regression/index.js).
+    // Set up the vscode-oniguruma wasm bindings for the differential oracle.
     const wasmBin = fs.readFileSync(
         path.join(__dirname, 'node_root', 'node_modules', 'vscode-oniguruma', 'release', 'onig.wasm')
     ).buffer;

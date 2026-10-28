@@ -19,8 +19,7 @@ MATLAB_TEST_ROOT = SYNTAXES_ROOT / "matlab" / "test"
 MARKDOWN_FIXTURE_ROOT = SYNTAXES_ROOT / "markdown" / "test" / "colorize-fixtures"
 DIFFERENTIAL_FIXTURE_ROOT = TEST_DIFFERENTIAL_ROOT / "corpus"
 
-# The syntaxes/matlab/*.m corpus of test/regression/test_matlab.py's explicit file list (the
-# test-directory files are globbed by matlab_corpus below).
+# MATLAB samples retained from the former regression suite plus upstream test-directory files.
 REGRESSION_MATLAB_STEMS = [
     "Account",
     "AnEnum",
@@ -95,9 +94,9 @@ class CorpusEntry:
     def load_text(self) -> str:
         """The exact text both engines of the harness tokenize for this entry.
 
-        Most fixtures normalize ``\\r\\n`` and ``\\r`` to ``\\n`` because the legacy MATLAB
-        ``ContentHandler`` does so. The CRLF smoke fixture opts out with ``preserve_newlines``
-        so both the oracle and new engine see the original ``\\r`` characters.
+        Most fixtures normalize ``\\r\\n`` and ``\\r`` to ``\\n`` for consistent line input.
+        The CRLF smoke fixture opts out with ``preserve_newlines`` so both sides see the original
+        ``\\r`` characters.
         """
         if self.preserve_newlines:
             return self.path.read_bytes().decode("utf-8")
@@ -105,18 +104,14 @@ class CorpusEntry:
 
 
 def matlab_corpus() -> list[CorpusEntry]:
-    """The matlab .m corpus, the same files the regression tests already compare."""
-    entries = [
+    """MATLAB files retained from the original corpus and upstream fixtures."""
+    return [
         CorpusEntry("matlab", SYNTAXES_ROOT / "matlab" / f"{stem}.m")
         for stem in REGRESSION_MATLAB_STEMS
     ] + [
         CorpusEntry("matlab", path)
         for path in sorted(MATLAB_TEST_ROOT.glob("*.m"))
     ]
-    entries.append(
-        CorpusEntry("matlab", REPOSITORY_ROOT / "test" / "regression" / "matlab" / "test_multiple_inheritance_ml.m")
-    )
-    return entries
 
 
 def markdown_corpus() -> list[CorpusEntry]:
@@ -126,11 +121,6 @@ def markdown_corpus() -> list[CorpusEntry]:
         CorpusEntry("markdown", MARKDOWN_FIXTURE_ROOT / "code-block.md"),
         CorpusEntry("markdown", MARKDOWN_FIXTURE_ROOT / "table-alignment.md"),
     ]
-
-
-def legacy_corpus() -> tuple[CorpusEntry, ...]:
-    """Original MATLAB and markdown samples retained for the legacy baseline suite."""
-    return tuple(sorted(matlab_corpus() + markdown_corpus(), key=lambda entry: entry.id))
 
 
 def fixture_corpus(language: str) -> list[CorpusEntry]:

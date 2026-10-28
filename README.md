@@ -11,7 +11,7 @@
 
 A lexer and tokenizer for grammar files as defined by TextMate and used in VSCode, implemented in Python. 
 
-Textmate grammars are made for [vscode-texmate](https://github.com/microsoft/vscode-textmate), allowing for syntax highlighting in VSCode after tokenization. This presents textmate-grammar-python with a large list of potentially supported languages. 
+TextMate grammars are made for [vscode-textmate](https://github.com/microsoft/vscode-textmate), allowing for syntax highlighting in VS Code after tokenization. This presents textmate-grammar-python with a large list of potentially supported languages.
 
 ## Usage
 Install the module with:
@@ -19,48 +19,29 @@ Install the module with:
 pip install textmate-grammar-python
 ```
 
-Before tokenization is possible, a `LanguageParser` needs to be initialized using a loaded grammar. 
+The public API follows vscode-textmate's registry and line-tokenization model. A registry loads raw grammar data by scope name, and the returned grammar carries a state stack from line to line:
 
 ```python
-from textmate_grammar.parsers.matlab import MatlabParser
-parser = MatlabParser()
+from pathlib import Path
+
+from textmate_grammar import INITIAL, Registry, parseRawGrammar
+
+grammar_path = Path("MATLAB.tmLanguage")
+raw_grammar = parseRawGrammar(grammar_path.read_text(), str(grammar_path))
+registry = Registry({"loadGrammar": lambda scope: raw_grammar if scope == "source.matlab" else None})
+grammar = registry.loadGrammar("source.matlab")
+state = INITIAL
+for line in Path("example.m").read_text().splitlines():
+    result = grammar.tokenizeLine(line, state)
+    state = result.ruleStack
+    print(result.tokens)  # each token has startIndex, endIndex, and scopes
 ```
 
-After this, one can either choose to call [`parser.parsing_string`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_string) to parse a input string directly, or call [`parser.parse_file`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.language.html#textmate_grammar.language.LanguageParser.parse_file) with the path to the appropiate source file as the first argument, such as in the example [`example.py`](https://github.com/watermarkhu/textmate-grammar-python/blob/main/example.py). 
+Language helpers are also available via `textmate_grammar.parsers.matlab` and `.markdown` for the bundled grammars.
 
-The parsed `element` object can be displayed directly by calling the [`print`](https://textmate-grammar-python.readthedocs.io/en/latest/apidocs/textmate_grammar/textmate_grammar.elements.html#textmate_grammar.elements.ContentElement.print) method. By default the element is printed as an element tree in a dictionary format. 
+## Migrating from 0.6.x
 
-```python
->>> element = parser.parse_string("value = num2str(10);")
->>> element.print()
-
-{'token': 'source.matlab',
- 'children': [{'token': 'meta.assignment.variable.single.matlab', 
-               'children': [{'token': 'variable.other.readwrite.matlab', 'content': 'value'}]},
-              {'token': 'keyword.operator.assignment.matlab', 'content': '='},
-              {'token': 'meta.function-call.parens.matlab',
-               'begin': [{'token': 'entity.name.function.matlab', 'content': 'num2str'},
-                         {'token': 'punctuation.section.parens.begin.matlab', 'content': '('}],
-               'end': [{'token': 'punctuation.section.parens.end.matlab', 'content': ')'}],
-               'children': [{'token': 'constant.numeric.decimal.matlab', 'content': '10'}]},
-              {'token': 'punctuation.terminator.semicolon.matlab', 'content': ';'}]}
-
-```
-Alternatively, with the keyword argument `flatten` the element is displayed as a list per unique token. Here the first item in the list is the starting position (line, column) of the unique tokenized element. 
-
-```python
->>> element.print(flatten=True)
-
-[[(0, 0), 'value', ['source.matlab', 'meta.assignment.variable.single.matlab', 'variable.other.readwrite.matlab']],
- [(0, 5), ' ', ['source.matlab']],
- [(0, 6), '=', ['source.matlab', 'keyword.operator.assignment.matlab']],
- [(0, 7), ' ', ['source.matlab']],
- [(0, 8), 'num2str', ['source.matlab', 'meta.function-call.parens.matlab', 'entity.name.function.matlab']],
- [(0, 15), '(', ['source.matlab', 'meta.function-call.parens.matlab', 'punctuation.section.parens.begin.matlab']],
- [(0, 16), '10', ['source.matlab', 'meta.function-call.parens.matlab', 'constant.numeric.decimal.matlab']],
- [(0, 18), ')', ['source.matlab', 'meta.function-call.parens.matlab', 'punctuation.section.parens.end.matlab']],
- [(0, 19), ';', ['source.matlab', 'punctuation.terminator.semicolon.matlab']]]
-```
+The old `LanguageParser` / `ContentElement` tree API has been removed without compatibility shims. Use the vscode-textmate-shaped `Registry`, `parseRawGrammar`, `Grammar.tokenizeLine`, `IToken` tokens, and `ruleStack` state API instead; this is a breaking change in the 0.x series.
 
 ## Information
 
