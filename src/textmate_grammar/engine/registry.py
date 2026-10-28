@@ -61,9 +61,7 @@ class RegistryOptions(TypedDict, total=False):
 GrammarFactory = Callable[[ILocation | None, IRawGrammar], TokenizerLike]
 
 
-def _default_grammar_factory(
-    registry: SyncRegistry, onig_lib: IOnigLib
-) -> GrammarFactory:
+def _default_grammar_factory(registry: SyncRegistry, onig_lib: IOnigLib) -> GrammarFactory:
     """Build a tokenizer using the registry as its included-grammar repository."""
     from .tokenize import Grammar
 
@@ -382,9 +380,7 @@ class SyncRegistry:
                 return None
             location = raw_grammar.get(LOCATION_KEY)
             factory = grammar_factory or _default_grammar_factory(self, self.onig_lib)
-            self._grammars[scope_name] = factory(
-                cast(ILocation | None, location), raw_grammar
-            )
+            self._grammars[scope_name] = factory(cast(ILocation | None, location), raw_grammar)
         return self._grammars[scope_name]
 
     def grammarForScopeName(self, scope_name: str) -> TokenizerLike | None:  # noqa: N802
@@ -456,7 +452,10 @@ class Registry:
         return self.load_grammar(initial_scope_name)
 
     def addGrammar(
-        self, raw_grammar: IRawGrammar, injections: Sequence[str] = (), initial_language: int = 0,
+        self,
+        raw_grammar: IRawGrammar,
+        injections: Sequence[str] = (),
+        initial_language: int = 0,
         embedded_languages: Mapping[str, int] | None = None,
     ) -> TokenizerLike:
         """Register and construct a grammar, matching upstream's convenience method."""

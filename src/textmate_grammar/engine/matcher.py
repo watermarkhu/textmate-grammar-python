@@ -151,9 +151,7 @@ def create_matchers(selector: str, matches_name: MatchesName[T]) -> list[Matcher
             else:
                 # matcher.ts prints to the console here; a warning keeps the
                 # signal visible without aborting tokenization.
-                warnings.warn(
-                    f"Unknown priority {token} in scope selector", stacklevel=2
-                )
+                warnings.warn(f"Unknown priority {token} in scope selector", stacklevel=2)
             token = next_token()
         matcher = parse_conjunction()
         results.append(MatcherWithPriority(matcher, priority))
