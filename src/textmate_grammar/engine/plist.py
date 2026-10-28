@@ -203,9 +203,7 @@ def _parse_js_date(text: str) -> Any:
         return float("nan")
 
 
-def parse_with_location(
-    content: str, filename: str | None, location_key_name: str | None
-) -> Any:
+def parse_with_location(content: str, filename: str | None, location_key_name: str | None) -> Any:
     """Parse ``content``, optionally embedding locations (debug mode)."""
     return _parse(content, filename, location_key_name)
 
