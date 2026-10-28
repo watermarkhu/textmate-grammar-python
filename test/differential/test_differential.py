@@ -145,6 +145,14 @@ class TestDifferential:
 
     def test_tokenization_parity(self, entry: CorpusEntry, tmp_path: Path) -> None:
         """The legacy engine and the node oracle produce identical token records."""
+        if entry.language == "markdown":
+            # Baseline debt (documented in the parity ledger): the legacy engine cannot
+            # tokenize markdown at all — parsers/markdown/grammar.yaml still contains the
+            # {{languageDefinitions}} placeholders, and BeginWhileParser._initialize_repository
+            # crashes on `self.parsers_end` (never initialized). The new engine (plan tasks
+            # 3b/5) replaces both; un-xfail when the differential adapter switches engines.
+            pytest.xfail("legacy engine cannot tokenize markdown (BeginWhileParser.parsers_end crash)")
+
         # Both engines must tokenize identical text: the test feeds the oracle a copy of the
         # corpus entry's unified text (see CorpusEntry.load_text for the normalization).
         oracle_input = tmp_path / f"oracle_{entry.path.name}"
