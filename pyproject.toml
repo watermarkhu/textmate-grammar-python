@@ -42,7 +42,7 @@ doc = [
     "sphinx>=7.2.6,<8.0.0; python_version < '3.11'",
     "sphinx-autodoc2>=0.5.0,<0.6.0",
     "myst-parser>=5.0.0,<6.0.0; python_version >= '3.11'",
-    "myst-parser>=3.0.0,<4.0.0; python_version < '3.11'",
+    "myst-parser>=5.1.0,<5.2.0; python_version < '3.11'",
     "furo>=2024.1.29,<2026.0.0",
     "sphinxcontrib-mermaid>=0.9.2,<3.0.0",
 ]
