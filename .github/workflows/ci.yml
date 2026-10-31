@@ -1,35 +1,101 @@
-name: "CI"
+name: Qualify
 
 on:
-  workflow_dispatch:
+  merge_group:
+  push:
+    branches: [main]
   pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/ci.yml'
-      - 'prek.toml'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - 'src/**'
-      - 'test/**'
+    types:
+      - opened
+      - closed
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+      - edited
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
+  docs:
+    name: Validate documentation
+    uses: ./.github/workflows/docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    secrets: inherit
+    with:
+      push: false
 
-  quality-checks:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      python-versions: ${{ steps.get-versions.outputs.python-versions }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Get Python versions from pyproject.toml
+        id: get-versions
+        run: |
+          versions=$(grep -E "Programming Language :: Python :: 3\.[0-9]+" pyproject.toml | \
+                    sed -E 's/.*Python :: (3\.[0-9]+).*/\1/' | \
+                    sort -V | \
+                    jq -R -s -c 'split("\n")[:-1]')
+          echo "python-versions=$versions" >> "$GITHUB_OUTPUT"
+          echo "Found Python versions: $versions"
+
+  test:
+    name: Python ${{ matrix.python-version }} (${{ matrix.resolution }})
+    needs: setup
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJson(needs.setup.outputs.python-versions) }}
+        resolution: [highest, lowest]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: true
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      - name: Install oracle dependencies
+        working-directory: test/differential/node_root
+        run: npm ci
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "latest"
 
-      - name: Install development tools
-        run: uv sync --python 3.12
+      - name: Cache uv
+        uses: actions/cache@v6
+        with:
+          path: .venv
+          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ matrix.resolution }}-${{ github.head_ref || github.ref_name }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+
+      - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+          UV_RESOLUTION: ${{ matrix.resolution }}
+        run: uv sync --dev --group test --python "$PYTHON_VERSION" --resolution "$UV_RESOLUTION"
 
       - name: Ruff lint
-        run: uv run ruff check src/
+        run: uv run ruff check --output-format=github src/
 
       - name: Ruff format
         run: uv run ruff format --check src/
@@ -37,58 +103,8 @@ jobs:
       - name: Type check
         run: uv run ty check src/
 
-  unit-test:
+      - name: Unit tests
+        run: uv run pytest -v test/unit
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
-        with:
-          version: "latest"
-
-      - name: Install the project dependencies
-        run: uv sync --no-dev --group test --python ${{ matrix.python-version }}
-
-      - name: Test with pytest
-        run: |
-          uv run pytest -v test/unit
-
-  differential-test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-        node-version: [20]
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Setup node ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install node dependencies
-        run: |
-          cd test/differential/node_root
-          npm ci
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
-        with:
-          version: "latest"
-
-      - name: Install the project dependencies
-        run: uv sync --no-dev --group test --python ${{ matrix.python-version }}
-
-      - name: Test with pytest
-        run: |
-          uv run pytest -v test/differential
+      - name: Differential tests
+        run: uv run pytest -v test/differential

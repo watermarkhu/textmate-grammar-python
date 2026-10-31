@@ -5,7 +5,7 @@
 [![prek](https://img.shields.io/badge/prek-enabled-brightgreen)](https://prek.j178.dev/)
 [![Python versions](https://img.shields.io/pypi/pyversions/textmate-grammar-python.svg)](https://pypi.python.org/pypi/textmate-grammar-python)
 [![CI/CD](https://github.com/watermarkhu/textmate-grammar-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/watermarkhu/textmate-grammar-python/blob/main/.github/workflows/ci.yml)
-[![readthedocs](https://readthedocs.org/projects/textmate-grammar-python/badge/?version=latest)](https://textmate-grammar-python.readthedocs.io)
+[![Documentation](https://img.shields.io/badge/docs-Zensical-blue)](https://watermarkhu.github.io/textmate-grammar-python/)
 
 # textmate-grammar-python
 
@@ -14,9 +14,9 @@ A Python port of the [vscode-textmate](https://github.com/microsoft/vscode-textm
 The `textmate_grammar.engine` modules port the rule model, scope matcher, grammar loading and registry, and stateful tokenization loop. A differential suite compares token boundaries and scope paths against the real vscode-textmate 9.3.2 Node oracle across a 50-case MATLAB, Markdown, Python, and TypeScript corpus.
 
 ## Usage
-Requires Python 3.10 or newer. Install with:
+Supports Python 3.10 through 3.15. Add it to a project with uv:
 ```bash
-pip install textmate-grammar-python
+uv add textmate-grammar-python
 ```
 
 The public API follows vscode-textmate's registry and line-tokenization model. A registry loads raw grammar data by scope name; pass each line's returned `ruleStack` into the next call:
@@ -45,5 +45,5 @@ This 1.0.0 release is the first stable release; it breaks the old 0.x element-tr
 
 ## Information
 
-- For further information, please checkout the [documentation](https://textmate-grammar-python.readthedocs.io/en/latest/).
+- For further information, please checkout the [documentation](https://watermarkhu.github.io/textmate-grammar-python/).
 - To setup an environment for development, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md)
