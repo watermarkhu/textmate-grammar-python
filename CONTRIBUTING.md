@@ -19,4 +19,4 @@ git submodule update --init
 uv run pytest -q test/differential
 ```
 
-Run the full checks with `uv run ruff check src/`, `uv run ruff format --check src/`, and `uv run ty check src/`. For the documentation build, install the doc group (`uv sync --no-dev --group doc`) and run `uv run make -C docs html`.
+Run the full checks with `uv run ruff check src/`, `uv run ruff format --check src/`, and `uv run ty check src/`. Build the documentation with `uv sync --no-dev --group docs` followed by `uv run zensical build --clean`.
