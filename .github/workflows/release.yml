@@ -1,31 +1,100 @@
-name: release with uv
+name: Release
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/textmate_grammar/__init__.py'
+  pull_request:
+    types:
+      - closed
+      - opened
+      - reopened
+      - synchronize
+    branches: [main]
 
 jobs:
   release:
+    name: Semantic version release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      release: ${{ steps.get-version.outputs.release }}
+      tag: ${{ steps.get-version.outputs.tag }}
+      version: ${{ steps.get-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Calculate semantic version and label PR
+        uses: RonaldPhilipsen/semVersie@v2.3.4
+        id: get-version
+        with:
+          add-pr-label: true
+          label-prefix: false
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+  deploy:
+    name: Publish distributions and GitHub Release
+    needs: release
+    if: needs.release.outputs.release == 'true' && github.event.pull_request.merged
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "latest"
 
-      - name: Install the project dependencies
-        run: uv sync --no-dev
+      - name: Set release identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Build package distributions
-        run: uv build
+      - name: Set release version and create tag
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          sed -i "s/^__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/textmate_grammar/__init__.py
+          uv lock
+          git add pyproject.toml uv.lock src/textmate_grammar/__init__.py
+          git commit -m "chore: bump version to ${VERSION}"
+          git tag -a "${TAG}" -m "Release ${VERSION}"
+          git push origin "${TAG}"
+
+      - name: Build distributions
+        run: |
+          uv sync --no-dev
+          uv build
 
       - name: Publish to PyPI
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: uv publish
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          gh release create "${TAG}" dist/*.whl dist/*.tar.gz \
+            --title "${TAG}" \
+            --generate-notes \
+            --verify-tag
+
+  document:
+    name: Deploy documentation
+    needs: [release]
+    if: github.event.pull_request.merged
+    uses: ./.github/workflows/docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    secrets: inherit
+    with:
+      push: true

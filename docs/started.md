@@ -1,12 +1,12 @@
 # Getting started
 
-Install the package with:
+Add the package to your project with uv:
 
 ```bash
-pip install textmate-grammar-python
+uv add textmate-grammar-python
 ```
 
-It requires Python 3.10 or newer. For development setup and test instructions, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md).
+It supports Python 3.10 through 3.15. For development setup and test instructions, see [CONTRIBUTING.md](https://github.com/watermarkhu/textmate-grammar-python/blob/main/CONTRIBUTING.md).
 
 ## Tokenize with a grammar
 

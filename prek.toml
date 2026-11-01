@@ -66,11 +66,3 @@ name = "ty check"
 entry = "uv run ty check src/"
 language = "system"
 pass_filenames = false
-
-[[repos.hooks]]
-id = "uv-export-doc-requirements"
-name = "export doc requirements from uv.lock"
-entry = "uv export --no-emit-project --no-dev --group doc --format requirements-txt -o docs/requirements.txt"
-language = "system"
-files = '^(pyproject\.toml|uv\.lock)$'
-pass_filenames = false

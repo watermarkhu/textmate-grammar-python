@@ -1,42 +1,48 @@
-name: documentation
+name: Docs
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'docs/**'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - '.github/workflows/docs.yml'
+  workflow_call:
+    inputs:
+      ref:
+        description: Ref to check out and use to build the documentation
+        type: string
+        default: ""
+      push:
+        description: Deploy the built documentation to GitHub Pages
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  docs:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "latest"
 
-      - name: Install dependencies
-        run: uv sync --no-dev --group doc
+      - name: Build documentation with Zensical
+        run: |
+          uv sync --no-dev --group docs
+          uv run zensical build --clean
 
-      - name: Sphinx build
-        run: uv run make -C docs html
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - uses: actions/upload-pages-artifact@v5
+        if: ${{ inputs.push }}
         with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
-          force_orphan: true
+          path: site
+
+      - uses: actions/deploy-pages@v5
+        if: ${{ inputs.push }}
+        id: deployment
