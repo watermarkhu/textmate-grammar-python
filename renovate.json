@@ -3,8 +3,22 @@
   "extends": [
     "config:recommended"
   ],
-  "automerge": true,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "fix",
+  "semanticCommitScope": "deps",
+  "automerge": false,
   "automergeType": "pr",
   "platformAutomerge": false,
-  "ignoreTests": false
+  "ignoreTests": false,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor", "pin", "digest"],
+      "semanticCommitType": "chore",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "semanticCommitType": "feat"
+    }
+  ]
 }

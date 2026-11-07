@@ -152,7 +152,7 @@ class TestPlistJsonParity:
             "#table",
             "#paragraph",
         ]
-        assert len(grammar["repository"]) == 87
+        assert len(grammar["repository"]) == 92
 
 
 # ---------------------------------------------------------------------------

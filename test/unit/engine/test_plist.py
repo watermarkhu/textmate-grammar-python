@@ -106,7 +106,7 @@ class TestMatlabFixture:
             "syntax inside (), [], {}\n\t\t\t"
         )
         assert fc["name"] == "meta.function-call.parens.matlab"
-        assert fc["begin"] == "([a-zA-Z][a-zA-Z0-9_]*)\\s*(\\()"
+        assert fc["begin"] == "(?<!\\.)\\b([a-zA-Z][a-zA-Z0-9_]*)\\s*(\\()"
         assert fc["end"] == "(\\)|(?<!\\.{3}.*)\\n)"
         assert fc["patterns"] == [
             {"include": "#end_in_parentheses"},
@@ -155,7 +155,7 @@ class TestMarkdownFixture:
         ]
 
     def test_repository_keys(self, grammar: Any) -> None:
-        assert len(grammar["repository"]) == 87
+        assert len(grammar["repository"]) == 92
         assert "block" in grammar["repository"]
         assert "heading" in grammar["repository"]
 
@@ -201,7 +201,7 @@ class TestParseWithLocation:
         }
         assert grammar["repository"]["frontMatter"]["$vscodeTextmateLocation"] == {
             "filename": "/path/to/markdown.tmLanguage",
-            "line": 3929,
+            "line": 4207,
             "char": 12,
         }
 
@@ -214,7 +214,7 @@ class TestParseWithLocation:
         )
         assert grammar["repository"]["function_call"]["$vscodeTextmateLocation"] == {
             "filename": "/p/MATLAB.tmLanguage",
-            "line": 1691,
+            "line": 1838,
             "char": 8,
         }
 
