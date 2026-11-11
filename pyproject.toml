@@ -46,8 +46,8 @@ dev = [
 docs = [
     "mkdocstrings>=1.0,<2.0",
     "mkdocstrings-python>=2.0,<3.0",
-    "pymdown-extensions>=12.3,<13.0; python_version >= '3.11'",
-    "pymdown-extensions<12.4; python_version < '3.11'",
+    "pymdown-extensions>=13.1,<13.2; python_version >= '3.11'",
+    "pymdown-extensions<13.2; python_version < '3.11'",
     "zensical>=0.0.29,<0.1.0",
 ]
 
